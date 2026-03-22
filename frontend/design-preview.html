@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beauty Studio - Design Preview</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* Вставляем весь CSS из index.css */
+    :root {
+      --tg-theme-bg-color: #ffffff;
+      --tg-theme-text-color: #000000;
+      --tg-theme-hint-color: #999999;
+      --tg-theme-link-color: #2481cc;
+      --tg-theme-button-color: #e34040;
+      --tg-theme-button-text-color: #ffffff;
+      --tg-theme-secondary-bg-color: #f5f5f7;
+      --tg-theme-header-bg-color: rgba(255, 255, 255, 0.95);
+
+      --brand-primary: #e34040;
+      --brand-primary-light: #F472B6;
+      --brand-primary-dark: #C2185B;
+      --brand-gradient: linear-gradient(135deg, #e34040 0%, #EC469D 100%);
+      --brand-gradient-hover: linear-gradient(135deg, #C2185B 0%, #e34040 100%);
+
+      --color-success: #10B981;
+      --color-warning: #F59E0B;
+      --color-danger: #EF4444;
+      --color-info: #3B82F6;
+
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-primary: 0 4px 14px rgba(233, 30, 140, 0.4);
+
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-2xl: 32px;
+      --radius-full: 9999px;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--tg-theme-bg-color);
+      color: var(--tg-theme-text-color);
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    h2 { font-size: 20px; margin: 24px 0 12px; }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+
+    .card {
+      background: var(--tg-theme-bg-color);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-100);
+    }
+
+    .card-elevated {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .button-primary {
+      background: var(--brand-gradient);
+      color: white;
+      box-shadow: var(--shadow-primary);
+    }
+
+    .button-primary:hover {
+      background: var(--brand-gradient-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(233, 30, 140, 0.5);
+    }
+
+    .button-secondary {
+      background: var(--tg-theme-secondary-bg-color);
+      color: var(--tg-theme-text-color);
+    }
+
+    .button-ghost {
+      background: transparent;
+      color: var(--brand-primary);
+    }
+
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1);
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-confirmed { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .badge-pending { background: rgba(245, 158, 11, 0.1); color: #D97706; }
+    .badge-cancelled { background: rgba(239, 68, 68, 0.1); color: #DC2626; }
+
+    .grid { display: grid; gap: 12px; }
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    .flex { display: flex; gap: 8px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+
+    .text-hint { color: var(--tg-theme-hint-color); }
+    .mb-2 { margin-bottom: 16px; }
+    .mb-3 { margin-bottom: 24px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-state-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state-description { color: var(--gray-500); margin-bottom: 24px; }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--brand-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .service-card {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .service-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      color: var(--gray-500);
+      font-size: 12px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .nav-item.active {
+      color: var(--brand-primary);
+      background: rgba(233, 30, 140, 0.1);
+    }
+
+    .nav-icon { font-size: 24px; }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--brand-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div style="margin-bottom: 24px;">
+    <h1>💅 Beauty Studio</h1>
+    <p class="text-hint">Бишкек, ул. Ахунбаева, 1</p>
+  </div>
+
+  <!-- Next Booking Card -->
+  <div class="card card-elevated">
+    <div class="flex justify-between items-center mb-2">
+      <div>
+        <p class="text-hint" style="font-size: 12px; margin-bottom: 4px;">Следующая запись</p>
+        <h3>Стрижка</h3>
+      </div>
+      <span class="badge badge-confirmed">✓</span>
+    </div>
+    <div class="flex items-center">
+      <div class="avatar">📅</div>
+      <div style="margin-left: 12px;">
+        <p style="font-weight: 600; margin: 0;">25.03.2025 в 15:00</p>
+        <p class="text-hint" style="margin: 0; font-size: 14px;">💇 Айгуль</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <h2>Кнопки</h2>
+  <button class="button button-primary">
+    <span>📅</span>
+    Записаться
+  </button>
+  <button class="button button-secondary">
+    <span>📋</span>
+    Мои записи
+  </button>
+  <button class="button button-ghost">
+    <span>💬</span>
+    Чат с менеджером
+  </button>
+
+  <!-- Services Grid -->
+  <h2>Услуги (Grid)</h2>
+  <div class="grid grid-cols-2">
+    <div class="card service-card">
+      <div class="service-icon">💇</div>
+      <div style="font-weight: 600;">Стрижки</div>
+      <div class="text-hint" style="font-size: 12px;">от 1200 с.</div>
+    </div>
+    <div class="card service-card">
+      <div class="service-icon">💅</div>
+      <div style="font-weight: 600;">Маникюр</div>
+      <div class="text-hint" style="font-size: 12px;">от 900 с.</div>
+    </div>
+    <div class="card service-card">
+      <div class="service-icon">💄</div>
+      <div style="font-weight: 600;">Макияж</div>
+      <div class="text-hint" style="font-size: 12px;">от 1800 с.</div>
+    </div>
+    <div class="card service-card">
+      <div class="service-icon">💆</div>
+      <div style="font-weight: 600;">Массаж</div>
+      <div class="text-hint" style="font-size: 12px;">от 1500 с.</div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <h2>Empty State</h2>
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-title">Нет активных записей</div>
+      <div class="empty-state-description">Запишитесь на удобное время прямо сейчас!</div>
+      <button class="button button-primary" style="max-width: 200px;">
+        ✏️ Записаться
+      </button>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <h2>Форма записи</h2>
+  <div class="card">
+    <h3 class="mb-2">Новая запись</h3>
+    <input class="input" placeholder="Ваше имя" />
+    <input class="input" placeholder="+996 XXX XXXXXX" type="tel" />
+    <select class="input">
+      <option>Выберите услугу</option>
+      <option>Стрижка</option>
+      <option>Маникюр</option>
+      <option>Макияж</option>
+    </select>
+    <button class="button button-primary">
+      <span>✏️</span>
+      Записаться
+    </button>
+  </div>
+
+  <!-- Badges -->
+  <h2>Статусы</h2>
+  <div class="flex">
+    <span class="badge badge-pending">Ожидает</span>
+    <span class="badge badge-confirmed">Подтверждено</span>
+    <span class="badge badge-cancelled">Отменено</span>
+  </div>
+
+  <!-- Loading -->
+  <h2>Загрузка</h2>
+  <div style="display: flex; justify-content: center; padding: 20px;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div style="height: 80px;"></div>
+  <div class="nav-bar">
+    <div class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span>Главная</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📅</span>
+      <span>Запись</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📋</span>
+      <span>Записи</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">💇</span>
+      <span>Услуги</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⭐</span>
+      <span>Отзывы</span>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      
+      // Применяем тему Telegram
+      const theme = window.Telegram.WebApp.themeParams;
+      document.documentElement.style.setProperty('--tg-theme-bg-color', theme.bg_color || '#ffffff');
+      document.documentElement.style.setProperty('--tg-theme-text-color', theme.text_color || '#000000');
+    }
+  </script>
+</body>
+</html>
