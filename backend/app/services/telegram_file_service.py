@@ -104,4 +104,5 @@ class TelegramFileService:
 
 
 # Глобальный экземпляр сервиса
-telegram_file_service = TelegramFileService(settings.bot_token.get_secret_value())
+_bot_token = settings.bot_token.get_secret_value() if settings.bot_token else ""
+telegram_file_service = TelegramFileService(_bot_token) if _bot_token else None

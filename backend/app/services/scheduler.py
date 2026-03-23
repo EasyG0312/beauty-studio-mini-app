@@ -15,6 +15,9 @@ from app.services.notification_service import NotificationService, notification_
 
 logger = logging.getLogger(__name__)
 
+# Глобальный экземпляр планировщика
+scheduler: AsyncIOScheduler | None = None
+
 
 def create_scheduler(db_session_factory: async_sessionmaker) -> AsyncIOScheduler:
     """Создать и настроить планировщик задач."""
