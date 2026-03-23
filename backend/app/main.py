@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -33,7 +34,21 @@ from app.schemas import (
 )
 from app.services import init_scheduler, start_scheduler, notification_service
 
-app = FastAPI(title="Beauty Studio API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await init_db()
+    db_session_factory = get_db_session_factory()
+    init_scheduler(db_session_factory)
+    start_scheduler()
+    logger.info("Scheduler initialized and started")
+    yield
+    # Shutdown
+    logger.info("Shutting down")
+
+
+app = FastAPI(title="Beauty Studio API", version="1.0.0", lifespan=lifespan)
 
 # Средние цены для расчёта выручки (сом)
 SERVICES_PRICES = {
@@ -636,18 +651,6 @@ async def send_notification(
     # bot.send_message(notification.chat_id, notification.message)
     
     return {"message": "Notification sent", "chat_id": notification.chat_id}
-
-
-# === Startup ===
-@app.on_event("startup")
-async def startup():
-    await init_db()
-    
-    # Инициализация планировщика задач
-    db_session_factory = get_db_session_factory()
-    init_scheduler(db_session_factory)
-    start_scheduler()
-    logger.info("Scheduler initialized and started")
 
 
 # === Reviews API ===
