@@ -6,8 +6,12 @@ from sqlalchemy import select, and_, or_, func as sa_func, update
 from datetime import datetime, timedelta
 from typing import Optional, List
 import jwt
+import logging
 
 from app.config import settings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from app.database import get_db, init_db, get_db_session_factory
 from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode
 from app.schemas import (
