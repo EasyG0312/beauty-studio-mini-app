@@ -93,17 +93,31 @@ export default function BookingPage() {
       return;
     }
 
-    // Валидация телефона (+996XXXXXXXXX)
+    // Валидация телефона (+996XXXXXXXXX - 9 цифр после кода)
     const phonePattern = /^\+996\d{9}$/;
     const normalizedPhone = formData.phone.replace(/\D/g, '');
-    if (!phonePattern.test(formData.phone)) {
+    
+    // Если телефон введён без +, добавляем
+    let finalPhone = formData.phone;
+    if (!finalPhone.startsWith('+')) {
+      finalPhone = '+' + finalPhone;
+    }
+    
+    // Проверяем формат
+    if (!phonePattern.test(finalPhone)) {
+      // Пробуем нормализовать: если 12 цифр начиная с 996
       if (normalizedPhone.length === 12 && normalizedPhone.startsWith('996')) {
-        formData.phone = '+' + normalizedPhone;
+        finalPhone = '+' + normalizedPhone;
+      } else if (normalizedPhone.length === 9) {
+        // Если введены только 9 цифр, добавляем +996
+        finalPhone = '+996' + normalizedPhone;
       } else {
         alert('Номер телефона должен быть в формате +996XXXXXXXXX (9 цифр после +996)');
         return;
       }
     }
+    
+    formData.phone = finalPhone;
 
     setLoading(true);
     try {
@@ -148,20 +162,26 @@ export default function BookingPage() {
   };
 
   const handlePhoneChange = (value: string) => {
-    // Разрешаем только цифры и +
-    const cleaned = value.replace(/[^\d+]/g, '');
-    
-    // Если начинается не с +996, добавляем
-    let formatted = cleaned;
-    if (!formatted.startsWith('+996')) {
-      formatted = '+996' + formatted.replace(/^\+?996/, '');
+    // Разрешаем только цифры
+    let cleaned = value.replace(/[^\d]/g, '');
+
+    // Если начинается с 996, убираем
+    if (cleaned.startsWith('996')) {
+      cleaned = cleaned.slice(3);
     }
-    
-    // Ограничиваем длину: +996 (4) + 9 цифр = 13 всего
-    if (formatted.length > 13) {
-      formatted = formatted.slice(0, 13);
+    // Если начинается с 8 и это номер КР, убираем
+    if (cleaned.startsWith('8') && cleaned.length > 1) {
+      cleaned = cleaned.slice(1);
     }
-    
+
+    // Ограничиваем 9 цифрами
+    if (cleaned.length > 9) {
+      cleaned = cleaned.slice(0, 9);
+    }
+
+    // Добавляем +996
+    const formatted = '+996' + cleaned;
+
     setFormData({ ...formData, phone: formatted });
   };
 

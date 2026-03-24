@@ -221,7 +221,8 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);
   color: var(--tg-theme-text-color);
-  background: linear-gradient(135deg, #F8F1F8 0%, #F5F7FF 50%, #F0F8F8 100%);
+  background: linear-gradient(135deg, #1a0a14 0%, #2d0a1f 50%, #1a0a14 100%);
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
