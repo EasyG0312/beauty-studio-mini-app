@@ -2,7 +2,20 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import declarative_base
 from app.config import settings
 
-engine = create_async_engine(settings.effective_database_url, echo=False)
+
+def get_async_database_url(url: str | None) -> str:
+    """Преобразует DATABASE_URL в асинхронный формат для asyncpg."""
+    if not url:
+        return "sqlite+aiosqlite:///../salon.db"
+    
+    # Заменяем postgresql:// на postgresql+asyncpg://
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    
+    return url
+
+
+engine = create_async_engine(get_async_database_url(settings.database_url), echo=False)
 async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
 

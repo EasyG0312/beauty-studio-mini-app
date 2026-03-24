@@ -20,13 +20,6 @@ class Settings(BaseSettings):
     # Database
     database_url: str | None = None
 
-    @property
-    def effective_database_url(self) -> str:
-        if self.database_url:
-            return self.database_url
-        # Fallback для локальной разработки
-        return "sqlite+aiosqlite:///../salon.db"
-
     # Email
     email_smtp_host: str | None = None
     email_smtp_port: int = 587
