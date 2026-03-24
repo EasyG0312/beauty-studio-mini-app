@@ -16,11 +16,11 @@ const SERVICES = [
 ];
 
 const MASTERS = [
-  { id: '1', name: 'Айгуль', spec: 'Стрижки, окрашивание' },
-  { id: '2', name: 'Диана', spec: 'Маникюр, педикюр' },
-  { id: '3', name: 'Любой мастер', spec: '' },
-  { id: '4', name: 'Айгерим', spec: 'Макияж, брови' },
-  { id: '5', name: 'Эльвира', spec: 'Массаж лица, уход' },
+  { id: '1', name: 'Айгуль', spec: 'Стрижки, окрашивание', avatar: '👩‍🦰', image: '💁‍♀️' },
+  { id: '2', name: 'Диана', spec: 'Маникюр, педикюр', avatar: '👩‍🦱', image: '💅' },
+  { id: '3', name: 'Любой мастер', spec: '', avatar: '⭐', image: '✨' },
+  { id: '4', name: 'Айгерим', spec: 'Макияж, брови', avatar: '👩', image: '💄' },
+  { id: '5', name: 'Эльвира', spec: 'Массаж лица, уход', avatar: '👩‍🦳', image: '🧖‍♀️' },
 ];
 
 const TIME_SLOTS = [
@@ -157,9 +157,9 @@ export default function BookingPage() {
       formatted = '+996' + formatted.replace(/^\+?996/, '');
     }
     
-    // Ограничиваем длину
-    if (formatted.length > 12) {
-      formatted = formatted.slice(0, 12);
+    // Ограничиваем длину: +996 (4) + 9 цифр = 13 всего
+    if (formatted.length > 13) {
+      formatted = formatted.slice(0, 13);
     }
     
     setFormData({ ...formData, phone: formatted });
@@ -167,77 +167,129 @@ export default function BookingPage() {
 
   return (
     <div className="page">
-      <h1>Запись</h1>
+      {/* Back Button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Запись</h1>
+      </div>
       
       {/* Progress indicator */}
       <div className="mb-3">
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', gap: '4px' }}>
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: step >= s ? 'var(--tg-theme-button-color)' : 'var(--tg-theme-secondary-bg-color)',
-                color: step >= s ? 'var(--tg-theme-button-text-color)' : 'var(--tg-theme-text-color)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: '600',
+                flex: 1,
+                height: '4px',
+                borderRadius: '2px',
+                background: step >= s ? 'var(--brand-gold)' : 'var(--tg-theme-secondary-bg-color)',
+                transition: 'all 300ms ease',
               }}
-            >
-              {s}
-            </div>
+            />
           ))}
         </div>
       </div>
 
-      {/* Step 1: Date */}
+      {/* Step 1: Date with Calendar */}
       {step === 1 && (
         <Card>
           <h3>Выберите дату</h3>
-          <div className="mt-2">
-            {dates.map((date) => (
-              <Button
-                key={date}
-                variant="secondary"
-                fullWidth
-                className="mb-2"
-                onClick={() => handleDateSelect(date)}
-              >
-                {getDayLabel(date)}, {date}
-              </Button>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '8px' }} className="mt-2">
+            {dates.map((date) => {
+              const dateObj = new Date(date.split('.').reverse().join('-'));
+              const isToday = dateObj.toDateString() === new Date().toDateString();
+              return (
+                <div
+                  key={date}
+                  onClick={() => handleDateSelect(date)}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: formData.date === date ? 'var(--brand-gold)' : 'var(--tg-theme-secondary-bg-color)',
+                    color: formData.date === date ? 'white' : 'var(--tg-theme-text-color)',
+                    cursor: 'pointer',
+                    transition: 'all 200ms ease',
+                    border: isToday ? '2px solid var(--brand-gold)' : 'none',
+                    fontWeight: formData.date === date ? '600' : '500',
+                  }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: '600' }}>{getDayLabel(date)}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>{date}</div>
+                </div>
+              );
+            })}
           </div>
+          <Button fullWidth onClick={() => setStep(2)} disabled={!formData.date} className="mt-3">
+            Далее →
+          </Button>
         </Card>
       )}
 
-      {/* Step 2: Master */}
+      {/* Step 2: Master with Photos */}
       {step === 2 && (
         <Card>
           <h3>Выберите мастера</h3>
           <p className="text-hint mb-2">Дата: {formData.date}</p>
-          <div className="mt-2">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }} className="mt-2">
             {MASTERS.map((master) => (
-              <Button
+              <div
                 key={master.id}
-                variant="secondary"
-                fullWidth
-                className="mb-2"
                 onClick={() => handleMasterSelect(master.name)}
+                style={{
+                  padding: '16px',
+                  borderRadius: '12px',
+                  background: formData.master === master.name ? 'var(--brand-gold)' : 'var(--tg-theme-secondary-bg-color)',
+                  color: formData.master === master.name ? 'white' : 'var(--tg-theme-text-color)',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease',
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                }}
               >
-                <div style={{ textAlign: 'left' }}>
-                  <div>{master.name}</div>
-                  {master.spec && <div style={{ fontSize: '12px', opacity: 0.7 }}>{master.spec}</div>}
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '32px',
+                  flexShrink: 0,
+                }}>
+                  {master.image}
                 </div>
-              </Button>
+                <div>
+                  <div style={{ fontWeight: '600', fontSize: '16px' }}>{master.name}</div>
+                  {master.spec && <div style={{ fontSize: '12px', opacity: 0.8 }}>{master.spec}</div>}
+                </div>
+              </div>
             ))}
           </div>
-          <Button variant="secondary" fullWidth onClick={() => setStep(1)} className="mt-2">
-            Назад
-          </Button>
+          <div style={{ display: 'flex', gap: '12px' }} className="mt-3">
+            <Button variant="secondary" fullWidth onClick={() => setStep(1)}>
+              ← Назад
+            </Button>
+            <Button fullWidth onClick={() => setStep(3)} disabled={!formData.master}>
+              Далее →
+            </Button>
+          </div>
         </Card>
       )}
 
@@ -250,21 +302,26 @@ export default function BookingPage() {
             {SERVICES.map((service) => (
               <Button
                 key={service.name}
-                variant="secondary"
+                variant={formData.service === service.name ? 'primary' : 'secondary'}
                 fullWidth
                 className="mb-2"
                 onClick={() => handleServiceSelect(service.name)}
               >
-                <div style={{ textAlign: 'left' }}>
+                <div style={{ textAlign: 'left', width: '100%' }}>
                   <div>{service.name}</div>
                   <div style={{ fontSize: '12px', opacity: 0.7 }}>{service.price}</div>
                 </div>
               </Button>
             ))}
           </div>
-          <Button variant="secondary" fullWidth onClick={() => setStep(2)} className="mt-2">
-            Назад
-          </Button>
+          <div style={{ display: 'flex', gap: '12px' }} className="mt-3">
+            <Button variant="secondary" fullWidth onClick={() => setStep(2)}>
+              ← Назад
+            </Button>
+            <Button fullWidth onClick={() => setStep(4)} disabled={!formData.service}>
+              Далее →
+            </Button>
+          </div>
         </Card>
       )}
 
@@ -279,7 +336,7 @@ export default function BookingPage() {
             {availableSlots.map((time) => (
               <Button
                 key={time}
-                variant="secondary"
+                variant={formData.time === time ? 'primary' : 'secondary'}
                 onClick={() => handleTimeSelect(time)}
               >
                 {time}
@@ -289,9 +346,14 @@ export default function BookingPage() {
           {availableSlots.length === 0 && (
             <p className="text-hint mt-2">К сожалению, нет свободного времени</p>
           )}
-          <Button variant="secondary" fullWidth onClick={() => setStep(3)} className="mt-2">
-            Назад
-          </Button>
+          <div style={{ display: 'flex', gap: '12px' }} className="mt-3">
+            <Button variant="secondary" fullWidth onClick={() => setStep(3)}>
+              ← Назад
+            </Button>
+            <Button fullWidth onClick={() => setStep(5)} disabled={!formData.time}>
+              Далее →
+            </Button>
+          </div>
         </Card>
       )}
 
@@ -314,9 +376,10 @@ export default function BookingPage() {
           <input
             type="tel"
             className="input"
-            placeholder="Телефон (+996 XXX XXXXXX)"
+            placeholder="Телефон (+996 XXX XXX XX)"
             value={formData.phone}
             onChange={(e) => handlePhoneChange(e.target.value)}
+            maxLength={13}
           />
           
           <textarea
@@ -327,14 +390,17 @@ export default function BookingPage() {
             rows={3}
           />
           
-          <Button fullWidth onClick={handleSubmit} disabled={loading} className="mt-2">
-            {loading ? 'Создаю запись...' : 'Записаться'}
-          </Button>
-          <Button variant="secondary" fullWidth onClick={() => setStep(4)} className="mt-2">
-            Назад
-          </Button>
+          <div style={{ display: 'flex', gap: '12px' }} className="mt-3">
+            <Button variant="secondary" fullWidth onClick={() => setStep(4)}>
+              ← Назад
+            </Button>
+            <Button fullWidth onClick={handleSubmit} disabled={loading || !formData.name || !formData.phone}>
+              {loading ? '⏳ Создаю...' : 'Записаться ✓'}
+            </Button>
+          </div>
         </Card>
       )}
     </div>
   );
 }
+

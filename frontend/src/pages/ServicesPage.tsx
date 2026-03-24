@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 
 const SERVICES = [
@@ -16,9 +17,27 @@ const MASTERS = [
 ];
 
 export default function ServicesPage() {
+  const navigate = useNavigate();
   return (
     <div className="page">
-      <h1>Услуги и цены</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Услуги и цены</h1>
+      </div>
 
       <Card>
         <h2>Наши услуги</h2>

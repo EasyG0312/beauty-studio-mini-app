@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getPendingNotifications, sendNotification } from '../services/api';
 import type { Notification } from '../types';
 import Card from '../components/Card';
@@ -14,6 +15,7 @@ const NOTIFICATION_TYPES: Record<string, string> = {
 };
 
 export default function NotificationsPage() {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'sent'>('all');
@@ -57,7 +59,24 @@ export default function NotificationsPage() {
 
   return (
     <div className="page">
-      <h1>Уведомления</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Уведомления</h1>
+      </div>
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>

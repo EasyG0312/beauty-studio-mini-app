@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getReviews, createReview } from '../services/api';
 import type { Review } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
 
 export default function ReviewsPage() {
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -53,7 +55,24 @@ export default function ReviewsPage() {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Отзывы</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            onClick={() => navigate('/')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            ←
+          </button>
+          <h1 style={{ margin: 0 }}>Отзывы</h1>
+        </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? 'Закрыть' : 'Оставить отзыв'}
         </Button>

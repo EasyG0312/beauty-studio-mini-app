@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getPortfolio, getMasterPhotos } from '../services/api';
 import type { Portfolio, MasterPhoto } from '../types';
 import Card from '../components/Card';
@@ -14,6 +15,7 @@ const CATEGORIES = [
 ];
 
 export default function PortfolioPage() {
+  const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<Portfolio[]>([]);
   const [masterPhotos, setMasterPhotos] = useState<MasterPhoto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,24 @@ export default function PortfolioPage() {
 
   return (
     <div className="page">
-      <h1>Наши работы</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Наши работы</h1>
+      </div>
 
       {/* Category Filter */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto' }}>

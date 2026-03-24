@@ -10,19 +10,19 @@
   --tg-theme-bg-color: #F9F9F9;
   --tg-theme-text-color: #1A1A1A;
   --tg-theme-hint-color: #8E8E93;
-  --tg-theme-link-color: #D4AF37;
-  --tg-theme-button-color: #D4AF37;
+  --tg-theme-link-color: #DE0990;
+  --tg-theme-button-color: #DE0990;
   --tg-theme-button-text-color: #FFFFFF;
   --tg-theme-secondary-bg-color: #F5F5F7;
   --tg-theme-header-bg-color: rgba(255, 255, 255, 0.72);
 
   /* ============================================
-     PREMIUM BRAND COLORS (Gold & Emerald)
+     PREMIUM BRAND COLORS (Premium Purple & Emerald)
      ============================================ */
-  --brand-gold: #D4AF37;
-  --brand-gold-light: #F4D03F;
-  --brand-gold-dark: #B8860B;
-  --brand-gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+  --brand-gold: #DE0990;
+  --brand-gold-light: #E547B4;
+  --brand-gold-dark: #A70666;
+  --brand-gold-gradient: linear-gradient(135deg, #DE0990 0%, #E547B4 50%, #DE0990 100%);
   
   --brand-emerald: #50C878;
   --brand-emerald-light: #7DDA8C;
@@ -221,7 +221,7 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);
   color: var(--tg-theme-text-color);
-  background-color: var(--tg-theme-bg-color);
+  background: linear-gradient(135deg, #F8F1F8 0%, #F5F7FF 50%, #F0F8F8 100%);
   min-height: 100vh;
 }
 
@@ -229,6 +229,14 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, #F8F1F8 0%, #F5F7FF 50%, #F0F8F8 100%);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #F8F1F8 0%, #F5F7FF 50%, #F0F8F8 100%);
 }
 
 /* ============================================

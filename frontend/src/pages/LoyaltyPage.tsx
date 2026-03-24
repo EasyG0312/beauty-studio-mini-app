@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getLoyaltyStatus } from '../services/api';
 import type { LoyaltyStatus } from '../types';
 import Card from '../components/Card';
 
 export default function LoyaltyPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [loyalty, setLoyalty] = useState<LoyaltyStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,24 @@ export default function LoyaltyPage() {
 
   return (
     <div className="page">
-      <h1>Программа лояльности</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Программа лояльности</h1>
+      </div>
 
       {/* Status Card */}
       <Card>

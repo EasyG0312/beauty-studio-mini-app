@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getWaitlist, removeFromWaitlist, addToWaitlist } from '../services/api';
 import type { Waitlist } from '../types';
@@ -16,6 +17,7 @@ const MASTERS = [
 const SERVICES = ['Стрижка', 'Маникюр', 'Массаж лица', 'Макияж', 'Окрашивание'];
 
 export default function WaitlistPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [waitlist, setWaitlist] = useState<Waitlist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +98,24 @@ export default function WaitlistPage() {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Лист ожидания</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            onClick={() => navigate('/')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            ←
+          </button>
+          <h1 style={{ margin: 0 }}>Лист ожидания</h1>
+        </div>
         <Button onClick={() => setShowAddForm(!showAddForm)}>
           {showAddForm ? 'Закрыть' : '+ Встать в очередь'}
         </Button>

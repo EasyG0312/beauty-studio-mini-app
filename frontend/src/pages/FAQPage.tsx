@@ -1,15 +1,34 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import { FAQ_ITEMS } from '../types';
 
 export default function FAQPage() {
+  const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqEntries = Object.entries(FAQ_ITEMS);
 
   return (
     <div className="page">
-      <h1>Частые вопросы</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Частые вопросы</h1>
+      </div>
 
       {faqEntries.map(([question, answer], index) => (
         <Card

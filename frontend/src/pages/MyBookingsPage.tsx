@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useBookingStore } from '../store/bookingStore';
 import { rescheduleBooking, cancelBooking as apiCancelBooking } from '../services/api';
@@ -8,6 +9,7 @@ import Badge from '../components/Badge';
 import type { Booking } from '../types';
 
 export default function MyBookingsPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { bookings, fetchBookings } = useBookingStore();
   const [filter, setFilter] = useState<'active' | 'history'>('active');
@@ -92,7 +94,24 @@ export default function MyBookingsPage() {
 
   return (
     <div className="page">
-      <h1>Мои записи</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Мои записи</h1>
+      </div>
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>

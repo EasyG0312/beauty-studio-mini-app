@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getChatHistory, sendChatMessage, getClients } from '../services/api';
 import type { ChatMessage, Client } from '../types';
@@ -84,7 +85,24 @@ export default function ChatPage() {
 
   return (
     <div className="page" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <h1>Чат с {isManager ? 'клиентом' : 'менеджером'}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ margin: 0 }}>Чат с {isManager ? 'клиентом' : 'менеджером'}</h1>
+      </div>
 
       {isManager && (
         <Card className="mb-2">
