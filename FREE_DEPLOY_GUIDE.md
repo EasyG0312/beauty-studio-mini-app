@@ -162,7 +162,12 @@ beauty-studio-mini-app/
    OWNER_IDS=338067005
    JWT_SECRET=your_secret_key_here_12345
    JWT_ALGORITHM=HS256
-   CORS_ORIGINS=https://your-app.vercel.app,https://telegram.org
+  # CORS_ORIGINS: comma-separated allowed origins for the frontend.
+  # Use your Vercel app URL here. Example:
+  CORS_ORIGINS=https://beauty-studio-mini-app.vercel.app,https://telegram.org
+  # For quick testing you can set CORS_ORIGINS=* (wildcard). Note: when '*' is used
+  # the backend will automatically disable credentials (cookies/allow-credentials)
+  # to comply with browser rules. Avoid '*' in production.
    ```
 
 6. Нажмите **Create Web Service**
@@ -253,6 +258,11 @@ VITE_API_URL=https://beauty-studio-backend.onrender.com/api
 - Откройте Console (F12)
 - Проверьте что API_URL правильный
 - Проверьте CORS в backend
+
+### CORS quick tips
+- If you see "No 'Access-Control-Allow-Origin' header" in the console, make sure `CORS_ORIGINS` in backend contains your Vercel origin (e.g. `https://your-app.vercel.app`).
+- For temporary open testing you can use `CORS_ORIGINS=*`, but the backend will disable credentials when `*` is used — this is OK for simple public testing but not for production where auth tokens or cookies are required.
+- After changing `CORS_ORIGINS`, redeploy the backend service on Render.
 
 ---
 
@@ -390,6 +400,7 @@ OWNER_IDS=338067005
 JWT_SECRET=local_secret_key
 JWT_ALGORITHM=HS256
 CORS_ORIGINS=http://localhost:5173,https://telegram.org
+# For quick local testing you can use CORS_ORIGINS=* but note that using '*' disables credentials.
 ```
 
 ### frontend/.env.local
