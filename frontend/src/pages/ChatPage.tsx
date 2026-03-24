@@ -7,6 +7,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 
 export default function ChatPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [clients, setClients] = useState<Client[]>([]);

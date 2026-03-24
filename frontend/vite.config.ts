@@ -31,9 +31,4 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 500,
   },
-  optimize: {
-    esbuild: {
-      drop: ['console'],
-    },
-  },
 })
