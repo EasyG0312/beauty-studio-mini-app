@@ -433,30 +433,45 @@ export const sendNotification = async (notificationId: number) => {
 
 // Utils
 export const initTelegramWebApp = () => {
-  const tg = (window as any).Telegram.WebApp;
-  tg.ready();
-  tg.expand();
+  const win: any = window as any;
+  if (!win.Telegram || !win.Telegram.WebApp) {
+    // Not running inside Telegram WebApp — return null for callers to handle gracefully
+    return null;
+  }
 
-  // Настраиваем цвета под тему Telegram
-  document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
-  document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
-  document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
-  document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color || '#2481cc');
-  document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#2481cc');
-  document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
-  document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
+  const tg = win.Telegram.WebApp;
+  try {
+    if (typeof tg.ready === 'function') tg.ready();
+    if (typeof tg.expand === 'function') tg.expand();
+  } catch (e) {
+    // ignore errors from Telegram native library
+  }
+
+  // Настраиваем цвета под тему Telegram если доступны themeParams
+  const theme = tg.themeParams || {};
+  if (theme.bg_color) document.documentElement.style.setProperty('--tg-theme-bg-color', theme.bg_color);
+  if (theme.text_color) document.documentElement.style.setProperty('--tg-theme-text-color', theme.text_color);
+  if (theme.hint_color) document.documentElement.style.setProperty('--tg-theme-hint-color', theme.hint_color);
+  if (theme.link_color) document.documentElement.style.setProperty('--tg-theme-link-color', theme.link_color);
+  if (theme.button_color) document.documentElement.style.setProperty('--tg-theme-button-color', theme.button_color);
+  if (theme.button_text_color) document.documentElement.style.setProperty('--tg-theme-button-text-color', theme.button_text_color);
+  if (theme.secondary_bg_color) document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', theme.secondary_bg_color);
 
   return tg;
 };
 
 export const getTelegramUser = () => {
-  const tg = (window as any).Telegram.WebApp;
-  return tg.initDataUnsafe?.user;
+  const win: any = window as any;
+  if (!win.Telegram || !win.Telegram.WebApp) return null;
+  const tg = win.Telegram.WebApp;
+  return tg?.initDataUnsafe?.user || null;
 };
 
 export const getTelegramInitData = () => {
-  const tg = (window as any).Telegram.WebApp;
-  return tg.initData;
+  const win: any = window as any;
+  if (!win.Telegram || !win.Telegram.WebApp) return null;
+  const tg = win.Telegram.WebApp;
+  return tg?.initData || null;
 };
 
 export const parseTelegramInitData = (initData: string) => {
