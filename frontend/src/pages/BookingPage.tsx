@@ -55,18 +55,6 @@ export default function BookingPage() {
     return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
   });
 
-  const getDayLabel = (dateStr: string) => {
-    const date = new Date(dateStr.split('.').reverse().join('-'));
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    if (date.toDateString() === today.toDateString()) return 'Сегодня';
-    if (date.toDateString() === tomorrow.toDateString()) return 'Завтра';
-    
-    return date.toLocaleDateString('ru-RU', { weekday: 'short' });
-  };
-
   const handleDateSelect = (date: string) => {
     setFormData({ ...formData, date });
     setStep(2);
