@@ -153,11 +153,15 @@ export default function BookingPage() {
 
   const loadAvailableSlots = async () => {
     try {
+      setLoading(true);
       const data = await getAvailableSlots(formData.date, formData.master);
-      setAvailableSlots(data.available_slots);
+      setAvailableSlots(data.available_slots || TIME_SLOTS);
     } catch (error) {
       console.error('Failed to load slots:', error);
+      // Fallback to all time slots if API fails
       setAvailableSlots(TIME_SLOTS);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -229,10 +233,19 @@ export default function BookingPage() {
       {step === 1 && (
         <Card>
           <h3>Выберите дату</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '8px' }} className="mt-2">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '12px',
+            marginTop: '16px'
+          }}>
             {dates.map((date) => {
               const dateObj = new Date(date.split('.').reverse().join('-'));
               const isToday = dateObj.toDateString() === new Date().toDateString();
+              const dayOfWeek = dateObj.toLocaleDateString('ru-RU', { weekday: 'short' });
+              const dayOfMonth = dateObj.getDate();
+              const monthName = dateObj.toLocaleDateString('ru-RU', { month: 'short' });
+              
               return (
                 <div
                   key={date}
@@ -245,11 +258,29 @@ export default function BookingPage() {
                     cursor: 'pointer',
                     transition: 'all 200ms ease',
                     border: isToday ? '2px solid var(--brand-gold)' : 'none',
+                    textAlign: 'center',
                     fontWeight: formData.date === date ? '600' : '500',
                   }}
                 >
-                  <div style={{ fontSize: '14px', fontWeight: '600' }}>{getDayLabel(date)}</div>
-                  <div style={{ fontSize: '12px', opacity: 0.8 }}>{date}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    {dayOfMonth}
+                  </div>
+                  <div style={{ fontSize: '12px', opacity: 0.8, marginBottom: '2px' }}>
+                    {monthName}
+                  </div>
+                  <div style={{ fontSize: '11px', opacity: 0.7 }}>
+                    {dayOfWeek}
+                  </div>
+                  {isToday && (
+                    <div style={{ 
+                      fontSize: '10px', 
+                      opacity: 0.9, 
+                      marginTop: '4px',
+                      fontWeight: 'bold'
+                    }}>
+                      Сегодня
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -352,25 +383,39 @@ export default function BookingPage() {
           <p className="text-hint mb-2">
             {formData.date} | {formData.master}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }} className="mt-2">
-            {availableSlots.map((time) => (
-              <Button
-                key={time}
-                variant={formData.time === time ? 'primary' : 'secondary'}
-                onClick={() => handleTimeSelect(time)}
-              >
-                {time}
-              </Button>
-            ))}
-          </div>
-          {availableSlots.length === 0 && (
-            <p className="text-hint mt-2">К сожалению, нет свободного времени</p>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <div>⏳ Загрузка доступного времени...</div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }} className="mt-2">
+                {availableSlots.map((time) => (
+                  <Button
+                    key={time}
+                    variant={formData.time === time ? 'primary' : 'secondary'}
+                    onClick={() => handleTimeSelect(time)}
+                  >
+                    {time}
+                  </Button>
+                ))}
+              </div>
+              {availableSlots.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-warning)' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>📅 Нет свободного времени</div>
+                  <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                    Все слоты заняты на эту дату.<br/>
+                    Выберите другую дату или мастера.
+                  </div>
+                </div>
+              )}
+            </>
           )}
           <div style={{ display: 'flex', gap: '12px' }} className="mt-3">
             <Button variant="secondary" fullWidth onClick={() => setStep(3)}>
               ← Назад
             </Button>
-            <Button fullWidth onClick={() => setStep(5)} disabled={!formData.time}>
+            <Button fullWidth onClick={() => setStep(5)} disabled={!formData.time || availableSlots.length === 0}>
               Далее →
             </Button>
           </div>
