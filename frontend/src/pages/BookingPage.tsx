@@ -36,6 +36,7 @@ export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     service: '',
@@ -141,13 +142,16 @@ export default function BookingPage() {
 
   const loadAvailableSlots = async () => {
     try {
+      setSlotsError(null);
       setLoading(true);
       const data = await getAvailableSlots(formData.date, formData.master);
-      setAvailableSlots(data.available_slots || TIME_SLOTS);
-    } catch (error) {
+      setAvailableSlots((data && (data as any).available_slots) || TIME_SLOTS);
+    } catch (error: any) {
       console.error('Failed to load slots:', error);
-      // Fallback to all time slots if API fails
-      setAvailableSlots(TIME_SLOTS);
+      // Provide user-facing error
+      setSlotsError('Не удалось загрузить доступное время. Проверьте подключение или попробуйте позже.');
+      // Do not auto-fallback to slots to avoid misleading user — keep empty list
+      setAvailableSlots([]);
     } finally {
       setLoading(false);
     }
@@ -377,25 +381,38 @@ export default function BookingPage() {
             </div>
           ) : (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }} className="mt-2">
-                {availableSlots.map((time) => (
-                  <Button
-                    key={time}
-                    variant={formData.time === time ? 'primary' : 'secondary'}
-                    onClick={() => handleTimeSelect(time)}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
-              {availableSlots.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-warning)' }}>
-                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>📅 Нет свободного времени</div>
-                  <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                    Все слоты заняты на эту дату.<br/>
-                    Выберите другую дату или мастера.
+              {slotsError ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-danger)' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>⚠️ Ошибка загрузки</div>
+                  <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '12px' }}>{slotsError}</div>
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <Button onClick={loadAvailableSlots}>Повторить</Button>
+                    <Button variant="secondary" onClick={() => setStep(1)}>Выбрать другую дату</Button>
                   </div>
                 </div>
+              ) : (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }} className="mt-2">
+                    {availableSlots.map((time) => (
+                      <Button
+                        key={time}
+                        variant={formData.time === time ? 'primary' : 'secondary'}
+                        onClick={() => handleTimeSelect(time)}
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                  {availableSlots.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-warning)' }}>
+                      <div style={{ fontSize: '16px', marginBottom: '8px' }}>📅 Нет свободного времени</div>
+                      <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                        Все слоты заняты на эту дату.<br/>
+                        Выберите другую дату или мастера.
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
