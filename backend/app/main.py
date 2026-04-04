@@ -59,6 +59,25 @@ SERVICES_PRICES = {
     "Окрашивание": 2500,
 }
 
+# === Health Check ===
+@app.get("/health")
+async def health_check():
+    """Простой health check для мониторинга (UptimeRobot и др.)."""
+    return {
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "service": "beauty-studio-backend"
+    }
+
+@app.get("/")
+async def root():
+    """Корень API."""
+    return {
+        "message": "Beauty Studio API",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
+
 # CORS
 # Allow configuring CORS origins via settings.cors_origins (comma-separated).
 # If the special value '*' is used, browsers disallow credentials with a wildcard origin,
