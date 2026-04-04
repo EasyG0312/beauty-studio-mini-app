@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getBookings, updateBooking, getClients, updateClientNotes, getWaitlist } from '../services/api';
-import type { Booking, Client, Waitlist } from '../types';
+import { getBookings, updateBooking, getClients, updateClientNotes, getWaitlist, getAnalyticsSummary } from '../services/api';
+import type { Booking, Client, Waitlist, AnalyticsSummary } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
@@ -12,12 +12,14 @@ export default function ManagerDashboardPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [waitlist, setWaitlist] = useState<Waitlist[]>([]);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'today' | 'all' | 'waitlist' | 'clients'>('today');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [notes, setNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelModal, setShowCancelModal] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadBookings();
@@ -31,6 +33,10 @@ export default function ManagerDashboardPage() {
       loadWaitlistData();
     }
   }, [tab]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
 
   const loadBookings = async () => {
     setLoading(true);
@@ -60,6 +66,15 @@ export default function ManagerDashboardPage() {
       setWaitlist(data);
     } catch (error) {
       console.error('Failed to load waitlist:', error);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const data = await getAnalyticsSummary();
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Failed to load analytics:', error);
     }
   };
 
@@ -159,43 +174,59 @@ export default function ManagerDashboardPage() {
   const today = new Date().toLocaleDateString('ru-RU');
   const todayBookings = bookings.filter((b) => b.date === today);
 
+  // Фильтрация клиентов по поиску
+  const filteredClients = clients.filter((client) =>
+    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.phone.includes(searchQuery)
+  );
+
   return (
     <div className="page">
-      <h1>Панель менеджера</h1>
+      <h1>📊 Панель менеджера</h1>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
-        <Card>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{todayBookings.length}</div>
-            <div className="text-hint" style={{ fontSize: '12px' }}>Сегодня</div>
-          </div>
-        </Card>
-        <Card>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-              {bookings.filter((b) => b.status === 'confirmed').length}
+      {/* Quick Stats */}
+      {analytics && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '16px' }}>
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{analytics.today_bookings}</div>
+              <div className="text-hint" style={{ fontSize: '12px' }}>📅 Сегодня</div>
             </div>
-            <div className="text-hint" style={{ fontSize: '12px' }}>Подтверждено</div>
-          </div>
-        </Card>
-        <Card>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-              {bookings.filter((b) => b.status === 'pending').length}
+          </Card>
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#4CAF50' }}>{analytics.confirmed}</div>
+              <div className="text-hint" style={{ fontSize: '12px' }}>✅ Подтверждено</div>
             </div>
-            <div className="text-hint" style={{ fontSize: '12px' }}>Ожидает</div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#FF9800' }}>{analytics.week_bookings}</div>
+              <div className="text-hint" style={{ fontSize: '12px' }}>📊 За неделю</div>
+            </div>
+          </Card>
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2196F3' }}>{analytics.total_clients}</div>
+              <div className="text-hint" style={{ fontSize: '12px' }}>👥 Клиенты</div>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Quick actions */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        <Button onClick={() => navigate('/chat')} style={{ flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '16px' }}>
+        <Button onClick={() => navigate('/chat')} style={{ padding: '12px' }}>
           💬 Чат
         </Button>
-        <Button onClick={() => navigate('/waitlist')} style={{ flex: 1 }}>
+        <Button onClick={() => navigate('/notifications')} style={{ padding: '12px' }}>
+          🔔 Уведомления
+        </Button>
+        <Button onClick={() => navigate('/waitlist')} style={{ padding: '12px' }}>
           📋 Лист ожидания
+        </Button>
+        <Button onClick={() => navigate('/reviews')} style={{ padding: '12px' }}>
+          ⭐ Отзывы
         </Button>
       </div>
 
@@ -213,7 +244,7 @@ export default function ManagerDashboardPage() {
           onClick={() => setTab('all')}
           style={{ flex: 'none' }}
         >
-          Все
+          Все записи
         </Button>
         <Button
           variant={tab === 'waitlist' ? 'primary' : 'secondary'}
@@ -265,37 +296,59 @@ export default function ManagerDashboardPage() {
       {/* Clients tab */}
       {tab === 'clients' && (
         <>
-          {clients.map((client) => (
-            <Card key={client.chat_id} className="mb-2">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3>{client.name}</h3>
-                  <p className="text-hint">{client.phone}</p>
-                  <p className="text-hint" style={{ fontSize: '12px' }}>
-                    Визитов: {client.visit_count} | Последний: {client.last_visit}
-                  </p>
-                  {client.is_loyal && (
-                    <span style={{
-                      background: '#4CAF50',
-                      color: 'white',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                    }}>
-                      Постоянный клиент
-                    </span>
-                  )}
-                </div>
-                <Button
-                  variant="secondary"
-                  onClick={() => openClientNotes(client)}
-                  style={{ fontSize: '12px', padding: '4px 8px' }}
-                >
-                  📝 Заметки
-                </Button>
-              </div>
+          {/* Поиск */}
+          <input
+            type="text"
+            className="input mb-2"
+            placeholder="🔍 Поиск по имени или телефону..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {filteredClients.length === 0 ? (
+            <Card>
+              <p className="text-center text-hint">Клиенты не найдены</p>
             </Card>
-          ))}
+          ) : (
+            filteredClients.map((client) => (
+              <Card key={client.chat_id} className="mb-2">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ marginBottom: '4px' }}>{client.name}</h3>
+                    <p className="text-hint" style={{ fontSize: '14px' }}>📱 {client.phone}</p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      <span className="text-hint" style={{ fontSize: '12px' }}>
+                        📊 Визитов: <strong>{client.visit_count}</strong>
+                      </span>
+                      <span className="text-hint" style={{ fontSize: '12px' }}>
+                        📅 Последний: {client.last_visit}
+                      </span>
+                    </div>
+                    {client.is_loyal && (
+                      <span style={{
+                        background: '#4CAF50',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        marginTop: '8px',
+                        display: 'inline-block',
+                      }}>
+                        ⭐ Постоянный клиент
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    onClick={() => openClientNotes(client)}
+                    style={{ fontSize: '12px', padding: '4px 8px', marginLeft: '8px' }}
+                  >
+                    📝
+                  </Button>
+                </div>
+              </Card>
+            ))
+          )}
         </>
       )}
 
@@ -312,12 +365,16 @@ export default function ManagerDashboardPage() {
             bookings
               .sort((a, b) => a.time.localeCompare(b.time))
               .map((booking) => (
-                <Card key={booking.id}>
+                <Card key={booking.id} className="mb-2">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{booking.time}</div>
-                      <div><strong>{booking.name}</strong></div>
-                      <div className="text-hint">{booking.service} | {booking.master}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{booking.time}</span>
+                        <Badge status={booking.status} />
+                      </div>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '4px' }}>{booking.name}</div>
+                      <div className="text-hint">📱 {booking.phone}</div>
+                      <div className="text-hint">💇 {booking.service} | {booking.master}</div>
                       {booking.comment && (
                         <div className="text-hint" style={{ fontSize: '14px', marginTop: '4px' }}>
                           💬 {booking.comment}
@@ -337,14 +394,13 @@ export default function ManagerDashboardPage() {
                         </div>
                       )}
                     </div>
-                    <Badge status={booking.status} />
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                     {booking.status === 'pending' && (
                       <>
                         <Button onClick={() => handleConfirm(booking.id)} style={{ flex: 1 }}>
-                          Подтвердить
+                          ✅ Подтвердить
                         </Button>
                         <Button
                           variant="secondary"
@@ -400,6 +456,7 @@ export default function ManagerDashboardPage() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
+          padding: '16px',
         }}>
           <Card>
             <h3>Причина отмены</h3>
@@ -449,10 +506,11 @@ export default function ManagerDashboardPage() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
+          padding: '16px',
         }}>
           <Card>
-            <h3>Заметки: {selectedClient.name}</h3>
-            <p className="text-hint" style={{ fontSize: '12px' }}>{selectedClient.phone}</p>
+            <h3>📝 Заметки: {selectedClient.name}</h3>
+            <p className="text-hint" style={{ fontSize: '12px' }}>📱 {selectedClient.phone}</p>
             <textarea
               className="input mt-2"
               placeholder="Аллергии, предпочтения, заметки..."
