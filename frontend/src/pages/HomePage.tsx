@@ -9,7 +9,7 @@ import EmptyState from '../components/EmptyState';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, loginAsAdmin } = useAuthStore();
   const { bookings, fetchBookings } = useBookingStore();
 
   useEffect(() => {
@@ -259,6 +259,24 @@ export default function HomePage() {
               </div>
             </Card>
           </div>
+
+          {/* Demo Admin Button */}
+          {!user && (
+            <Card bordered style={{ marginTop: '24px', borderColor: '#FF9800' }}>
+              <h3>🔧 Режим разработки</h3>
+              <p className="text-hint" style={{ fontSize: '13px', marginTop: '8px' }}>
+                Для тестирования панели администратора:
+              </p>
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={loginAsAdmin}
+                style={{ marginTop: '12px' }}
+              >
+                👑 Войти как админ (демо)
+              </Button>
+            </Card>
+          )}
 
           {/* Contact Card */}
           <Card bordered style={{ marginTop: '24px' }}>

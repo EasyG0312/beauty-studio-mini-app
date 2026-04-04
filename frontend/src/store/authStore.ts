@@ -6,13 +6,14 @@ interface AuthStore extends AuthState {
   login: () => Promise<void>;
   logout: () => void;
   setRole: (role: UserRole) => void;
+  loginAsAdmin: () => void; // Демо-вход для тестирования
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   user: null,
   token: localStorage.getItem('auth_token'),
-  
+
   login: async () => {
     try {
       const initData = getTelegramInitData();
@@ -29,7 +30,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
         return;
       }
 
+      console.log('Attempting Telegram auth for user:', authData.id);
+
       const response = await authTelegram(authData);
+
+      console.log('Auth response:', { role: response.role, userId: response.user_id });
 
       localStorage.setItem('auth_token', response.access_token);
 
@@ -47,7 +52,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
       // don't rethrow — allow app to continue in non-telegram contexts
     }
   },
-  
+
+  // Демо-вход как админ (для тестирования)
+  loginAsAdmin: () => {
+    const adminToken = 'demo-admin-token-' + Date.now();
+    localStorage.setItem('auth_token', adminToken);
+    
+    set({
+      isAuthenticated: true,
+      user: {
+        id: 338067005, // Ваш chat_id
+        role: 'owner', // Владелец
+        telegramUser: {
+          id: 338067005,
+          first_name: 'Demo',
+          last_name: 'Admin',
+          username: 'demo_admin',
+        },
+      },
+      token: adminToken,
+    });
+    
+    console.log('Logged in as demo admin (owner)');
+  },
+
   logout: () => {
     localStorage.removeItem('auth_token');
     set({
@@ -56,7 +84,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       token: null,
     });
   },
-  
+
   setRole: (role: UserRole) => {
     set((state) => ({
       user: state.user ? { ...state.user, role } : null,
