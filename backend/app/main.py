@@ -77,7 +77,7 @@ app.add_middleware(
 )
 
 # Security
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)  # Не вызывать ошибку если нет токена
 
 
 # === Helpers ===
@@ -85,14 +85,17 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> Optional[Client]:
-    """Получает текущего пользователя из JWT токена."""
+    """Получает текущего пользователя из JWT токена (опционально)."""
+    if not credentials:
+        return None
+    
     try:
         token = credentials.credentials
         payload = jwt.decode(token, settings.jwt_secret.get_secret_value(), algorithms=[settings.jwt_algorithm])
         chat_id = payload.get("sub")
         if not chat_id:
             return None
-        
+
         result = await db.execute(select(Client).where(Client.chat_id == int(chat_id)))
         return result.scalar_one_or_none()
     except (jwt.PyJWTError, ValueError):
