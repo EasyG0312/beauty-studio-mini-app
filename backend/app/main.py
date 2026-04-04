@@ -263,13 +263,32 @@ async def create_booking(
     # Обновляем или создаём клиента
     if booking.chat_id:
         await upsert_client(db, booking.chat_id, booking.name, booking.phone)
-        
+
         # Создаём напоминания
         try:
             await notification_service.create_booking_reminders(db, db_booking)
             logger.info(f"Created reminders for booking {db_booking.id}")
         except Exception as e:
             logger.error(f"Error creating reminders: {e}")
+
+    # Отправляем уведомление админу о новой записи
+    try:
+        admin_chat_id = settings.admin_chat_id
+        if admin_chat_id:
+            admin_message = (
+                f"🔔 <b>Новая запись!</b>\n\n"
+                f"👤 Имя: {db_booking.name}\n"
+                f"📱 Телефон: {db_booking.phone}\n"
+                f"📅 Дата: {db_booking.date}\n"
+                f"⏰ Время: {db_booking.time}\n"
+                f"💇 Мастер: {db_booking.master}\n"
+                f"💅 Услуга: {db_booking.service}\n"
+                f"🆔 ID записи: {db_booking.id}"
+            )
+            await notification_service.send_telegram_message(admin_chat_id, admin_message)
+            logger.info(f"Admin notification sent for booking {db_booking.id}")
+    except Exception as e:
+        logger.error(f"Error sending admin notification: {e}")
 
     return db_booking
 
@@ -305,7 +324,26 @@ async def cancel_booking(
     
     booking.status = "cancelled"
     await db.commit()
-    
+
+    # Отправляем уведомление админу об отмене
+    try:
+        admin_chat_id = settings.admin_chat_id
+        if admin_chat_id:
+            admin_message = (
+                f"❌ <b>Запись отменена!</b>\n\n"
+                f"👤 Имя: {booking.name}\n"
+                f"📱 Телефон: {booking.phone}\n"
+                f"📅 Дата: {booking.date}\n"
+                f"⏰ Время: {booking.time}\n"
+                f"💇 Мастер: {booking.master}\n"
+                f"💅 Услуга: {booking.service}\n"
+                f"🆔 ID записи: {booking.id}"
+            )
+            await notification_service.send_telegram_message(admin_chat_id, admin_message)
+            logger.info(f"Admin notification sent for cancelled booking {booking.id}")
+    except Exception as e:
+        logger.error(f"Error sending admin notification: {e}")
+
     return {"message": "Booking cancelled"}
 
 
