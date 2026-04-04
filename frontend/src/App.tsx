@@ -9,6 +9,7 @@ const BookingPage = lazy(() => import('./pages/BookingPage'));
 const MyBookingsPage = lazy(() => import('./pages/MyBookingsPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const ManagerDashboardPage = lazy(() => import('./pages/ManagerDashboardPage'));
+const OwnerAnalyticsPage = lazy(() => import('./pages/OwnerAnalyticsPage'));
 const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage'));
 const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
 const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));

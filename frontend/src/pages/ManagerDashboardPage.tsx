@@ -172,7 +172,6 @@ export default function ManagerDashboardPage() {
   };
 
   const today = new Date().toLocaleDateString('ru-RU');
-  const todayBookings = bookings.filter((b) => b.date === today);
 
   // Фильтрация клиентов по поиску
   const filteredClients = clients.filter((client) =>
