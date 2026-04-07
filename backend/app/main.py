@@ -123,49 +123,53 @@ async def get_current_user(
         return None
 
 
-def verify_telegram_auth(auth_data: TelegramAuth) -> bool:
-    """Проверяет валидность данных авторизации Telegram."""
+def verify_telegram_auth(init_data_string: str) -> bool:
+    """Проверяет валидность данных авторизации Telegram по оригинальной строке."""
     import time
-
-    # Проверяем что auth_date не старше 24 часов
-    if time.time() - auth_data.auth_date > 86400:
+    from urllib.parse import parse_qs
+    
+    # Парсим строку
+    params = parse_qs(init_data_string)
+    
+    # Получаем hash
+    received_hash = params.get('hash', [None])[0]
+    if not received_hash:
+        logger.error("No hash in init data")
         return False
-
-    # Собираем данные для проверки (все поля которые отправляет Telegram)
+    
+    # Получаем auth_date
+    auth_date_list = params.get('auth_date', [None])
+    if not auth_date_list:
+        logger.error("No auth_date in init data")
+        return False
+    
+    auth_date = int(auth_date_list[0])
+    
+    # Проверяем что auth_date не старше 24 часов
+    if time.time() - auth_date > 86400:
+        logger.error(f"Auth data expired: {auth_date}")
+        return False
+    
+    # Собираем данные для проверки - берём все пары key=value кроме hash
     data_check = []
+    for key in sorted(params.keys()):
+        if key == 'hash':
+            continue
+        value = params[key][0]
+        data_check.append(f"{key}={value}")
     
-    if auth_data.query_id:
-        data_check.append(f"query_id={auth_data.query_id}")
-    
-    # User field as JSON
-    user_dict = {
-        "id": auth_data.id,
-        "first_name": auth_data.first_name,
-    }
-    if auth_data.last_name:
-        user_dict["last_name"] = auth_data.last_name
-    if auth_data.username:
-        user_dict["username"] = auth_data.username
-    if auth_data.language_code:
-        user_dict["language_code"] = auth_data.language_code
-    if auth_data.photo_url:
-        user_dict["photo_url"] = auth_data.photo_url
-    if auth_data.allows_write_to_pm is not None:
-        user_dict["allows_write_to_pm"] = str(auth_data.allows_write_to_pm).lower()
-    
-    import json
-    data_check.append(f"user={json.dumps(user_dict, ensure_ascii=False)}")
-    data_check.append(f"auth_date={auth_data.auth_date}")
-    
-    # Sort and join
-    data_check.sort()
     data_check_string = "\n".join(data_check)
 
     # Вычисляем hash
     secret_key = hashlib.sha256(settings.bot_token.get_secret_value().encode()).digest()
     computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
 
-    return computed_hash == auth_data.hash
+    logger.info(f"Telegram auth verification:")
+    logger.info(f"  received_hash: {received_hash}")
+    logger.info(f"  computed_hash: {computed_hash}")
+    logger.info(f"  match: {computed_hash == received_hash}")
+
+    return computed_hash == received_hash
 
 
 def create_jwt_token(chat_id: int) -> str:
@@ -181,11 +185,11 @@ def create_jwt_token(chat_id: int) -> str:
 @app.post("/api/auth/telegram", response_model=AuthResponse)
 async def auth_telegram(auth_data: TelegramAuth, db: AsyncSession = Depends(get_db)):
     """Авторизация через Telegram WebApp."""
-    # TODO: Вернуть проверку хэша после отладки
-    # if not verify_telegram_auth(auth_data):
-    #     raise HTTPException(status_code=401, detail="Invalid Telegram auth data")
+    # Проверяем хэш по оригинальной строке initData
+    if not verify_telegram_auth(auth_data.telegram_init_data):
+        raise HTTPException(status_code=401, detail="Invalid Telegram auth data")
     
-    logger.info(f"Telegram auth received for user {auth_data.id} (hash check disabled for debugging)")
+    logger.info(f"Telegram auth verified for user {auth_data.id}")
     
     # Ищем или создаём клиента
     result = await db.execute(select(Client).where(Client.chat_id == auth_data.id))

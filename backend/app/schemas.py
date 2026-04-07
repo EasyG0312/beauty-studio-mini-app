@@ -201,13 +201,16 @@ class AnalyticsSummary(BaseModel):
 
 # === Auth Schemas ===
 class TelegramAuth(BaseModel):
+    # Оригинальная строка initData от Telegram
+    telegram_init_data: str
+    # Распарсенные данные (для удобства)
     id: int
     first_name: str
     last_name: Optional[str] = None
     username: Optional[str] = None
     language_code: Optional[str] = None
-    hash: str
-    auth_date: int
+    hash: Optional[str] = None
+    auth_date: Optional[int] = None
     photo_url: Optional[str] = None
     allows_write_to_pm: Optional[bool] = None
     query_id: Optional[str] = None

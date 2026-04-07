@@ -41,13 +41,14 @@ api.interceptors.response.use(
 
 // Auth
 export const authTelegram = async (authData: {
+  telegram_init_data: string;
   id: number;
   first_name: string;
   last_name?: string;
   username?: string;
   language_code?: string;
-  hash: string;
-  auth_date: number;
+  hash?: string;
+  auth_date?: number;
   query_id?: string;
   photo_url?: string;
   allows_write_to_pm?: boolean;

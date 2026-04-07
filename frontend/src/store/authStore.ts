@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         return;
       }
 
-      console.log('Init data received:', initData.substring(0, 50) + '...');
+      console.log('Init data received, length:', initData.length);
 
       const authData = parseTelegramInitData(initData);
       if (!authData) {
@@ -34,7 +34,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       console.log('Auth data parsed:', { id: authData.id, first_name: authData.first_name });
 
-      const response = await authTelegram(authData);
+      // Добавляем оригинальную строку initData
+      const authDataWithInit = {
+        ...authData,
+        telegram_init_data: initData,
+      };
+
+      const response = await authTelegram(authDataWithInit);
 
       console.log('Auth successful:', { role: response.role, userId: response.user_id });
 
