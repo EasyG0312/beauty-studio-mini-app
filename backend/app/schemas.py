@@ -208,6 +208,9 @@ class TelegramAuth(BaseModel):
     language_code: Optional[str] = None
     hash: str
     auth_date: int
+    photo_url: Optional[str] = None
+    allows_write_to_pm: Optional[bool] = None
+    query_id: Optional[str] = None
 
 
 class AuthResponse(BaseModel):

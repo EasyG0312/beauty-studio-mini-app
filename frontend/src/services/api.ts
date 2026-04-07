@@ -48,6 +48,9 @@ export const authTelegram = async (authData: {
   language_code?: string;
   hash: string;
   auth_date: number;
+  query_id?: string;
+  photo_url?: string;
+  allows_write_to_pm?: boolean;
 }) => {
   const response = await api.post('/auth/telegram', authData);
   return response.data;
@@ -511,13 +514,23 @@ export const parseTelegramInitData = (initData: string) => {
   const user = params.get('user');
   const hash = params.get('hash');
   const authDate = params.get('auth_date');
+  const queryId = params.get('query_id');
 
   if (!user || !hash || !authDate) {
     return null;
   }
 
+  const userData = JSON.parse(user);
+  
   return {
-    ...JSON.parse(user),
+    id: userData.id,
+    first_name: userData.first_name,
+    last_name: userData.last_name || undefined,
+    username: userData.username || undefined,
+    language_code: userData.language_code || undefined,
+    photo_url: userData.photo_url || undefined,
+    allows_write_to_pm: userData.allows_write_to_pm || undefined,
+    query_id: queryId || undefined,
     hash,
     auth_date: parseInt(authDate, 10),
   };

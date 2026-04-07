@@ -125,26 +125,39 @@ async def get_current_user(
 
 def verify_telegram_auth(auth_data: TelegramAuth) -> bool:
     """Проверяет валидность данных авторизации Telegram."""
-    import hashlib
     import time
-    
+
     # Проверяем что auth_date не старше 24 часов
     if time.time() - auth_data.auth_date > 86400:
         return False
+
+    # Собираем данные для проверки (все поля которые отправляет Telegram)
+    data_check = []
     
-    # Собираем данные для проверки
-    data_check = [
-        f"auth_date={auth_data.auth_date}",
-        f"id={auth_data.id}",
-        f"first_name={auth_data.first_name}",
-    ]
+    if auth_data.query_id:
+        data_check.append(f"query_id={auth_data.query_id}")
+    
+    # User field as JSON
+    user_dict = {
+        "id": auth_data.id,
+        "first_name": auth_data.first_name,
+    }
     if auth_data.last_name:
-        data_check.append(f"last_name={auth_data.last_name}")
+        user_dict["last_name"] = auth_data.last_name
     if auth_data.username:
-        data_check.append(f"username={auth_data.username}")
+        user_dict["username"] = auth_data.username
     if auth_data.language_code:
-        data_check.append(f"language_code={auth_data.language_code}")
+        user_dict["language_code"] = auth_data.language_code
+    if auth_data.photo_url:
+        user_dict["photo_url"] = auth_data.photo_url
+    if auth_data.allows_write_to_pm is not None:
+        user_dict["allows_write_to_pm"] = str(auth_data.allows_write_to_pm).lower()
     
+    import json
+    data_check.append(f"user={json.dumps(user_dict, ensure_ascii=False)}")
+    data_check.append(f"auth_date={auth_data.auth_date}")
+    
+    # Sort and join
     data_check.sort()
     data_check_string = "\n".join(data_check)
 
