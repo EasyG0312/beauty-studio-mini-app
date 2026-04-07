@@ -49,14 +49,22 @@ class BookingUpdate(BaseModel):
     reminded_1h: Optional[bool] = None
 
 
-class BookingResponse(BookingBase):
+class BookingResponse(BaseModel):
     id: int
+    name: str
+    phone: str
+    service: str
+    master: str
+    date: str
+    time: str
+    comment: Optional[str] = None
+    chat_id: Optional[int] = None
     status: str
     actual_amount: Optional[int] = None
     is_reschedule: bool
     is_on_the_way: bool
     created_at: str
-    
+
     class Config:
         from_attributes = True
 
@@ -78,15 +86,18 @@ class ClientUpdate(BaseModel):
     is_loyal: Optional[bool] = None
 
 
-class ClientResponse(ClientBase):
+class ClientResponse(BaseModel):
     chat_id: int
+    name: str
+    phone: str
     first_visit: str
     last_visit: str
     visit_count: int
     is_loyal: bool
-    notes: Optional[str] = None
-    rfm_segment: str
-    rfm_score: int
+    notes: Optional[str] = ""
+    rfm_segment: Optional[str] = ""
+    rfm_score: Optional[str] = ""
+    total_saved: Optional[int] = 0
 
     class Config:
         from_attributes = True
