@@ -30,13 +30,20 @@ function App() {
   const { user, login } = useAuthStore();
 
   useEffect(() => {
-    // Инициализируем Telegram WebApp
-    initTelegramWebApp();
+    const init = async () => {
+      // Инициализируем Telegram WebApp
+      initTelegramWebApp();
 
-    // Автоматический вход через Telegram
-    login().finally(() => {
+      // Ждём немного чтобы WebApp инициализировался
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Автоматический вход через Telegram
+      await login();
+
       setInitialized(true);
-    });
+    };
+
+    init();
   }, []);
 
   if (!initialized) {
