@@ -16,25 +16,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   login: async () => {
     try {
+      console.log('Starting Telegram auth...');
+      
       const initData = getTelegramInitData();
       if (!initData) {
-        // Not running inside Telegram WebApp (or initData not available).
-        // Skip Telegram auth here — app may work in demo mode or rely on backend session.
-        console.warn('Telegram initData not available; skipping Telegram auth.');
+        console.warn('Telegram initData not available - not running inside Telegram WebApp');
         return;
       }
+
+      console.log('Init data received:', initData.substring(0, 50) + '...');
 
       const authData = parseTelegramInitData(initData);
       if (!authData) {
-        console.warn('Failed to parse Telegram initData; skipping auth.');
+        console.error('Failed to parse Telegram initData');
         return;
       }
 
-      console.log('Attempting Telegram auth for user:', authData.id);
+      console.log('Auth data parsed:', { id: authData.id, first_name: authData.first_name });
 
       const response = await authTelegram(authData);
 
-      console.log('Auth response:', { role: response.role, userId: response.user_id });
+      console.log('Auth successful:', { role: response.role, userId: response.user_id });
 
       localStorage.setItem('auth_token', response.access_token);
 
@@ -47,8 +49,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
         },
         token: response.access_token,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
       // don't rethrow — allow app to continue in non-telegram contexts
     }
   },

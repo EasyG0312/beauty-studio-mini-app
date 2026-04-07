@@ -9,7 +9,7 @@ import EmptyState from '../components/EmptyState';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, loginAsAdmin } = useAuthStore();
+  const { user, loginAsAdmin, login } = useAuthStore();
   const { bookings, fetchBookings } = useBookingStore();
 
   useEffect(() => {
@@ -263,18 +263,29 @@ export default function HomePage() {
           {/* Demo Admin Button */}
           {!user && (
             <Card bordered style={{ marginTop: '24px', borderColor: '#FF9800' }}>
-              <h3>🔧 Режим разработки</h3>
+              <h3>🔧 Вход</h3>
               <p className="text-hint" style={{ fontSize: '13px', marginTop: '8px' }}>
-                Для тестирования панели администратора:
+                Для тестирования выберите режим:
               </p>
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={loginAsAdmin}
-                style={{ marginTop: '12px' }}
-              >
-                👑 Войти как админ (демо)
-              </Button>
+              <div className="flex flex-col gap-2" style={{ marginTop: '12px' }}>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={() => {
+                    login();
+                    alert('Попытка входа через Telegram. Проверьте консоль (F12) для деталей.');
+                  }}
+                >
+                  🔑 Войти через Telegram
+                </Button>
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={loginAsAdmin}
+                >
+                  👑 Демо-режим (админ)
+                </Button>
+              </div>
             </Card>
           )}
 

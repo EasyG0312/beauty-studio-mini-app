@@ -482,9 +482,28 @@ export const getTelegramUser = () => {
 
 export const getTelegramInitData = () => {
   const win: any = window as any;
-  if (!win.Telegram || !win.Telegram.WebApp) return null;
-  const tg = win.Telegram.WebApp;
-  return tg?.initData || null;
+  
+  // Пробуем разные источники
+  if (win.Telegram && win.Telegram.WebApp) {
+    const tg = win.Telegram.WebApp;
+    const initData = tg.initData || tg.initDataUnsafe;
+    
+    if (initData) {
+      console.log('Telegram WebApp detected, initData available');
+      return initData;
+    }
+  }
+  
+  // Проверяем URL параметры (если открыто через Telegram)
+  const urlParams = new URLSearchParams(window.location.search);
+  const telegramInitData = urlParams.get('tgWebAppData');
+  if (telegramInitData) {
+    console.log('Found tgWebAppData in URL');
+    return telegramInitData;
+  }
+  
+  console.log('Telegram WebApp not detected or no initData');
+  return null;
 };
 
 export const parseTelegramInitData = (initData: string) => {
