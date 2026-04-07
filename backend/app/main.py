@@ -7,6 +7,8 @@ from sqlalchemy import select, and_, or_, func as sa_func, update
 from datetime import datetime, timedelta
 from typing import Optional, List
 import jwt
+import hmac
+import hashlib
 import logging
 
 from app.config import settings
@@ -145,11 +147,11 @@ def verify_telegram_auth(auth_data: TelegramAuth) -> bool:
     
     data_check.sort()
     data_check_string = "\n".join(data_check)
-    
+
     # Вычисляем hash
     secret_key = hashlib.sha256(settings.bot_token.get_secret_value().encode()).digest()
-    computed_hash = hashlib.hmac(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-    
+    computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+
     return computed_hash == auth_data.hash
 
 
