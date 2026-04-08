@@ -214,8 +214,12 @@ async def require_auth(db: AsyncSession = Depends(get_db), user: Optional[Client
     return user
 
 
-async def require_role(*roles: str):
-    """Dependency factory: требует определённую роль."""
+def require_role(*roles: str):
+    """Dependency factory: требует определённую роль.
+    
+    Возвращает async функцию-зависимость для FastAPI Depends.
+    Фабрика должна быть sync чтобы FastAPI мог взять signature.
+    """
     async def check_role(
         db: AsyncSession = Depends(get_db),
         user: Optional[Client] = Depends(get_current_user)
