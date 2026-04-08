@@ -39,10 +39,10 @@ npm run build
 
 ```env
 # Telegram Bot
-BOT_TOKEN=8699202257:AAHRGrMOSA7JczE7Jb0F_2vOFRvXV2BQoIM
-ADMIN_CHAT_ID=338067005
-ADMIN_IDS=338067005
-OWNER_IDS=338067005
+BOT_TOKEN=your_bot_token_from_botfather
+ADMIN_CHAT_ID=your_chat_id
+ADMIN_IDS=your_admin_id
+OWNER_IDS=your_owner_id
 
 # Business Info
 BUSINESS_NAME=Beauty Studio Bishkek
@@ -164,10 +164,10 @@ git push -u origin main
 
 | Key | Value |
 |-----|-------|
-| `BOT_TOKEN` | `8699202257:AAHRGrMOSA7JczE7Jb0F_2vOFRvXV2BQoIM` |
-| `ADMIN_CHAT_ID` | `338067005` |
-| `ADMIN_IDS` | `338067005` |
-| `OWNER_IDS` | `338067005` |
+| `BOT_TOKEN` | `your_bot_token_from_botfather` |
+| `ADMIN_CHAT_ID` | `your_chat_id` |
+| `ADMIN_IDS` | `your_admin_id` |
+| `OWNER_IDS` | `your_owner_id` |
 | `BUSINESS_NAME` | `Beauty Studio Bishkek` |
 | `PHONE` | `+996 707 001112` |
 | `ADDRESS` | `г. Бишкек, ул. Ахунбаева, 1` |
@@ -389,7 +389,7 @@ curl https://beauty-studio-api.onrender.com/api/analytics/summary
 
 ### 6.5. Проверь панель менеджера
 
-1. Открой Mini App с аккаунта менеджера (ADMIN_IDS=338067005)
+1. Открой Mini App с аккаунта менеджера (ADMIN_IDS=your_admin_id)
 2. Проверь что:
    - ✅ Видна панель менеджера
    - ✅ Видны записи
@@ -397,7 +397,7 @@ curl https://beauty-studio-api.onrender.com/api/analytics/summary
 
 ### 6.6. Проверь аналитику владельца
 
-1. Открой Mini App с аккаунта владельца (OWNER_IDS=338067005)
+1. Открой Mini App с аккаунта владельца (OWNER_IDS=your_owner_id)
 2. Проверь что:
    - ✅ Видна аналитика
    - ✅ Графики отображаются

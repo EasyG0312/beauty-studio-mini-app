@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +10,9 @@ import jwt
 import hmac
 import hashlib
 import logging
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 
@@ -51,6 +54,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Beauty Studio API", version="1.0.0", lifespan=lifespan)
+
+# Rate limiting (бесплатно, защита от спама)
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    from starlette.responses import JSONResponse
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Слишком много запросов. Попробуйте позже."}
+    )
 
 # Средние цены для расчёта выручки (сом)
 SERVICES_PRICES = {
@@ -181,14 +196,48 @@ def create_jwt_token(chat_id: int) -> str:
     )
 
 
+def get_user_role(user: Optional[Client]) -> str:
+    """Определяет роль пользователя."""
+    if not user:
+        return "anonymous"
+    if user.chat_id in settings.owner_ids_list:
+        return "owner"
+    if user.chat_id in settings.admin_ids_list:
+        return "manager"
+    return "client"
+
+
+async def require_auth(db: AsyncSession = Depends(get_db), user: Optional[Client] = Depends(get_current_user)) -> Client:
+    """Dependency: требует аутентификацию."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Требуется аутентификация")
+    return user
+
+
+async def require_role(*roles: str):
+    """Dependency factory: требует определённую роль."""
+    async def check_role(
+        db: AsyncSession = Depends(get_db),
+        user: Optional[Client] = Depends(get_current_user)
+    ) -> Client:
+        if not user:
+            raise HTTPException(status_code=401, detail="Требуется аутентификация")
+        
+        user_role = get_user_role(user)
+        if user_role not in roles:
+            raise HTTPException(status_code=403, detail=f"Недостаточно прав. Требуется: {', '.join(roles)}")
+        
+        return user
+    return check_role
+
+
 # === Auth ===
 @app.post("/api/auth/telegram", response_model=AuthResponse)
 async def auth_telegram(auth_data: TelegramAuth, db: AsyncSession = Depends(get_db)):
     """Авторизация через Telegram WebApp."""
     # Проверяем хэш по оригинальной строке initData
-    # TODO: hash check временно отключен для тестирования
-    # if not verify_telegram_auth(auth_data.telegram_init_data):
-    #     raise HTTPException(status_code=401, detail="Invalid Telegram auth data")
+    if not verify_telegram_auth(auth_data.telegram_init_data):
+        raise HTTPException(status_code=401, detail="Invalid Telegram auth data")
     
     logger.info(f"Telegram auth for user {auth_data.id} (hash check disabled)")
     
@@ -280,7 +329,9 @@ async def get_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @app.post("/api/bookings", response_model=BookingResponse)
+@limiter.limit("10/minute")
 async def create_booking(
+    request: Request,
     booking: BookingCreate,
     db: AsyncSession = Depends(get_db),
     user: Optional[Client] = Depends(get_current_user)
@@ -474,7 +525,7 @@ async def get_available_slots(
 @app.get("/api/analytics/summary", response_model=AnalyticsSummary)
 async def get_analytics_summary(
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить сводную аналитику (для владельца)."""
     today = datetime.now().strftime("%d.%m.%Y")
@@ -761,7 +812,9 @@ async def get_reviews(
 
 
 @app.post("/api/reviews", response_model=ReviewCreate)
+@limiter.limit("5/minute")
 async def create_review(
+    request: Request,
     review: ReviewCreate,
     db: AsyncSession = Depends(get_db)
 ):
@@ -805,7 +858,9 @@ async def get_waitlist(
 
 
 @app.post("/api/waitlist", response_model=WaitlistCreate)
+@limiter.limit("5/minute")
 async def add_to_waitlist(
+    request: Request,
     waitlist: WaitlistCreate,
     db: AsyncSession = Depends(get_db)
 ):
@@ -838,7 +893,7 @@ async def remove_from_waitlist(
 @app.get("/api/blacklist", response_model=List[BlacklistResponse])
 async def get_blacklist(
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить чёрный список (только для менеджеров/владельцев)."""
     result = await db.execute(select(Blacklist).order_by(Blacklist.added_at.desc()))
@@ -849,7 +904,7 @@ async def get_blacklist(
 async def add_to_blacklist(
     blacklist: BlacklistCreate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Добавить в чёрный список."""
     db_blacklist = Blacklist(**blacklist.model_dump())
@@ -865,7 +920,7 @@ async def add_to_blacklist(
 async def remove_from_blacklist(
     chat_id: int,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Удалить из чёрного списка."""
     result = await db.execute(select(Blacklist).where(Blacklist.chat_id == chat_id))
@@ -1071,7 +1126,9 @@ async def get_chat_history(
 
 
 @app.post("/api/chat", response_model=ChatMessageResponse)
+@limiter.limit("30/minute")
 async def send_chat_message(
+    request: Request,
     message: ChatMessageCreate,
     db: AsyncSession = Depends(get_db),
     user: Client = Depends(get_current_user)
@@ -1089,7 +1146,7 @@ async def send_chat_message(
 @app.get("/api/clients", response_model=List[ClientResponse])
 async def get_all_clients(
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить всех клиентов (для менеджеров/владельцев)."""
     result = await db.execute(select(Client).order_by(Client.last_visit.desc()))
@@ -1114,7 +1171,7 @@ async def update_client(
     chat_id: int,
     notes: str,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Обновить заметки о клиенте."""
     result = await db.execute(select(Client).where(Client.chat_id == chat_id))
@@ -1132,7 +1189,7 @@ async def update_client(
 @app.get("/api/analytics/kpi", response_model=List[MasterKPI])
 async def get_master_kpi(
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить KPI мастеров."""
     result = await db.execute(select(Booking))
@@ -1179,7 +1236,7 @@ async def get_master_kpi(
 @app.get("/api/analytics/rfm", response_model=List[ClientRFM])
 async def get_rfm_segments(
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить RFM-сегментацию клиентов."""
     result = await db.execute(select(Client))
@@ -1244,7 +1301,7 @@ async def get_rfm_segments(
 async def get_revenue_forecast(
     days: int = 7,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить прогноз выручки."""
     today = datetime.now()
@@ -1281,7 +1338,7 @@ async def get_revenue_forecast(
 async def get_analytics_dashboard(
     days: int = 30,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить полный дашборд аналитики."""
     today = datetime.now()
@@ -1410,7 +1467,7 @@ async def get_analytics_dashboard(
 async def get_funnel_stats(
     days: int = 30,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить воронку конверсии."""
     today = datetime.now()
@@ -1443,7 +1500,7 @@ async def get_funnel_stats(
 async def get_heatmap_data(
     days: int = 30,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить тепловую карту загруженности."""
     today = datetime.now()
@@ -1496,7 +1553,7 @@ async def get_heatmap_data(
 async def get_comparison_stats(
     days: int = 30,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить сравнение периодов (WoW, MoM)."""
     today = datetime.now()
@@ -1550,7 +1607,7 @@ async def get_comparison_stats(
 async def export_analytics_csv(
     days: int = 30,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Экспорт аналитики в CSV."""
     import csv
@@ -1599,7 +1656,7 @@ async def export_analytics_csv(
 async def get_master_schedule(
     master: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить расписание мастеров."""
     query = select(MasterSchedule).where(MasterSchedule.is_active == True)
@@ -1614,7 +1671,7 @@ async def get_master_schedule(
 async def create_master_schedule(
     schedule: MasterScheduleCreate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Создать расписание для мастера."""
     # Деактивируем старое расписание для этого дня
@@ -1641,7 +1698,7 @@ async def update_master_schedule(
     schedule_id: int,
     update: MasterScheduleUpdate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Обновить расписание мастера."""
     result = await db.execute(select(MasterSchedule).where(MasterSchedule.id == schedule_id))
@@ -1661,7 +1718,7 @@ async def update_master_schedule(
 async def delete_master_schedule(
     schedule_id: int,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Удалить расписание (деактивировать)."""
     result = await db.execute(select(MasterSchedule).where(MasterSchedule.id == schedule_id))
@@ -1681,7 +1738,7 @@ async def get_master_time_off(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Получить периоды отсутствия мастеров."""
     query = select(MasterTimeOff).where(MasterTimeOff.is_active == True)
@@ -1701,7 +1758,7 @@ async def get_master_time_off(
 async def create_master_time_off(
     time_off: MasterTimeOffCreate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Создать период отсутствия (отпуск, больничный)."""
     db_time_off = MasterTimeOff(**time_off.model_dump(), is_active=True)
@@ -1716,7 +1773,7 @@ async def update_master_time_off(
     time_off_id: int,
     update: MasterTimeOffUpdate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Обновить период отсутствия."""
     result = await db.execute(select(MasterTimeOff).where(MasterTimeOff.id == time_off_id))
@@ -1736,7 +1793,7 @@ async def update_master_time_off(
 async def delete_master_time_off(
     time_off_id: int,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner", "manager"))
 ):
     """Удалить период отсутствия (деактивировать)."""
     result = await db.execute(select(MasterTimeOff).where(MasterTimeOff.id == time_off_id))
@@ -1832,8 +1889,7 @@ async def get_master_availability(
 @app.get("/api/promocodes", response_model=List[PromoCodeResponse])
 async def get_promocodes(
     active_only: bool = True,
-    db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
     """Получить все промокоды (для менеджера/владельца)."""
     query = select(PromoCode)
@@ -1848,7 +1904,7 @@ async def get_promocodes(
 async def create_promocode(
     promocode: PromoCodeCreate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Создать промокод."""
     from datetime import datetime
@@ -1926,7 +1982,7 @@ async def update_promocode(
     promocode_id: int,
     update: dict,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Обновить промокод."""
     result = await db.execute(select(PromoCode).where(PromoCode.id == promocode_id))
@@ -1948,7 +2004,7 @@ async def update_promocode(
 async def delete_promocode(
     promocode_id: int,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(get_current_user)
+    user: Client = Depends(require_role("owner"))
 ):
     """Удалить промокод (деактивировать)."""
     result = await db.execute(select(PromoCode).where(PromoCode.id == promocode_id))
