@@ -43,11 +43,18 @@ from app.services import init_scheduler, start_scheduler, notification_service
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    await init_db()
-    db_session_factory = get_db_session_factory()
-    init_scheduler(db_session_factory)
-    start_scheduler()
-    logger.info("Scheduler initialized and started")
+    try:
+        logger.info("Starting up...")
+        await init_db()
+        logger.info("DB initialized")
+        db_session_factory = get_db_session_factory()
+        init_scheduler(db_session_factory)
+        logger.info("Scheduler initialized")
+        start_scheduler()
+        logger.info("Scheduler started")
+    except Exception as e:
+        logger.error(f"Startup failed: {e}", exc_info=True)
+        raise
     yield
     # Shutdown
     logger.info("Shutting down")
