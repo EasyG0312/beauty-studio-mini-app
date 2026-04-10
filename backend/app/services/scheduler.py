@@ -151,10 +151,10 @@ def init_scheduler(db_session_factory: async_sessionmaker):
 
 
 def start_scheduler():
-    """Запустить планировщик в фоне."""
+    """Запустить планировщик."""
     if scheduler:
-        scheduler.start(background=True)
-        logger.info("Scheduler started (background mode)")
+        scheduler.start()
+        logger.info("Scheduler started")
 
 
 def shutdown_scheduler():
