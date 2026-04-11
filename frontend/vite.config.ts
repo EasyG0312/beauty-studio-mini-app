@@ -19,20 +19,6 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor';
-            }
-            return 'vendor-other';
-          }
-          if (id.includes('/src/components/')) {
-            return 'ui';
-          }
-          if (id.includes('/src/pages/')) {
-            return 'pages';
-          }
-        },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
