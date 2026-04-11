@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useBookingStore } from '../store/bookingStore';
@@ -17,11 +17,19 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { bookings, fetchBookings } = useBookingStore();
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchBookings({ chat_id: user.id, status_filter: 'confirmed' });
     }
+    
+    // Sticky header — blur при скролле
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 60);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [user]);
 
   const nextBooking = bookings.find((b) => {
@@ -52,13 +60,27 @@ export default function HomePage() {
 
   return (
     <div className="page">
-      {/* Header */}
-      <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 32 }}>
+      {/* Header — sticky с blur при скролле */}
+      <div className="page-header" style={{ 
+        borderBottom: 'none', 
+        paddingBottom: 0, 
+        marginBottom: scrolled ? 24 : 32,
+        background: scrolled ? 'var(--glass-bg)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(20px) saturate(150%)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(150%)' : 'none',
+        transition: 'all 300ms ease',
+        marginTop: scrolled ? -8 : 0,
+        marginLeft: scrolled ? -8 : 0,
+        marginRight: scrolled ? -8 : 0,
+        paddingLeft: scrolled ? 12 : 0,
+        paddingRight: scrolled ? 12 : 0,
+      }}>
         <h1 className="page-title" style={{ 
           fontFamily: 'var(--font-serif)', 
-          fontSize: 'var(--font-size-3xl)', 
+          fontSize: scrolled ? 'var(--font-size-2xl)' : 'var(--font-size-3xl)',
           marginBottom: 8,
           letterSpacing: '-0.02em',
+          transition: 'font-size 300ms ease',
         }}>
           Beauty Studio
         </h1>
@@ -68,6 +90,8 @@ export default function HomePage() {
           gap: 8,
           color: 'var(--gray-500)',
           letterSpacing: '0.02em',
+          opacity: scrolled ? 0.7 : 1,
+          transition: 'opacity 300ms ease',
         }}>
           <IconMapPin size={14} />
           Бишкек, ул. Ахунбаева, 1

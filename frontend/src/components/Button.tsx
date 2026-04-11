@@ -1,3 +1,5 @@
+import { haptic } from '../services/haptic';
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
@@ -5,6 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  hapticType?: 'impact' | 'notification' | 'selection' | 'none';
 }
 
 export default function Button({
@@ -15,14 +18,24 @@ export default function Button({
   loading = false,
   leftIcon,
   rightIcon,
+  hapticType = 'impact',
   className = '',
   disabled,
+  onClick,
   ...props
 }: ButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (hapticType === 'impact') haptic.impact('light');
+    else if (hapticType === 'notification') haptic.notification('success');
+    else if (hapticType === 'selection') haptic.selection();
+    onClick?.(e);
+  };
+
   return (
     <button
       className={`button button-${variant} button-${size} ${fullWidth ? 'button-full' : ''} ${className}`}
       disabled={disabled || loading}
+      onClick={handleClick}
       {...props}
     >
       {loading ? (

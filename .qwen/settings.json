@@ -19,7 +19,21 @@
       "Bash(copy *)",
       "Bash(do *)",
       "Bash(start *)",
-      "Bash(del *)"
+      "Bash(del *)",
+      "Bash(npm install *)",
+      "Bash(venv\\scripts\\activate)",
+      "Bash(npm audit)",
+      "Bash(pip-audit)",
+      "Bash(vercel *)",
+      "Bash(npx *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(echo *)",
+      "Bash(xcopy *)",
+      "Bash(npm uninstall *)",
+      "Bash(rmdir *)",
+      "Bash(powershell *)",
+      "Bash(git checkout *)"
     ]
   },
   "$version": 3
