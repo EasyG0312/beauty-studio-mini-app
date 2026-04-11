@@ -1,15 +1,15 @@
 interface EmptyStateProps {
-  icon?: string;
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
 }
 
-export default function EmptyState({ 
-  icon = '📭', 
-  title, 
+export default function EmptyState({
+  icon,
+  title,
   description,
-  action 
+  action
 }: EmptyStateProps) {
   return (
     <div className="empty-state">
