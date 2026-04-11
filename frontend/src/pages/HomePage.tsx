@@ -53,11 +53,22 @@ export default function HomePage() {
   return (
     <div className="page">
       {/* Header */}
-      <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
-        <h1 className="page-title" style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-3xl)', marginBottom: 2 }}>
+      <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 32 }}>
+        <h1 className="page-title" style={{ 
+          fontFamily: 'var(--font-serif)', 
+          fontSize: 'var(--font-size-3xl)', 
+          marginBottom: 8,
+          letterSpacing: '-0.02em',
+        }}>
           Beauty Studio
         </h1>
-        <p className="page-subtitle" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <p className="page-subtitle" style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 8,
+          color: 'var(--gray-500)',
+          letterSpacing: '0.02em',
+        }}>
           <IconMapPin size={14} />
           Бишкек, ул. Ахунбаева, 1
         </p>
@@ -77,16 +88,16 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Promo Banner */}
-      <div className="banner" style={{ position: 'relative' }}>
+      {/* Promo Banner — центрированный, без неона */}
+      <div className="banner" style={{ position: 'relative', padding: '28px 24px', textAlign: 'center' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="banner-title" style={{ fontFamily: 'var(--font-serif)' }}>
+          <div className="banner-title" style={{ fontFamily: 'var(--font-serif)', marginBottom: 8 }}>
             Скидка 10%
           </div>
-          <div className="banner-description">
+          <div className="banner-description" style={{ marginBottom: 20 }}>
             На первую запись. Запишитесь прямо сейчас!
           </div>
-          <button className="banner-button" onClick={() => navigate('/booking')}>
+          <button className="banner-button" onClick={() => navigate('/booking')} style={{ margin: '0 auto' }}>
             Записаться
           </button>
         </div>
@@ -177,36 +188,67 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Services Categories */}
-          <div style={{ marginTop: 24 }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-xl)', marginBottom: 16 }}>Категории</h2>
-            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+          {/* Services Categories — увеличенный padding */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ 
+              fontFamily: 'var(--font-serif)', 
+              fontSize: 'var(--font-size-lg)', 
+              marginBottom: 16,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: 'var(--gray-600)',
+              fontWeight: 500,
+            }}>
+              Категории
+            </h2>
+            <div className="grid grid-cols-2" style={{ gap: 14 }}>
               {categories.map((cat) => (
                 <Card
                   key={cat.id}
                   interactive
                   onClick={() => navigate('/booking')}
-                  style={{ margin: 0, textAlign: 'center', padding: 20 }}
+                  style={{ 
+                    margin: 0, 
+                    textAlign: 'center', 
+                    padding: 24,
+                    borderRadius: 18,
+                  }}
                 >
-                  <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'center' }}>
-                    <cat.icon size={32} color="var(--brand-gold)" />
+                  <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'center' }}>
+                    <cat.icon size={28} color="var(--brand-gold)" />
                   </div>
-                  <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 15 }}>{cat.name}</div>
+                  <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>{cat.name}</div>
                   <div className="text-hint" style={{ fontSize: 12 }}>{cat.price}</div>
                 </Card>
               ))}
             </div>
           </div>
 
-          {/* Top Masters */}
-          <div style={{ marginTop: 24 }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-xl)', marginBottom: 16 }}>Топ мастеров</h2>
-            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
+          {/* Top Masters — увеличенный padding */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ 
+              fontFamily: 'var(--font-serif)', 
+              fontSize: 'var(--font-size-lg)', 
+              marginBottom: 16,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: 'var(--gray-600)',
+              fontWeight: 500,
+            }}>
+              Топ мастеров
+            </h2>
+            <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8 }}>
               {masters.map((master) => (
                 <Card
                   key={master.id}
                   interactive
-                  style={{ margin: 0, minWidth: 140, textAlign: 'center', padding: 16 }}
+                  style={{ 
+                    margin: 0, 
+                    minWidth: 148, 
+                    textAlign: 'center', 
+                    padding: 20,
+                    borderRadius: 18,
+                  }}
                 >
                   <div style={{
                     width: 56,
@@ -216,14 +258,23 @@ export default function HomePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    margin: '0 auto 10px',
+                    margin: '0 auto 12px',
                     color: 'white',
                   }}>
                     <span style={{ fontSize: 20, fontWeight: 600 }}>{master.name[0]}</span>
                   </div>
-                  <div style={{ fontWeight: 600, marginBottom: 2, fontSize: 14 }}>{master.name}</div>
-                  <div className="text-hint" style={{ fontSize: 11, marginBottom: 6 }}>{master.spec}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: 'var(--brand-gold)', fontSize: 12 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 14 }}>{master.name}</div>
+                  <div className="text-hint" style={{ fontSize: 11, marginBottom: 8, lineHeight: 1.4 }}>
+                    {master.spec}
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: 4, 
+                    color: 'var(--brand-gold)', 
+                    fontSize: 12 
+                  }}>
                     <IconStar size={14} color="var(--brand-gold)" />
                     <span>{master.rating}</span>
                   </div>
@@ -232,41 +283,106 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div style={{ marginTop: 24 }}>
-            <Card bordered>
-              <h3 style={{ fontFamily: 'var(--font-serif)', marginBottom: 12 }}>Ещё</h3>
+          {/* Quick Actions — Glassmorphism */}
+          <div style={{ marginTop: 32 }}>
+            <Card 
+              bordered 
+              style={{ 
+                padding: 24,
+                borderRadius: 20,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid var(--glass-border)',
+              }}
+            >
+              <h3 style={{ 
+                fontFamily: 'var(--font-serif)', 
+                marginBottom: 16,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                fontSize: 'var(--font-size-lg)',
+                fontWeight: 500,
+                color: 'var(--gray-600)',
+              }}>
+                Ещё
+              </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <Button variant="ghost" onClick={() => navigate('/waitlist')} leftIcon={<IconList size={18} />} fullWidth style={{ justifyContent: 'flex-start' }}>
+                <Button variant="ghost" onClick={() => navigate('/waitlist')} leftIcon={<IconList size={18} />} fullWidth style={{ justifyContent: 'flex-start', padding: '14px 12px' }}>
                   Лист ожидания
                 </Button>
-                <Button variant="ghost" onClick={() => navigate('/chat')} leftIcon={<IconMessage size={18} />} fullWidth style={{ justifyContent: 'flex-start' }}>
+                <Button variant="ghost" onClick={() => navigate('/chat')} leftIcon={<IconMessage size={18} />} fullWidth style={{ justifyContent: 'flex-start', padding: '14px 12px' }}>
                   Чат с менеджером
                 </Button>
-                <Button variant="ghost" onClick={() => navigate('/loyalty')} leftIcon={<IconCrown size={18} />} fullWidth style={{ justifyContent: 'flex-start' }}>
+                <Button variant="ghost" onClick={() => navigate('/loyalty')} leftIcon={<IconCrown size={18} />} fullWidth style={{ justifyContent: 'flex-start', padding: '14px 12px' }}>
                   Программа лояльности
                 </Button>
               </div>
             </Card>
           </div>
 
-          {/* Contact Card */}
-          <Card bordered style={{ marginTop: 24 }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', marginBottom: 16 }}>Контакты</h3>
+          {/* Contact Card — Glassmorphism, мягкие цвета */}
+          <Card 
+            bordered 
+            style={{ 
+              marginTop: 32,
+              padding: 24,
+              borderRadius: 20,
+              background: 'var(--glass-bg)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid var(--glass-border)',
+            }}
+          >
+            <h3 style={{ 
+              fontFamily: 'var(--font-serif)', 
+              marginBottom: 20,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              fontSize: 'var(--font-size-lg)',
+              fontWeight: 500,
+              color: 'var(--gray-600)',
+            }}>
+              Контакты
+            </h3>
             <div>
-              <p style={{ margin: '10px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <p style={{ 
+                margin: '12px 0', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 12,
+                color: '#B5B0A3',
+                fontSize: 14,
+              }}>
                 <IconMapPin size={18} color="var(--brand-gold)" />
-                <span style={{ fontSize: 14 }}>г. Бишкек, ул. Ахунбаева, 1</span>
+                <span>г. Бишкек, ул. Ахунбаева, 1</span>
               </p>
-              <p style={{ margin: '10px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <p style={{ 
+                margin: '12px 0', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 12,
+                color: '#B5B0A3',
+                fontSize: 14,
+              }}>
                 <IconPhone size={18} color="var(--brand-gold)" />
-                <a href="tel:+996707001112" style={{ color: 'var(--brand-gold)', fontSize: 14 }}>
+                <a href="tel:+996707001112" style={{ 
+                  color: '#D4B97A',
+                  textDecoration: 'none',
+                }}>
                   +996 707 001112
                 </a>
               </p>
-              <p style={{ margin: '10px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <p style={{ 
+                margin: '12px 0', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 12,
+                color: '#B5B0A3',
+                fontSize: 14,
+              }}>
                 <IconClock size={18} color="var(--brand-gold)" />
-                <span style={{ fontSize: 14 }}>Пн-Сб: 09:00 — 20:00</span>
+                <span>Пн-Сб: 09:00 — 20:00</span>
               </p>
             </div>
           </Card>

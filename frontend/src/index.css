@@ -71,17 +71,17 @@
   --glass-saturate: 150%;
 
   /* ============================================
-     SHADOWS (Ultra-soft, Boutique Style)
+     SHADOWS (Ultra-soft, Boutique Style — NO GLOW)
      ============================================ */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.08);
-  --shadow-2xl: 0 24px 80px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 24px 80px rgba(0, 0, 0, 0.12);
 
-  /* Gold shadow */
-  --shadow-gold: 0 4px 20px rgba(201, 169, 110, 0.2);
+  /* Gold shadow — soft, earthy, NO neon glow */
+  --shadow-gold: 0 4px 16px rgba(201, 169, 110, 0.15);
 
   /* ============================================
      BORDER RADIUS (Elegant, Large)
