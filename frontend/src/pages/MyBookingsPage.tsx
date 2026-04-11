@@ -6,6 +6,7 @@ import { rescheduleBooking, cancelBooking as apiCancelBooking } from '../service
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
+import { IconChevronLeft, IconMessage } from '../components/Icons';
 import type { Booking } from '../types';
 
 export default function MyBookingsPage() {
@@ -95,12 +96,11 @@ export default function MyBookingsPage() {
   return (
     <div className="page">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-        <button 
+        <button
           onClick={() => navigate('/')}
           style={{
             background: 'transparent',
             border: 'none',
-            fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
             display: 'flex',
@@ -108,9 +108,9 @@ export default function MyBookingsPage() {
             justifyContent: 'center',
           }}
         >
-          ←
+          <IconChevronLeft size={24} />
         </button>
-        <h1 style={{ margin: 0 }}>Мои записи</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Мои записи</h1>
       </div>
 
       {/* Filter tabs */}
@@ -152,8 +152,8 @@ export default function MyBookingsPage() {
                 </div>
                 
                 {booking.comment && (
-                  <p className="text-hint mt-2" style={{ fontSize: '14px' }}>
-                    💬 {booking.comment}
+                  <p className="text-hint mt-2" style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IconMessage size={16} /> {booking.comment}
                   </p>
                 )}
                 

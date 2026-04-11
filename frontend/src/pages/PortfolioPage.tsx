@@ -4,14 +4,15 @@ import { getPortfolio, getMasterPhotos } from '../services/api';
 import type { Portfolio, MasterPhoto } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { IconChevronLeft, IconScissors, IconNailPolish, IconMakeup, IconMassage, IconColorPalette, IconImage, IconUser, IconMapPin, IconPhone, IconX } from '../components/Icons';
 
 const CATEGORIES = [
-  { id: 'all', name: 'Все работы', icon: '🎨' },
-  { id: 'haircut', name: 'Стрижки', icon: '💇' },
-  { id: 'manicure', name: 'Маникюр', icon: '💅' },
-  { id: 'makeup', name: 'Макияж', icon: '💄' },
-  { id: 'massage', name: 'Массаж', icon: '💆' },
-  { id: 'coloring', name: 'Окрашивание', icon: '🎨' },
+  { id: 'all', name: 'Все работы', icon: <IconColorPalette size={16} /> },
+  { id: 'haircut', name: 'Стрижки', icon: <IconScissors size={16} /> },
+  { id: 'manicure', name: 'Маникюр', icon: <IconNailPolish size={16} /> },
+  { id: 'makeup', name: 'Макияж', icon: <IconMakeup size={16} /> },
+  { id: 'massage', name: 'Массаж', icon: <IconMassage size={16} /> },
+  { id: 'coloring', name: 'Окрашивание', icon: <IconColorPalette size={16} /> },
 ];
 
 export default function PortfolioPage() {
@@ -57,12 +58,11 @@ export default function PortfolioPage() {
   return (
     <div className="page">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-        <button 
+        <button
           onClick={() => navigate('/')}
           style={{
             background: 'transparent',
             border: 'none',
-            fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
             display: 'flex',
@@ -70,9 +70,9 @@ export default function PortfolioPage() {
             justifyContent: 'center',
           }}
         >
-          ←
+          <IconChevronLeft size={24} />
         </button>
-        <h1 style={{ margin: 0 }}>Наши работы</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Наши работы</h1>
       </div>
 
       {/* Category Filter */}
@@ -107,7 +107,7 @@ export default function PortfolioPage() {
                   overflow: 'hidden',
                   margin: '0 auto 4px',
                 }}>
-                  <span style={{ fontSize: '32px' }}>👤</span>
+                  <IconUser size={32} />
                 </div>
                 <div style={{ fontSize: '12px' }}>{photo.master}</div>
               </div>
@@ -146,7 +146,7 @@ export default function PortfolioPage() {
                   justifyContent: 'center',
                   overflow: 'hidden',
                 }}>
-                  <span style={{ fontSize: '48px' }}>📸</span>
+                  <IconImage size={48} />
                 </div>
                 {item.description && (
                   <p style={{
@@ -191,17 +191,17 @@ export default function PortfolioPage() {
           }}
         >
           <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
-            <div style={{
-              fontSize: '32px',
-              position: 'absolute',
-              top: '-40px',
-              right: '0',
-              cursor: 'pointer',
-              color: 'white',
-            }}
-            onClick={closeLightbox}
+            <div
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: '0',
+                cursor: 'pointer',
+                color: 'white',
+              }}
+              onClick={closeLightbox}
             >
-              ✕
+              <IconX size={32} />
             </div>
             <div style={{
               background: 'var(--tg-theme-bg-color)',
@@ -219,7 +219,7 @@ export default function PortfolioPage() {
                 justifyContent: 'center',
                 marginBottom: '12px',
               }}>
-                <span style={{ fontSize: '96px' }}>📸</span>
+                <IconImage size={96} />
               </div>
               {lightbox.image.description && (
                 <p style={{ margin: '0 0 8px 0' }}>{lightbox.image.description}</p>
@@ -241,11 +241,11 @@ export default function PortfolioPage() {
       )}
 
       <Card className="mt-3">
-        <p className="text-hint text-center">
-          📍 г. Бишкек, ул. Ахунбаева, 1
+        <p className="text-hint text-center" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <IconMapPin size={16} /> г. Бишкек, ул. Ахунбаева, 1
         </p>
-        <p className="text-hint text-center">
-          📞 +996 707 001112
+        <p className="text-hint text-center" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <IconPhone size={16} /> +996 707 001112
         </p>
       </Card>
     </div>

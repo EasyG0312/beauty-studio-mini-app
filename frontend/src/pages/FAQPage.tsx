@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
+import { IconChevronLeft, IconChevronRight, IconPhone, IconClock } from '../components/Icons';
 import { FAQ_ITEMS } from '../types';
 
 export default function FAQPage() {
@@ -12,12 +13,11 @@ export default function FAQPage() {
   return (
     <div className="page">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-        <button 
+        <button
           onClick={() => navigate('/')}
           style={{
             background: 'transparent',
             border: 'none',
-            fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
             display: 'flex',
@@ -25,9 +25,9 @@ export default function FAQPage() {
             justifyContent: 'center',
           }}
         >
-          ←
+          <IconChevronLeft size={24} />
         </button>
-        <h1 style={{ margin: 0 }}>Частые вопросы</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Частые вопросы</h1>
       </div>
 
       {faqEntries.map(([question, answer], index) => (
@@ -39,11 +39,12 @@ export default function FAQPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>{question}</h3>
             <span style={{
-              fontSize: '20px',
-              transform: openIndex === index ? 'rotate(45deg)' : 'rotate(0deg)',
+              display: 'flex',
+              alignItems: 'center',
+              transform: openIndex === index ? 'rotate(90deg)' : 'none',
               transition: 'transform 0.2s',
             }}>
-              {openIndex === index ? '✕' : '+'}
+              <IconChevronRight size={18} />
             </span>
           </div>
 
@@ -60,11 +61,11 @@ export default function FAQPage() {
         <p className="text-hint">
           Свяжитесь с нами любым удобным способом:
         </p>
-        <p style={{ marginTop: '8px' }}>
-          📞 <a href="tel:+996707001112" style={{ color: 'var(--tg-theme-link-color)' }}>+996 707 001112</a>
+        <p style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <IconPhone size={16} /> <a href="tel:+996707001112" style={{ color: 'var(--tg-theme-link-color)' }}>+996 707 001112</a>
         </p>
-        <p className="text-hint">
-          🕒 Пн-Сб: 09:00 - 20:00
+        <p className="text-hint" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <IconClock size={16} /> Пн-Сб: 09:00 - 20:00
         </p>
       </Card>
     </div>

@@ -5,6 +5,7 @@ import { getChatHistory, sendChatMessage, getClients } from '../services/api';
 import type { ChatMessage, Client } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { IconChevronLeft, IconSend, IconMessage } from '../components/Icons';
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -87,12 +88,11 @@ export default function ChatPage() {
   return (
     <div className="page" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-        <button 
+        <button
           onClick={() => navigate('/')}
           style={{
             background: 'transparent',
             border: 'none',
-            fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
             display: 'flex',
@@ -100,9 +100,9 @@ export default function ChatPage() {
             justifyContent: 'center',
           }}
         >
-          ←
+          <IconChevronLeft size={24} />
         </button>
-        <h1 style={{ margin: 0 }}>Чат с {isManager ? 'клиентом' : 'менеджером'}</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Чат с {isManager ? 'клиентом' : 'менеджером'}</h1>
       </div>
 
       {isManager && (
@@ -137,7 +137,10 @@ export default function ChatPage() {
             {loading ? (
               <div className="loading">Загрузка...</div>
             ) : messages.length === 0 ? (
-              <p className="text-center text-hint">История пуста</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', color: 'var(--text-hint)' }}>
+                <IconMessage size={48} />
+                <p className="text-center text-hint" style={{ marginTop: '12px' }}>История пуста</p>
+              </div>
             ) : (
               messages.map((msg) => (
                 <div
@@ -189,7 +192,9 @@ export default function ChatPage() {
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               style={{ flex: 1 }}
             />
-            <Button onClick={handleSend}>➤</Button>
+            <Button onClick={handleSend} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 16px' }}>
+              <IconSend size={18} />
+            </Button>
           </div>
         </>
       )}

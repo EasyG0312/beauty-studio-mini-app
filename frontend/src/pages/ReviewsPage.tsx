@@ -4,6 +4,7 @@ import { getReviews, createReview } from '../services/api';
 import type { Review } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { IconChevronLeft, IconStar } from '../components/Icons';
 
 export default function ReviewsPage() {
   const navigate = useNavigate();
@@ -49,19 +50,28 @@ export default function ReviewsPage() {
   };
 
   const renderStars = (rating: number) => {
-    return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+    return (
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <IconStar
+            key={star}
+            size={20}
+            color={star <= rating ? 'var(--brand-gold)' : 'var(--gray-300)'}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button 
+          <button
             onClick={() => navigate('/')}
             style={{
               background: 'transparent',
               border: 'none',
-              fontSize: '24px',
               cursor: 'pointer',
               padding: '8px',
               display: 'flex',
@@ -69,9 +79,9 @@ export default function ReviewsPage() {
               justifyContent: 'center',
             }}
           >
-            ←
+            <IconChevronLeft size={24} />
           </button>
-          <h1 style={{ margin: 0 }}>Отзывы</h1>
+          <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Отзывы</h1>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? 'Закрыть' : 'Оставить отзыв'}
@@ -100,12 +110,12 @@ export default function ReviewsPage() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    fontSize: '24px',
                     cursor: 'pointer',
+                    padding: '4px',
                     opacity: star <= rating ? 1 : 0.3,
                   }}
                 >
-                  ⭐
+                  <IconStar size={24} color={star <= rating ? 'var(--brand-gold)' : 'var(--gray-300)'} />
                 </button>
               ))}
             </div>
