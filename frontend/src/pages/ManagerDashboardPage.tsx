@@ -6,6 +6,21 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import { CANCEL_REASONS } from '../types';
+import {
+  IconCheck,
+  IconX,
+  IconClock,
+  IconUser,
+  IconMessage,
+  IconList,
+  IconCalendar,
+  IconSearch,
+  IconStar,
+  IconCrown,
+  IconChart,
+  IconUsers,
+  IconScissors,
+} from '../components/Icons';
 
 export default function ManagerDashboardPage() {
   const navigate = useNavigate();
@@ -181,7 +196,9 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="page">
-      <h1>📊 Панель менеджера</h1>
+      <h1 style={{ fontFamily: 'var(--font-serif)' }}>
+        <IconChart size={28} /> Панель менеджера
+      </h1>
 
       {/* Quick Stats */}
       {analytics && (
@@ -189,25 +206,25 @@ export default function ManagerDashboardPage() {
           <Card>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{analytics.today_bookings}</div>
-              <div className="text-hint" style={{ fontSize: '12px' }}>📅 Сегодня</div>
+              <div className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}><IconCalendar size={14} /> Сегодня</div>
             </div>
           </Card>
           <Card>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#4CAF50' }}>{analytics.confirmed}</div>
-              <div className="text-hint" style={{ fontSize: '12px' }}>✅ Подтверждено</div>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{analytics.confirmed}</div>
+              <div className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}><IconCheck size={14} /> Подтверждено</div>
             </div>
           </Card>
           <Card>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#FF9800' }}>{analytics.week_bookings}</div>
-              <div className="text-hint" style={{ fontSize: '12px' }}>📊 За неделю</div>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{analytics.week_bookings}</div>
+              <div className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}><IconChart size={14} /> За неделю</div>
             </div>
           </Card>
           <Card>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2196F3' }}>{analytics.total_clients}</div>
-              <div className="text-hint" style={{ fontSize: '12px' }}>👥 Клиенты</div>
+              <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--brand-gold)' }}>{analytics.total_clients}</div>
+              <div className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}><IconUsers size={14} /> Клиенты</div>
             </div>
           </Card>
         </div>
@@ -216,16 +233,16 @@ export default function ManagerDashboardPage() {
       {/* Quick actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '16px' }}>
         <Button onClick={() => navigate('/chat')} style={{ padding: '12px' }}>
-          💬 Чат
+          <IconMessage size={18} /> Чат
         </Button>
         <Button onClick={() => navigate('/notifications')} style={{ padding: '12px' }}>
-          🔔 Уведомления
+          <IconClock size={18} /> Уведомления
         </Button>
         <Button onClick={() => navigate('/waitlist')} style={{ padding: '12px' }}>
-          📋 Лист ожидания
+          <IconList size={18} /> Лист ожидания
         </Button>
         <Button onClick={() => navigate('/reviews')} style={{ padding: '12px' }}>
-          ⭐ Отзывы
+          <IconStar size={18} /> Отзывы
         </Button>
       </div>
 
@@ -264,7 +281,7 @@ export default function ManagerDashboardPage() {
       {/* Bulk action */}
       {tab === 'today' && bookings.some((b) => b.status === 'pending' && b.date === today) && (
         <Button onClick={handleBulkConfirm} className="mb-2">
-          ✅ Подтвердить все ожидающие ({bookings.filter((b) => b.status === 'pending' && b.date === today).length})
+          <IconCheck size={18} /> Подтвердить все ожидающие ({bookings.filter((b) => b.status === 'pending' && b.date === today).length})
         </Button>
       )}
 
@@ -296,13 +313,19 @@ export default function ManagerDashboardPage() {
       {tab === 'clients' && (
         <>
           {/* Поиск */}
-          <input
-            type="text"
-            className="input mb-2"
-            placeholder="🔍 Поиск по имени или телефону..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div style={{ position: 'relative', marginBottom: '12px' }}>
+            <div style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5, pointerEvents: 'none' }}>
+              <IconSearch size={18} />
+            </div>
+            <input
+              type="text"
+              className="input"
+              placeholder="Поиск по имени или телефону..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '36px' }}
+            />
+          </div>
 
           {filteredClients.length === 0 ? (
             <Card>
@@ -314,26 +337,28 @@ export default function ManagerDashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ marginBottom: '4px' }}>{client.name}</h3>
-                    <p className="text-hint" style={{ fontSize: '14px' }}>📱 {client.phone}</p>
+                    <p className="text-hint" style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}><IconUser size={14} /> {client.phone}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                      <span className="text-hint" style={{ fontSize: '12px' }}>
-                        📊 Визитов: <strong>{client.visit_count}</strong>
+                      <span className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <IconChart size={12} /> Визитов: <strong>{client.visit_count}</strong>
                       </span>
-                      <span className="text-hint" style={{ fontSize: '12px' }}>
-                        📅 Последний: {client.last_visit}
+                      <span className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <IconCalendar size={12} /> Последний: {client.last_visit}
                       </span>
                     </div>
                     {client.is_loyal && (
                       <span style={{
-                        background: '#4CAF50',
+                        background: 'var(--brand-gold)',
                         color: 'white',
                         padding: '2px 8px',
                         borderRadius: '4px',
                         fontSize: '11px',
                         marginTop: '8px',
-                        display: 'inline-block',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
                       }}>
-                        ⭐ Постоянный клиент
+                        <IconCrown size={12} /> Постоянный клиент
                       </span>
                     )}
                   </div>
@@ -342,7 +367,7 @@ export default function ManagerDashboardPage() {
                     onClick={() => openClientNotes(client)}
                     style={{ fontSize: '12px', padding: '4px 8px', marginLeft: '8px' }}
                   >
-                    📝
+                    <IconMessage size={16} />
                   </Button>
                 </div>
               </Card>
@@ -372,11 +397,11 @@ export default function ManagerDashboardPage() {
                         <Badge status={booking.status} />
                       </div>
                       <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '4px' }}>{booking.name}</div>
-                      <div className="text-hint">📱 {booking.phone}</div>
-                      <div className="text-hint">💇 {booking.service} | {booking.master}</div>
+                      <div className="text-hint" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><IconUser size={14} /> {booking.phone}</div>
+                      <div className="text-hint" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><IconScissors size={14} /> {booking.service} | {booking.master}</div>
                       {booking.comment && (
-                        <div className="text-hint" style={{ fontSize: '14px', marginTop: '4px' }}>
-                          💬 {booking.comment}
+                        <div className="text-hint" style={{ fontSize: '14px', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <IconMessage size={14} /> {booking.comment}
                         </div>
                       )}
                       {booking.is_on_the_way && (
@@ -387,9 +412,11 @@ export default function ManagerDashboardPage() {
                           borderRadius: '4px',
                           fontSize: '12px',
                           marginTop: '4px',
-                          display: 'inline-block',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
                         }}>
-                          🚗 Клиент выезжает
+                          <IconClock size={14} /> Клиент выезжает
                         </div>
                       )}
                     </div>
@@ -399,24 +426,24 @@ export default function ManagerDashboardPage() {
                     {booking.status === 'pending' && (
                       <>
                         <Button onClick={() => handleConfirm(booking.id)} style={{ flex: 1 }}>
-                          ✅ Подтвердить
+                          <IconCheck size={18} /> Подтвердить
                         </Button>
                         <Button
                           variant="secondary"
                           onClick={() => handleOnTheWay(booking.id)}
                           style={{ flex: 1 }}
                         >
-                          🚗 Я выезжаю
+                          <IconClock size={18} /> Я выезжаю
                         </Button>
                       </>
                     )}
                     {booking.status === 'confirmed' && (
                       <>
                         <Button onClick={() => handleComplete(booking.id)} style={{ flex: 1 }}>
-                          ✅ Визит завершён
+                          <IconCheck size={18} /> Визит завершён
                         </Button>
                         <Button variant="danger" onClick={() => handleNoShow(booking.id)} style={{ flex: 1 }}>
-                          ❌ Не явился
+                          <IconX size={18} /> Не явился
                         </Button>
                       </>
                     )}
@@ -508,8 +535,8 @@ export default function ManagerDashboardPage() {
           padding: '16px',
         }}>
           <Card>
-            <h3>📝 Заметки: {selectedClient.name}</h3>
-            <p className="text-hint" style={{ fontSize: '12px' }}>📱 {selectedClient.phone}</p>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IconMessage size={20} /> Заметки: {selectedClient.name}</h3>
+            <p className="text-hint" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}><IconUser size={14} /> {selectedClient.phone}</p>
             <textarea
               className="input mt-2"
               placeholder="Аллергии, предпочтения, заметки..."

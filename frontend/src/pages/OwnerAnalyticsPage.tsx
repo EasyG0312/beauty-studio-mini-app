@@ -8,6 +8,13 @@ import {
 import type { AnalyticsSummary, MasterKPI, ClientRFM, RevenueForecast } from '../types';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import {
+  IconChart,
+  IconUsers,
+  IconStar,
+  IconCrown,
+  IconCalendar,
+} from '../components/Icons';
 
 export default function OwnerAnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
@@ -79,7 +86,9 @@ export default function OwnerAnalyticsPage() {
 
   return (
     <div className="page">
-      <h1>Аналитика владельца</h1>
+      <h1 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <IconChart size={28} /> Аналитика владельца
+      </h1>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto' }}>
@@ -111,7 +120,7 @@ export default function OwnerAnalyticsPage() {
         <>
           {/* Revenue */}
           <Card>
-            <h2>💰 Выручка</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconCrown size={24} /> Выручка</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginTop: '16px' }}>
               <div>
                 <div className="text-hint">За 7 дней</div>
@@ -140,7 +149,7 @@ export default function OwnerAnalyticsPage() {
 
           {/* Clients */}
           <Card className="mt-3">
-            <h2>👥 Клиенты</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconUsers size={24} /> Клиенты</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginTop: '16px' }}>
               <div>
                 <div className="text-hint">Всего</div>
@@ -158,7 +167,7 @@ export default function OwnerAnalyticsPage() {
 
           {/* Bookings */}
           <Card className="mt-3">
-            <h2>📅 Записи</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconCalendar size={24} /> Записи</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '16px' }}>
               <div>
                 <div className="text-hint">Подтверждено</div>
@@ -191,9 +200,9 @@ export default function OwnerAnalyticsPage() {
 
           {/* Rating */}
           <Card className="mt-3">
-            <h2>⭐ Рейтинг</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconStar size={24} /> Рейтинг</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
-              <div style={{ fontSize: '48px' }}>⭐</div>
+              <div style={{ color: 'var(--brand-gold-gradient)' }}><IconStar size={48} /></div>
               <div>
                 <div style={{ fontSize: '36px', fontWeight: 'bold' }}>
                   {analytics.avg_rating.toFixed(1)}
@@ -205,7 +214,7 @@ export default function OwnerAnalyticsPage() {
 
           {/* Quick stats */}
           <Card className="mt-3">
-            <h2>📊 Статистика</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconChart size={24} /> Статистика</h2>
             <div style={{ marginTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--tg-theme-secondary-bg-color)' }}>
                 <span>Сегодня записей</span>
@@ -227,7 +236,7 @@ export default function OwnerAnalyticsPage() {
       {/* KPI Tab */}
       {tab === 'kpi' && (
         <>
-          <h2>KPI Мастеров</h2>
+          <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconChart size={24} /> KPI Мастеров</h2>
           {kpi.length === 0 ? (
             <Card>
               <p className="text-center text-hint">Нет данных</p>
@@ -247,7 +256,7 @@ export default function OwnerAnalyticsPage() {
                   </div>
                   <div>
                     <div className="text-hint" style={{ fontSize: '12px' }}>Рейтинг</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>⭐ {master.avg_rating.toFixed(1)}</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><IconStar size={18} color="var(--brand-gold)" /> {master.avg_rating.toFixed(1)}</div>
                   </div>
                   <div>
                     <div className="text-hint" style={{ fontSize: '12px' }}>Конверсия</div>
@@ -273,7 +282,7 @@ export default function OwnerAnalyticsPage() {
       {/* RFM Tab */}
       {tab === 'rfm' && (
         <>
-          <h2>RFM Сегментация клиентов</h2>
+          <h2 style={{ fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '8px' }}><IconUsers size={24} /> RFM Сегментация клиентов</h2>
           <Card className="mb-2">
             <p className="text-hint" style={{ fontSize: '13px' }}>
               RFM-анализ сегментирует клиентов по давности визита (Recency), частоте (Frequency) и сумме потраченных средств (Monetary).
