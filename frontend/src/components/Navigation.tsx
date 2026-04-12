@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { haptic } from '../services/haptic';
 import { IconHome, IconCalendar, IconClipboard, IconGrid, IconStar, IconImage, IconHelp } from './Icons';
 
 export default function Navigation() {
@@ -19,6 +20,7 @@ export default function Navigation() {
           key={to}
           to={to}
           className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
+          onClick={() => haptic.selection()}
         >
           <Icon size={22} />
           <span>{label}</span>

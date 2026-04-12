@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useBookingStore } from '../store/bookingStore';
 import { getAvailableSlots } from '../services/api';
+import { haptic } from '../services/haptic';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -61,21 +62,25 @@ export default function BookingPage() {
   });
 
   const handleDateSelect = (date: string) => {
+    haptic.selection();
     setFormData({ ...formData, date });
     setStep(2);
   };
 
   const handleMasterSelect = (master: string) => {
+    haptic.selection();
     setFormData({ ...formData, master });
     setStep(3);
   };
 
   const handleServiceSelect = (service: string) => {
+    haptic.selection();
     setFormData({ ...formData, service });
     setStep(4);
   };
 
   const handleTimeSelect = (time: string) => {
+    haptic.impact('soft');
     setFormData({ ...formData, time });
     setStep(5);
   };
@@ -117,9 +122,11 @@ export default function BookingPage() {
         chat_id: user?.id,
       };
       await addBooking(booking);
+      haptic.notification('success');
       alert('Запись создана! Ожидайте подтверждения.');
       navigate('/my-bookings');
     } catch (error: any) {
+      haptic.notification('error');
       const errorMsg = error.response?.data?.detail || 'Ошибка при создании записи';
       alert(errorMsg);
       console.error(error);

@@ -18,24 +18,27 @@ export default function Button({
   loading = false,
   leftIcon,
   rightIcon,
-  hapticType = 'impact',
+  hapticType = 'none',
   className = '',
   disabled,
   onClick,
+  onPointerDown,
   ...props
 }: ButtonProps) {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    // Haptic на pointerdown — срабатывает мгновенно при касании
     if (hapticType === 'impact') haptic.impact('light');
     else if (hapticType === 'notification') haptic.notification('success');
     else if (hapticType === 'selection') haptic.selection();
-    onClick?.(e);
+    onPointerDown?.(e);
   };
 
   return (
     <button
       className={`button button-${variant} button-${size} ${fullWidth ? 'button-full' : ''} ${className}`}
       disabled={disabled || loading}
-      onClick={handleClick}
+      onClick={onClick}
+      onPointerDown={handlePointerDown}
       {...props}
     >
       {loading ? (

@@ -1,5 +1,6 @@
 /**
  * Haptic Feedback — Telegram WebApp API
+ * Работает ТОЛЬКО внутри Telegram Mini App
  */
 
 declare global {
@@ -7,31 +8,47 @@ declare global {
     Telegram?: {
       WebApp?: {
         HapticFeedback?: {
-          impactOccurred: (type: string) => void;
-          notificationOccurred: (type: string) => void;
+          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+          notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
           selectionChanged: () => void;
         };
+        isVersionAtLeast: (version: string) => boolean;
       };
     };
   }
 }
 
+const isAvailable = (): boolean => {
+  try {
+    return !!window.Telegram?.WebApp?.HapticFeedback && 
+           window.Telegram.WebApp.isVersionAtLeast('6.1');
+  } catch {
+    return false;
+  }
+};
+
 export type HapticType = 'impact' | 'notification' | 'selection';
 
 export const haptic = {
-  impact(type: 'light' | 'medium' | 'heavy' = 'light') {
-    try {
-      window.Telegram?.WebApp?.HapticFeedback?.impactOccurred(type);
-    } catch {}
+  impact(type: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' = 'light') {
+    if (isAvailable()) {
+      try {
+        window.Telegram!.WebApp!.HapticFeedback!.impactOccurred(type);
+      } catch {}
+    }
   },
   notification(type: 'error' | 'success' | 'warning' = 'success') {
-    try {
-      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred(type);
-    } catch {}
+    if (isAvailable()) {
+      try {
+        window.Telegram!.WebApp!.HapticFeedback!.notificationOccurred(type);
+      } catch {}
+    }
   },
   selection() {
-    try {
-      window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
-    } catch {}
+    if (isAvailable()) {
+      try {
+        window.Telegram!.WebApp!.HapticFeedback!.selectionChanged();
+      } catch {}
+    }
   },
 };
