@@ -10,7 +10,7 @@ import {
   IconScissors, IconNailPolish, IconMakeup, IconMassage,
   IconStar, IconCalendar, IconChart,
   IconMessage, IconList, IconCrown, IconPhone,
-  IconMapPin, IconClock,
+  IconMapPin, IconClock, IconUser,
 } from '../components/Icons';
 
 export default function HomePage() {
@@ -53,9 +53,9 @@ export default function HomePage() {
   ];
 
   const masters = [
-    { id: 1, name: 'Айгуль', spec: 'Стрижки, окрашивание', rating: 4.9 },
-    { id: 2, name: 'Диана', spec: 'Маникюр, педикюр', rating: 4.8 },
-    { id: 3, name: 'Айгерим', spec: 'Макияж, брови', rating: 4.9 },
+    { id: 1, name: 'Айгуль', spec: 'Стрижки, окрашивание', rating: 4.9, photo: '' },
+    { id: 2, name: 'Диана', spec: 'Маникюр, педикюр', rating: 4.8, photo: '' },
+    { id: 3, name: 'Айгерим', spec: 'Макияж, брови', rating: 4.9, photo: '' },
   ];
 
   return (
@@ -248,13 +248,13 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Top Masters — увеличенный padding */}
+          {/* Top Masters — фото вместо букв, тусклое золото */}
           <div style={{ marginTop: 32 }}>
             <h2 style={{ 
               fontFamily: 'var(--font-serif)', 
               fontSize: 'var(--font-size-lg)', 
               marginBottom: 16,
-              letterSpacing: '0.05em',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
               color: 'var(--gray-600)',
               fontWeight: 500,
@@ -268,39 +268,54 @@ export default function HomePage() {
                   interactive
                   style={{ 
                     margin: 0, 
-                    minWidth: 148, 
+                    minWidth: 156, 
                     textAlign: 'center', 
-                    padding: 20,
-                    borderRadius: 18,
+                    padding: 0,
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
                   }}
                 >
+                  {/* Фото мастера */}
                   <div style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: '50%',
-                    background: 'var(--brand-gold-gradient)',
+                    width: '100%',
+                    height: 120,
+                    background: 'linear-gradient(135deg, #1A1A1C 0%, #252528 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    margin: '0 auto 12px',
-                    color: 'white',
+                    position: 'relative',
                   }}>
-                    <span style={{ fontSize: 20, fontWeight: 600 }}>{master.name[0]}</span>
+                    {master.photo ? (
+                      <img 
+                        src={master.photo} 
+                        alt={master.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <IconUser size={40} color="var(--gray-400)" />
+                    )}
                   </div>
-                  <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 14 }}>{master.name}</div>
-                  <div className="text-hint" style={{ fontSize: 11, marginBottom: 8, lineHeight: 1.4 }}>
-                    {master.spec}
-                  </div>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: 4, 
-                    color: 'var(--brand-gold)', 
-                    fontSize: 12 
-                  }}>
-                    <IconStar size={14} color="var(--brand-gold)" />
-                    <span>{master.rating}</span>
+                  <div style={{ padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 15 }}>{master.name}</div>
+                    <div style={{ fontSize: 11, marginBottom: 8, lineHeight: 1.4, color: 'var(--gray-500)' }}>
+                      {master.spec}
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: 4, 
+                      color: '#A89060',
+                      fontSize: 12,
+                      opacity: 0.8,
+                    }}>
+                      <IconStar size={13} color="#A89060" />
+                      <span>{master.rating}</span>
+                    </div>
                   </div>
                 </Card>
               ))}

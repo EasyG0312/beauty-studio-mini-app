@@ -7,16 +7,16 @@
 
 :root {
   /* ============================================
-     TELEGRAM THEME (Auto-adaptive)
+     TELEGRAM THEME — Luxe Dark Anthracite
      ============================================ */
-  --tg-theme-bg-color: #FAF9F6;
-  --tg-theme-text-color: #1A1A1A;
-  --tg-theme-hint-color: #9A9A9E;
+  --tg-theme-bg-color: #0B0B0C;
+  --tg-theme-text-color: #F2F2F2;
+  --tg-theme-hint-color: #6B6B6E;
   --tg-theme-link-color: #C9A96E;
   --tg-theme-button-color: #C9A96E;
   --tg-theme-button-text-color: #FFFFFF;
-  --tg-theme-secondary-bg-color: #F5F3EE;
-  --tg-theme-header-bg-color: rgba(250, 249, 246, 0.85);
+  --tg-theme-secondary-bg-color: #141415;
+  --tg-theme-header-bg-color: rgba(11, 11, 12, 0.85);
 
   /* ============================================
      PREMIUM BRAND COLORS (Gold & Ivory)
@@ -35,40 +35,40 @@
   --brand-cream: #FFFEF9;
 
   /* ============================================
-     NEUTRAL COLORS (Warm Grays)
+     NEUTRAL COLORS — Warm Anthracite (Dark Luxe)
      ============================================ */
-  --gray-50: #FAF9F6;
-  --gray-100: #F5F3EE;
-  --gray-200: #E8E5DD;
-  --gray-300: #D4D0C5;
-  --gray-400: #B5B0A3;
-  --gray-500: #9A9587;
-  --gray-600: #7A7568;
-  --gray-700: #5C584D;
-  --gray-800: #3D3A32;
-  --gray-900: #1C1B18;
+  --gray-50: #141415;
+  --gray-100: #1A1A1C;
+  --gray-200: #252528;
+  --gray-300: #3A3A3E;
+  --gray-400: #5A5A5E;
+  --gray-500: #7A7A7E;
+  --gray-600: #9A9A9E;
+  --gray-700: #B5B5B8;
+  --gray-800: #D4D4D6;
+  --gray-900: #F2F2F2;
 
   /* ============================================
-     SEMANTIC COLORS (Muted, Premium)
+     SEMANTIC COLORS (Muted, Premium Dark)
      ============================================ */
-  --color-success: #6B9E78;
-  --color-success-bg: rgba(107, 158, 120, 0.12);
+  --color-success: #4A8C5C;
+  --color-success-bg: rgba(74, 140, 92, 0.15);
   --color-warning: #C9A96E;
   --color-warning-bg: rgba(201, 169, 110, 0.12);
-  --color-danger: #C47A7A;
-  --color-danger-bg: rgba(196, 122, 122, 0.12);
-  --color-info: #7A9BB5;
-  --color-info-bg: rgba(122, 155, 181, 0.12);
+  --color-danger: #A85C5C;
+  --color-danger-bg: rgba(168, 92, 92, 0.15);
+  --color-info: #5C7A94;
+  --color-info-bg: rgba(92, 122, 148, 0.15);
 
   /* ============================================
-     GLASSMORPHISM (Frosted Glass)
+     GLASSMORPHISM — Luxe (25px blur, thin border)
      ============================================ */
-  --glass-bg: rgba(250, 249, 246, 0.65);
-  --glass-bg-dark: rgba(28, 27, 24, 0.65);
-  --glass-border: rgba(201, 169, 110, 0.15);
-  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  --glass-blur: 16px;
-  --glass-saturate: 150%;
+  --glass-bg: rgba(20, 20, 21, 0.6);
+  --glass-bg-dark: rgba(11, 11, 12, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --glass-blur: 25px;
+  --glass-saturate: 120%;
 
   /* ============================================
      SHADOWS (Ultra-soft, Boutique Style — NO GLOW)
@@ -169,33 +169,17 @@
 }
 
 /* ============================================
-   DARK THEME (Premium Dark)
+   LIGHT THEME OVERRIDE (если Telegram в светлой теме)
    ============================================ */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --tg-theme-bg-color: #0F0F0D;
-    --tg-theme-text-color: #F5F3EE;
-    --tg-theme-hint-color: #6B6B65;
-    --tg-theme-secondary-bg-color: #1C1B18;
-    --tg-theme-header-bg-color: rgba(15, 15, 13, 0.85);
-
-    --glass-bg: rgba(28, 27, 24, 0.7);
-    --glass-border: rgba(201, 169, 110, 0.12);
-
-    --gray-50: #1C1B18;
-    --gray-100: #2A2925;
-    --gray-200: #3D3A32;
-    --gray-300: #5C584D;
-    --gray-400: #7A7568;
-    --gray-500: #9A9587;
-    --gray-600: #B5B0A3;
-    --gray-700: #D4D0C5;
-    --gray-800: #E8E5DD;
-    --gray-900: #F5F3EE;
-
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --tg-theme-bg-color: #0B0B0C;
+    --tg-theme-text-color: #F2F2F2;
+    --tg-theme-hint-color: #6B6B6E;
+    --tg-theme-secondary-bg-color: #141415;
+    --tg-theme-header-bg-color: rgba(11, 11, 12, 0.85);
+    --glass-bg: rgba(20, 20, 21, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -223,15 +207,33 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);
   color: var(--tg-theme-text-color);
-  background: var(--tg-theme-bg-color);
+  background: 
+    radial-gradient(ellipse at 50% 0%, #121214 0%, #0B0B0C 50%, #080809 100%);
+  background-attachment: fixed;
   min-height: 100vh;
+  position: relative;
+}
+
+/* Film Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  z-index: 0;
 }
 
 #root, .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--tg-theme-bg-color);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================
