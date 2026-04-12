@@ -486,26 +486,56 @@ export const getTelegramUser = () => {
 
 export const getTelegramInitData = () => {
   const win: any = window as any;
-  
-  // Пробуем разные источники
+
+  // Проверяем Telegram WebApp
   if (win.Telegram && win.Telegram.WebApp) {
     const tg = win.Telegram.WebApp;
-    const initData = tg.initData || tg.initDataUnsafe;
     
-    if (initData) {
+    // Сначала пробуем initData (подписанная строка)
+    const initData = tg.initData;
+    if (initData && initData.length > 10) {
       console.log('Telegram WebApp detected, initData available');
       return initData;
     }
+    
+    // Если initData пустая, пробуем создать из initDataUnsafe
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      // Создаем строку параметров из initDataUnsafe
+      const params = new URLSearchParams();
+      params.set('user', JSON.stringify(tg.initDataUnsafe.user));
+      if (tg.initDataUnsafe.hash) {
+        params.set('hash', tg.initDataUnsafe.hash);
+      }
+      if (tg.initDataUnsafe.auth_date) {
+        params.set('auth_date', String(tg.initDataUnsafe.auth_date));
+      }
+      if (tg.initDataUnsafe.query_id) {
+        params.set('query_id', tg.initDataUnsafe.query_id);
+      }
+      const constructed = params.toString();
+      console.log('Constructed initData from initDataUnsafe:', constructed.substring(0, 50));
+      return constructed;
+    }
+    
+    // Если даже initDataUnsafe пустой, но мы внутри Telegram WebApp,
+    // пробуем получить данные из объекта WebApp напрямую
+    console.log('Telegram WebApp object available but no auth data');
+    console.log('WebApp properties:', {
+      initData: tg.initData ? 'yes (' + tg.initData.length + ' chars)' : 'no',
+      initDataUnsafe: tg.initDataUnsafe ? JSON.stringify(tg.initDataUnsafe)?.substring(0, 100) : 'no',
+      version: tg.version,
+      platform: tg.platform,
+    });
   }
-  
-  // Проверяем URL параметры (если открыто через Telegram)
+
+  // Проверяем URL параметры
   const urlParams = new URLSearchParams(window.location.search);
   const telegramInitData = urlParams.get('tgWebAppData');
   if (telegramInitData) {
     console.log('Found tgWebAppData in URL');
     return telegramInitData;
   }
-  
+
   console.log('Telegram WebApp not detected or no initData');
   return null;
 };

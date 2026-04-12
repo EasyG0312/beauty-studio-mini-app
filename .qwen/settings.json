@@ -33,7 +33,8 @@
       "Bash(npm uninstall *)",
       "Bash(rmdir *)",
       "Bash(powershell *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(playwright *)"
     ]
   },
   "$version": 3

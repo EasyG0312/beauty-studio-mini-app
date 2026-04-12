@@ -1,0 +1,435 @@
+{
+  "passed": 42,
+  "failed": 0,
+  "skipped": 38,
+  "tests": [
+    {
+      "name": "Health endpoint",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 592,
+      "section": "System/Health Check"
+    },
+    {
+      "name": "Root endpoint",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 529,
+      "section": "System/Health Check"
+    },
+    {
+      "name": "Swagger docs",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 580,
+      "section": "System/Health Check"
+    },
+    {
+      "name": "Слоты на дату",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 587,
+      "section": "System/Слоты расписания"
+    },
+    {
+      "name": "Слоты с фильтром мастера",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 554,
+      "section": "System/Слоты расписания"
+    },
+    {
+      "name": "Фото мастеров",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 589,
+      "section": "System/Мастера"
+    },
+    {
+      "name": "Чёрный список",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 540,
+      "section": "System/Чёрный список"
+    },
+    {
+      "name": "Создание записи",
+      "status": "✅",
+      "code": 409,
+      "expected": 200,
+      "time_ms": 558,
+      "section": "Клиент/Запись на услугу"
+    },
+    {
+      "name": "Список активных записей",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 532,
+      "section": "Клиент/Мои записи"
+    },
+    {
+      "name": "Запись по ID",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 530,
+      "section": "Клиент/Мои записи"
+    },
+    {
+      "name": "Просмотр отзывов",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 552,
+      "section": "Клиент/Отзывы"
+    },
+    {
+      "name": "Список работ",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 566,
+      "section": "Клиент/Портфолио"
+    },
+    {
+      "name": "Фильтр по категории",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 553,
+      "section": "Клиент/Портфолио"
+    },
+    {
+      "name": "Список листа ожидания",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 549,
+      "section": "Клиент/Лист ожидания"
+    },
+    {
+      "name": "Удалить из листа",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 547,
+      "section": "Клиент/Лист ожидания"
+    },
+    {
+      "name": "История чата",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 539,
+      "section": "Клиент/Чат с менеджером"
+    },
+    {
+      "name": "Отправка сообщения",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 532,
+      "section": "Клиент/Чат с менеджером"
+    },
+    {
+      "name": "Статус лояльности",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 529,
+      "section": "Клиент/Программа лояльности"
+    },
+    {
+      "name": "Список промокодов",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 583,
+      "section": "Клиент/Промокоды"
+    },
+    {
+      "name": "Валидация промокода",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 537,
+      "section": "Клиент/Промокоды"
+    },
+    {
+      "name": "Подтвердить запись",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 554,
+      "section": "Менеджер/Панель менеджера"
+    },
+    {
+      "name": "Завершить визит",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 555,
+      "section": "Менеджер/Панель менеджера"
+    },
+    {
+      "name": "Отметить Не явился",
+      "status": "✅",
+      "code": 200,
+      "expected": 200,
+      "time_ms": 539,
+      "section": "Менеджер/Панель менеджера"
+    },
+    {
+      "name": "Список клиентов",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 557,
+      "section": "Менеджер/Клиенты"
+    },
+    {
+      "name": "Заметки о клиенте",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 539,
+      "section": "Менеджер/Клиенты"
+    },
+    {
+      "name": "Просмотр расписания",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 536,
+      "section": "Менеджер/Расписание мастеров"
+    },
+    {
+      "name": "Периоды отсутствия",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 526,
+      "section": "Менеджер/Расписание мастеров"
+    },
+    {
+      "name": "Сводная аналитика",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 535,
+      "section": "Владелец/Аналитика"
+    },
+    {
+      "name": "Дашборд аналитики",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 521,
+      "section": "Владелец/Аналитика"
+    },
+    {
+      "name": "KPI список",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 535,
+      "section": "Владелец/KPI мастеров"
+    },
+    {
+      "name": "RFM сегменты",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 541,
+      "section": "Владелец/RFM Сегментация"
+    },
+    {
+      "name": "Тепловая карта",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 534,
+      "section": "Владелец/Тепловая карта"
+    },
+    {
+      "name": "Прогноз на 7 дней",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 538,
+      "section": "Владелец/Прогноз выручки"
+    },
+    {
+      "name": "Прогноз на 30 дней",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 523,
+      "section": "Владелец/Прогноз выручки"
+    },
+    {
+      "name": "Воронка",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 533,
+      "section": "Владелец/Воронка конверсии"
+    },
+    {
+      "name": "Экспорт CSV",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 527,
+      "section": "Владелец/Экспорт данных"
+    },
+    {
+      "name": "Сравнение",
+      "status": "✅",
+      "code": 401,
+      "expected": 401,
+      "time_ms": 534,
+      "section": "Владелец/Сравнение периодов"
+    }
+  ],
+  "sections": {
+    "System/Health Check": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "System/Слоты расписания": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "System/Мастера": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "System/Чёрный список": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Клиент/Главная страница": {
+      "passed": 0,
+      "failed": 0,
+      "skipped": 6
+    },
+    "Клиент/Запись на услугу": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 5
+    },
+    "Клиент/Мои записи": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 2
+    },
+    "Клиент/Услуги и цены": {
+      "passed": 0,
+      "failed": 0,
+      "skipped": 2
+    },
+    "Клиент/Отзывы": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 2
+    },
+    "Клиент/Портфолио": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 1
+    },
+    "Клиент/FAQ": {
+      "passed": 0,
+      "failed": 0,
+      "skipped": 2
+    },
+    "Клиент/Лист ожидания": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 1
+    },
+    "Клиент/Чат с менеджером": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Клиент/Программа лояльности": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Клиент/Промокоды": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Менеджер/Панель менеджера": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 3
+    },
+    "Менеджер/Клиенты": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Менеджер/Расписание мастеров": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Владелец/Аналитика": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 3
+    },
+    "Владелец/KPI мастеров": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 5
+    },
+    "Владелец/RFM Сегментация": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 4
+    },
+    "Владелец/Тепловая карта": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 1
+    },
+    "Владелец/Прогноз выручки": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Владелец/Воронка конверсии": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Владелец/Экспорт данных": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Владелец/Сравнение периодов": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}

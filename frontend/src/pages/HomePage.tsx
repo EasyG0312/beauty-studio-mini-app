@@ -15,7 +15,7 @@ import {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, loginAsAdmin } = useAuthStore();
   const { bookings, fetchBookings } = useBookingStore();
   const [scrolled, setScrolled] = useState(false);
 
@@ -426,6 +426,32 @@ export default function HomePage() {
             </div>
           </Card>
         </>
+      )}
+
+      {/* Fallback: если Telegram авторизация не сработала — вход как владелец */}
+      {!user && (
+        <Card style={{ marginTop: 32, padding: 24, borderRadius: 20, textAlign: 'center' }}>
+          <div style={{ marginBottom: 16 }}>
+            <IconUser size={40} color="var(--gray-400)" />
+            <p className="text-hint" style={{ marginTop: 8, fontSize: 13 }}>
+              Авторизация через Telegram не удалась
+            </p>
+          </div>
+          <Button
+            fullWidth
+            variant="secondary"
+            onClick={() => {
+              loginAsAdmin();
+              navigate('/manager');
+            }}
+            leftIcon={<IconCrown size={18} />}
+          >
+            Войти как владелец (демо)
+          </Button>
+          <p className="text-hint" style={{ marginTop: 12, fontSize: 11 }}>
+            Только для тестирования. В продакшене — авторизация через Telegram.
+          </p>
+        </Card>
       )}
     </div>
   );

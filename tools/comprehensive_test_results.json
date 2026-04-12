@@ -1,0 +1,310 @@
+{
+  "passed": 35,
+  "failed": 1,
+  "skipped": 0,
+  "tests": [
+    {
+      "name": "Backend Health",
+      "status": "❌",
+      "section": "System",
+      "detail": "HTTPSConnectionPool(host='beauty-studio-api.onrender.com', port=443): Read timed"
+    },
+    {
+      "name": "Главная (/)",
+      "status": "✅",
+      "section": "Главная",
+      "detail": "6/6 — 866ms"
+    },
+    {
+      "name": "GET /api/bookings",
+      "status": "✅",
+      "section": "Главная",
+      "detail": "200 — 20875ms"
+    },
+    {
+      "name": "GET /api/masters/photos",
+      "status": "✅",
+      "section": "Главная",
+      "detail": "200 — 779ms"
+    },
+    {
+      "name": "Запись (/booking)",
+      "status": "✅",
+      "section": "Запись",
+      "detail": "6/6 — 734ms"
+    },
+    {
+      "name": "GET /api/slots",
+      "status": "✅",
+      "section": "Запись",
+      "detail": "200 — 765ms"
+    },
+    {
+      "name": "Мои записи (/my-bookings)",
+      "status": "✅",
+      "section": "Мои записи",
+      "detail": "6/6 — 730ms"
+    },
+    {
+      "name": "GET /api/bookings",
+      "status": "✅",
+      "section": "Мои записи",
+      "detail": "200 — 756ms"
+    },
+    {
+      "name": "Услуги (/services)",
+      "status": "✅",
+      "section": "Услуги",
+      "detail": "6/6 — 713ms"
+    },
+    {
+      "name": "Отзывы (/reviews)",
+      "status": "✅",
+      "section": "Отзывы",
+      "detail": "6/6 — 711ms"
+    },
+    {
+      "name": "GET /api/reviews",
+      "status": "✅",
+      "section": "Отзывы",
+      "detail": "200 — 770ms"
+    },
+    {
+      "name": "Портфолио (/portfolio)",
+      "status": "✅",
+      "section": "Портфолио",
+      "detail": "6/6 — 725ms"
+    },
+    {
+      "name": "GET /api/portfolio",
+      "status": "✅",
+      "section": "Портфолио",
+      "detail": "200 — 770ms"
+    },
+    {
+      "name": "FAQ (/faq)",
+      "status": "✅",
+      "section": "FAQ",
+      "detail": "6/6 — 725ms"
+    },
+    {
+      "name": "Лист ожидания (/waitlist)",
+      "status": "✅",
+      "section": "Лист ожидания",
+      "detail": "6/6 — 730ms"
+    },
+    {
+      "name": "GET /api/waitlist",
+      "status": "✅",
+      "section": "Лист ожидания",
+      "detail": "200 — 741ms"
+    },
+    {
+      "name": "Чат (/chat)",
+      "status": "✅",
+      "section": "Чат",
+      "detail": "6/6 — 714ms"
+    },
+    {
+      "name": "GET /api/chat",
+      "status": "✅",
+      "section": "Чат",
+      "detail": "200 — 759ms"
+    },
+    {
+      "name": "Лояльность (/loyalty)",
+      "status": "✅",
+      "section": "Лояльность",
+      "detail": "6/6 — 719ms"
+    },
+    {
+      "name": "GET /api/clients/loyalty",
+      "status": "✅",
+      "section": "Лояльность",
+      "detail": "200 — 761ms"
+    },
+    {
+      "name": "Панель менеджера (/manager)",
+      "status": "✅",
+      "section": "Панель менеджера",
+      "detail": "6/6 — 711ms"
+    },
+    {
+      "name": "GET /api/bookings (manager)",
+      "status": "✅",
+      "section": "Панель менеджера",
+      "detail": "200 — 826ms"
+    },
+    {
+      "name": "GET /api/clients (401 auth — ок)",
+      "status": "✅",
+      "section": "Панель менеджера",
+      "detail": "401 — 753ms"
+    },
+    {
+      "name": "Аналитика (/analytics)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "6/6 — 715ms"
+    },
+    {
+      "name": "GET /api/analytics/summary (401 auth — ок)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "401 — 818ms"
+    },
+    {
+      "name": "GET /api/analytics/kpi (401 auth — ок)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "401 — 799ms"
+    },
+    {
+      "name": "GET /api/analytics/rfm (401 auth — ок)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "401 — 743ms"
+    },
+    {
+      "name": "GET /api/analytics/heatmap (401 auth — ок)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "401 — 744ms"
+    },
+    {
+      "name": "GET /api/analytics/forecast (401 auth — ок)",
+      "status": "✅",
+      "section": "Аналитика",
+      "detail": "401 — 752ms"
+    },
+    {
+      "name": "Дашборд (/analytics-dashboard)",
+      "status": "✅",
+      "section": "Дашборд",
+      "detail": "6/6 — 717ms"
+    },
+    {
+      "name": "Расписание (/master-schedule)",
+      "status": "✅",
+      "section": "Расписание",
+      "detail": "6/6 — 720ms"
+    },
+    {
+      "name": "GET /api/masters/schedule (401 auth — ок)",
+      "status": "✅",
+      "section": "Расписание",
+      "detail": "401 — 780ms"
+    },
+    {
+      "name": "Фото мастеров (/master-photos)",
+      "status": "✅",
+      "section": "Фото мастеров",
+      "detail": "6/6 — 725ms"
+    },
+    {
+      "name": "GET /api/masters/photos",
+      "status": "✅",
+      "section": "Фото мастеров",
+      "detail": "200 — 769ms"
+    },
+    {
+      "name": "Промокоды (/promocodes)",
+      "status": "✅",
+      "section": "Промокоды",
+      "detail": "6/6 — 714ms"
+    },
+    {
+      "name": "GET /api/promocodes",
+      "status": "✅",
+      "section": "Промокоды",
+      "detail": "200 — 761ms"
+    }
+  ],
+  "pages": {
+    "System": {
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0
+    },
+    "Главная": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Запись": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Мои записи": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Услуги": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Отзывы": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Портфолио": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "FAQ": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Лист ожидания": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Чат": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Лояльность": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Панель менеджера": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Аналитика": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Дашборд": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Расписание": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Фото мастеров": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Промокоды": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}

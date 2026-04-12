@@ -28,19 +28,29 @@ import Loading from './components/Loading';
 function App() {
   const [initialized, setInitialized] = useState(false);
   const { user, login } = useAuthStore();
+  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     const init = async () => {
+      console.log('=== APP INIT START ===');
+      
       // Инициализируем Telegram WebApp
-      initTelegramWebApp();
+      const tg = initTelegramWebApp();
+      console.log('Telegram SDK:', tg ? 'loaded' : 'NOT loaded');
+      console.log('Window.Telegram:', (window as any).Telegram ? 'YES' : 'NO');
+      console.log('initData:', (window as any).Telegram?.WebApp?.initData ? 'YES (' + (window as any).Telegram.WebApp.initData.substring(0, 50) + '...)' : 'NO');
+      console.log('initDataUnsafe:', JSON.stringify((window as any).Telegram?.WebApp?.initDataUnsafe?.user)?.substring(0, 100) || 'NO');
 
       // Ждём немного чтобы WebApp инициализировался
       await new Promise(resolve => setTimeout(resolve, 500));
 
       // Автоматический вход через Telegram
+      console.log('Calling login()...');
       await login();
+      console.log('login() completed');
 
       setInitialized(true);
+      console.log('=== APP INIT DONE ===');
     };
 
     init();
@@ -50,9 +60,97 @@ function App() {
     return <Loading />;
   }
 
+  // Debug overlay
+  const DebugOverlay = () => {
+    if (!showDebug) return null;
+    const win = window as any;
+    const hasTelegram = !!(win.Telegram && win.Telegram.WebApp);
+    const hasInitData = !!(win.Telegram?.WebApp?.initData);
+    const hasInitDataUnsafe = !!(win.Telegram?.WebApp?.initDataUnsafe?.user);
+    
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 50,
+        left: 8,
+        right: 8,
+        background: 'rgba(0,0,0,0.9)',
+        color: '#0f0',
+        padding: 14,
+        borderRadius: 12,
+        fontSize: 11,
+        fontFamily: 'monospace',
+        zIndex: 9999,
+        lineHeight: 1.7,
+        maxHeight: '80vh',
+        overflowY: 'auto',
+      }}>
+        <div style={{ color: '#fff', fontWeight: 'bold', marginBottom: 8, fontSize: 13 }}>🔧 DEBUG</div>
+        
+        <div style={{ color: '#ff0' }}>═══ Telegram SDK ═══</div>
+        <div>window.Telegram: {hasTelegram ? '✅' : '❌'}</div>
+        <div>window.Telegram.WebApp: {hasTelegram ? '✅' : '❌'}</div>
+        <div>initData: {hasInitData ? '✅ YES' : '❌ NO'}</div>
+        <div>initDataUnsafe.user: {hasInitDataUnsafe ? '✅ YES' : '❌ NO'}</div>
+        {hasInitDataUnsafe && (
+          <div style={{ color: '#aaa', wordBreak: 'break-all' }}>
+            user: {JSON.stringify(win.Telegram.WebApp.initDataUnsafe.user)}
+          </div>
+        )}
+        {hasInitData && (
+          <div style={{ color: '#aaa', wordBreak: 'break-all' }}>
+            initData: {win.Telegram.WebApp.initData.substring(0, 80)}...
+          </div>
+        )}
+        
+        <div style={{ color: '#ff0', marginTop: 8 }}>═══ Auth ═══</div>
+        <div>chat_id: {user?.id || '❌ null'}</div>
+        <div>role: {user?.role || '❌ null'}</div>
+        <div>token: {localStorage.getItem('auth_token') ? '✅' : '❌ null'}</div>
+        
+        <div style={{ color: '#ff0', marginTop: 8 }}>═══ Role Check ═══</div>
+        <div>ADMIN_IDS: 338067005</div>
+        <div>OWNER_IDS: 338067005</div>
+        <div>Match admin: {user?.id === 338067005 ? '✅ YES' : '❌ NO'}</div>
+        <div>Match owner: {user?.id === 338067005 ? '✅ YES' : '❌ NO'}</div>
+        
+        <button 
+          onClick={() => setShowDebug(false)}
+          style={{ marginTop: 12, background: '#C9A96E', color: '#000', border: 'none', padding: '8px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', width: '100%' }}
+        >
+          Закрыть
+        </button>
+      </div>
+    );
+  };
+
   return (
     <BrowserRouter>
       <div className="app">
+        <DebugOverlay />
+        {/* Debug toggle button - visible to everyone */}
+        <button
+          onClick={() => setShowDebug(!showDebug)}
+          style={{
+            position: 'fixed',
+            top: 12,
+            right: 12,
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: 8,
+            width: 32,
+            height: 32,
+            fontSize: 14,
+            cursor: 'pointer',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          title="Debug info"
+        >
+          🔧
+        </button>
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<HomePage />} />

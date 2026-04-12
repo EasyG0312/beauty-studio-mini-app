@@ -1,0 +1,280 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Главная страница",
+      "url": "/",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 510,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Запись на услугу",
+      "url": "/booking",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 500,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Мои записи",
+      "url": "/my-bookings",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 491,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Услуги и цены",
+      "url": "/services",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 485,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Отзывы",
+      "url": "/reviews",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 488,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Портфолио",
+      "url": "/portfolio",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 492,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "FAQ",
+      "url": "/faq",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 749,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Лист ожидания",
+      "url": "/waitlist",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 810,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Чат с менеджером",
+      "url": "/chat",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 946,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Программа лояльности",
+      "url": "/loyalty",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 824,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Панель менеджера",
+      "url": "/manager",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 771,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Аналитика",
+      "url": "/analytics",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 815,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Дашборд аналитики",
+      "url": "/analytics-dashboard",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 786,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Расписание мастеров",
+      "url": "/master-schedule",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 842,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Фото мастеров",
+      "url": "/master-photos",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 792,
+      "found": 6,
+      "total": 6
+    },
+    {
+      "name": "Промокоды",
+      "url": "/promocodes",
+      "status": "✅",
+      "code": 200,
+      "time_ms": 850,
+      "found": 6,
+      "total": 6
+    }
+  ],
+  "pages": {
+    "Главная страница": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 510,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Запись на услугу": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 500,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Мои записи": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 491,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Услуги и цены": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 485,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Отзывы": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 488,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Портфолио": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 492,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "FAQ": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 749,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Лист ожидания": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 810,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Чат с менеджером": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 946,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Программа лояльности": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 824,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Панель менеджера": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 771,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Аналитика": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 815,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Дашборд аналитики": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 786,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Расписание мастеров": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 842,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Фото мастеров": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 792,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    },
+    "Промокоды": {
+      "status": "✅",
+      "code": 200,
+      "time_ms": 850,
+      "found": 6,
+      "total": 6,
+      "missing": []
+    }
+  }
+}

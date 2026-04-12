@@ -1,0 +1,288 @@
+{
+  "roles": {
+    "client": {
+      "name": "Клиент",
+      "description": "Все пользователи Mini App",
+      "features": [
+        {
+          "id": "home_page",
+          "name": "Главная страница",
+          "url": "/",
+          "tests": [
+            { "name": "Stories отображаются", "type": "visual", "expected": "Горизонтальный скролл кружков" },
+            { "name": "Баннер скидки", "type": "visual", "expected": "Золотой баннер 'Скидка 10%'" },
+            { "name": "Кнопка Записаться", "type": "click", "expected": "Переход на /booking" },
+            { "name": "Карточки категорий", "type": "visual", "expected": "4 карточки: Стрижки, Маникюр, Макияж, Массаж" },
+            { "name": "Топ мастеров", "type": "visual", "expected": "Горизонтальный скролл карточек мастеров" },
+            { "name": "Блок Ещё", "type": "visual", "expected": "Лист ожидания, Чат, Лояльность" },
+            { "name": "Контакты", "type": "visual", "expected": "Адрес, телефон, часы работы" }
+          ]
+        },
+        {
+          "id": "booking",
+          "name": "Запись на услугу",
+          "url": "/booking",
+          "tests": [
+            { "name": "Шаг 1: Выбор даты", "type": "interaction", "expected": "Календарь на 7 дней" },
+            { "name": "Шаг 2: Выбор мастера", "type": "interaction", "expected": "Список мастеров" },
+            { "name": "Шаг 3: Выбор услуги", "type": "interaction", "expected": "Список услуг с ценами" },
+            { "name": "Шаг 4: Выбор времени", "type": "interaction", "expected": "Сетка слотов" },
+            { "name": "Шаг 5: Данные клиента", "type": "form", "expected": "Имя, телефон, комментарий" },
+            { "name": "Создание записи", "type": "api", "method": "POST", "endpoint": "/api/bookings", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "my_bookings",
+          "name": "Мои записи",
+          "url": "/my-bookings",
+          "tests": [
+            { "name": "Список активных записей", "type": "api", "method": "GET", "endpoint": "/api/bookings", "expected_status": 200 },
+            { "name": "Запись по ID", "type": "api", "method": "GET", "endpoint": "/api/bookings/1", "expected_status": 200 },
+            { "name": "Перенос записи", "type": "interaction", "expected": "Выбор новой даты/времени" },
+            { "name": "Отмена записи", "type": "api", "method": "DELETE", "endpoint": "/api/bookings/{id}", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "services",
+          "name": "Услуги и цены",
+          "url": "/services",
+          "tests": [
+            { "name": "Список услуг", "type": "visual", "expected": "5 услуг с ценами" },
+            { "name": "Список мастеров", "type": "visual", "expected": "4 мастера со специализацией" }
+          ]
+        },
+        {
+          "id": "reviews",
+          "name": "Отзывы",
+          "url": "/reviews",
+          "tests": [
+            { "name": "Просмотр отзывов", "type": "api", "method": "GET", "endpoint": "/api/reviews", "expected_status": 200 },
+            { "name": "Фильтр по рейтингу", "type": "interaction", "expected": "5★, 4★, 3★..." },
+            { "name": "Создание отзыва", "type": "api", "method": "POST", "endpoint": "/api/reviews", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "portfolio",
+          "name": "Портфолио",
+          "url": "/portfolio",
+          "tests": [
+            { "name": "Список работ", "type": "api", "method": "GET", "endpoint": "/api/portfolio", "expected_status": 200 },
+            { "name": "Фильтр по категории", "type": "api", "method": "GET", "endpoint": "/api/portfolio/by-service/Стрижка", "expected_status": 200 },
+            { "name": "Lightbox просмотр", "type": "interaction", "expected": "Полноэкранный просмотр фото" }
+          ]
+        },
+        {
+          "id": "faq",
+          "name": "FAQ",
+          "url": "/faq",
+          "tests": [
+            { "name": "Список вопросов", "type": "visual", "expected": "Раскрывающиеся accordion" },
+            { "name": "Раскрытие ответа", "type": "interaction", "expected": "Показ/скрытие ответа" }
+          ]
+        },
+        {
+          "id": "waitlist",
+          "name": "Лист ожидания",
+          "url": "/waitlist",
+          "tests": [
+            { "name": "Список листа ожидания", "type": "api", "method": "GET", "endpoint": "/api/waitlist", "expected_status": 200 },
+            { "name": "Добавить в лист", "type": "api", "method": "POST", "endpoint": "/api/waitlist", "expected_status": 200 },
+            { "name": "Удалить из листа", "type": "api", "method": "DELETE", "endpoint": "/api/waitlist/{id}", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "chat",
+          "name": "Чат с менеджером",
+          "url": "/chat",
+          "tests": [
+            { "name": "История чата", "type": "api", "method": "GET", "endpoint": "/api/chat/338067005", "expected_status": 200 },
+            { "name": "Отправка сообщения", "type": "api", "method": "POST", "endpoint": "/api/chat", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "loyalty",
+          "name": "Программа лояльности",
+          "url": "/loyalty",
+          "tests": [
+            { "name": "Статус лояльности", "type": "api", "method": "GET", "endpoint": "/api/clients/338067005/loyalty", "expected_status": 200 }
+          ]
+        },
+        {
+          "id": "promocodes",
+          "name": "Промокоды",
+          "url": "/promocodes",
+          "tests": [
+            { "name": "Список промокодов", "type": "api", "method": "GET", "endpoint": "/api/promocodes", "expected_status": 200 },
+            { "name": "Валидация промокода", "type": "api", "method": "POST", "endpoint": "/api/promocodes/validate", "expected_status": 200 }
+          ]
+        }
+      ]
+    },
+    "manager": {
+      "name": "Менеджер",
+      "description": "Управление записями и клиентами",
+      "features": [
+        {
+          "id": "manager_dashboard",
+          "name": "Панель менеджера",
+          "url": "/manager",
+          "tests": [
+            { "name": "Дашборд записей", "type": "visual", "expected": "Записи на сегодня (pending, confirmed, completed)" },
+            { "name": "Подтвердить запись", "type": "api", "method": "PUT", "endpoint": "/api/bookings/{id}", "expected_status": 200 },
+            { "name": "Отменить запись", "type": "api", "method": "DELETE", "endpoint": "/api/bookings/{id}", "expected_status": 200 },
+            { "name": "Завершить визит", "type": "api", "method": "PUT", "endpoint": "/api/bookings/{id}", "expected_status": 200 },
+            { "name": "Отметить Не явился", "type": "api", "method": "PUT", "endpoint": "/api/bookings/{id}", "expected_status": 200 },
+            { "name": "Bulk подтверждение", "type": "interaction", "expected": "Подтвердить все записи" }
+          ]
+        },
+        {
+          "id": "clients",
+          "name": "Клиенты",
+          "url": "/manager",
+          "tests": [
+            { "name": "Список клиентов", "type": "api", "method": "GET", "endpoint": "/api/clients", "expected_status": 401 },
+            { "name": "Заметки о клиенте", "type": "api", "method": "PUT", "endpoint": "/api/clients/{chat_id}", "expected_status": 401 }
+          ]
+        },
+        {
+          "id": "master_schedule",
+          "name": "Расписание мастеров",
+          "url": "/master-schedule",
+          "tests": [
+            { "name": "Просмотр расписания", "type": "api", "method": "GET", "endpoint": "/api/masters/schedule", "expected_status": 401 },
+            { "name": "Периоды отсутствия", "type": "api", "method": "GET", "endpoint": "/api/masters/time-off", "expected_status": 401 }
+          ]
+        }
+      ]
+    },
+    "owner": {
+      "name": "Владелец",
+      "description": "Аналитика, финансы, отчеты",
+      "features": [
+        {
+          "id": "analytics",
+          "name": "Аналитика",
+          "url": "/analytics",
+          "tests": [
+            { "name": "Сводная аналитика", "type": "api", "method": "GET", "endpoint": "/api/analytics/summary", "expected_status": 401 },
+            { "name": "Дашборд аналитики", "type": "api", "method": "GET", "endpoint": "/api/analytics/dashboard", "expected_status": 401 },
+            { "name": "Выручка за период", "type": "visual", "expected": "График выручки" },
+            { "name": "Конверсия", "type": "visual", "expected": "pending → completed %" },
+            { "name": "Средний чек", "type": "visual", "expected": "Сумма / количество записей" }
+          ]
+        },
+        {
+          "id": "kpi",
+          "name": "KPI мастеров",
+          "url": "/analytics",
+          "tests": [
+            { "name": "KPI список", "type": "api", "method": "GET", "endpoint": "/api/analytics/kpi", "expected_status": 401 },
+            { "name": "Завершённые записи", "type": "visual", "expected": "Число по каждому мастеру" },
+            { "name": "Выручка по мастеру", "type": "visual", "expected": "Сумма по каждому мастеру" },
+            { "name": "Рейтинг мастера", "type": "visual", "expected": "Средний рейтинг" },
+            { "name": "Конверсия мастера", "type": "visual", "expected": "%" },
+            { "name": "Отмены / No-show", "type": "visual", "expected": "Число отмен и неявок" }
+          ]
+        },
+        {
+          "id": "rfm",
+          "name": "RFM Сегментация",
+          "url": "/analytics",
+          "tests": [
+            { "name": "RFM сегменты", "type": "api", "method": "GET", "endpoint": "/api/analytics/rfm", "expected_status": 401 },
+            { "name": "Champions", "type": "visual", "expected": "Лучшие клиенты (444-555)" },
+            { "name": "Loyal Customers", "type": "visual", "expected": "Лояльные (334-443)" },
+            { "name": "At Risk", "type": "visual", "expected": "В зоне риска (155-243)" },
+            { "name": "Lost", "type": "visual", "expected": "Потерянные (111-154)" }
+          ]
+        },
+        {
+          "id": "heatmap",
+          "name": "Тепловая карта",
+          "url": "/analytics",
+          "tests": [
+            { "name": "Тепловая карта", "type": "api", "method": "GET", "endpoint": "/api/analytics/heatmap", "expected_status": 401 },
+            { "name": "Загруженность по дням/часам", "type": "visual", "expected": "Матрица день×час" }
+          ]
+        },
+        {
+          "id": "forecast",
+          "name": "Прогноз выручки",
+          "url": "/analytics",
+          "tests": [
+            { "name": "Прогноз на 7 дней", "type": "api", "method": "GET", "endpoint": "/api/analytics/forecast", "expected_status": 401 },
+            { "name": "Прогноз на 30 дней", "type": "api", "method": "GET", "endpoint": "/api/analytics/forecast?days=30", "expected_status": 401 }
+          ]
+        },
+        {
+          "id": "funnel",
+          "name": "Воронка конверсии",
+          "url": "/analytics-dashboard",
+          "tests": [
+            { "name": "Воронка", "type": "api", "method": "GET", "endpoint": "/api/analytics/funnel", "expected_status": 401 }
+          ]
+        },
+        {
+          "id": "export",
+          "name": "Экспорт данных",
+          "url": "/analytics",
+          "tests": [
+            { "name": "Экспорт CSV", "type": "api", "method": "GET", "endpoint": "/api/analytics/export/csv", "expected_status": 401 }
+          ]
+        },
+        {
+          "id": "comparison",
+          "name": "Сравнение периодов",
+          "url": "/analytics-dashboard",
+          "tests": [
+            { "name": "Сравнение", "type": "api", "method": "GET", "endpoint": "/api/analytics/comparison", "expected_status": 401 }
+          ]
+        }
+      ]
+    }
+  },
+  "system": {
+    "features": [
+      {
+        "id": "health",
+        "name": "Health Check",
+        "tests": [
+          { "name": "Health endpoint", "type": "api", "method": "GET", "endpoint": "/health", "expected_status": 200 },
+          { "name": "Root endpoint", "type": "api", "method": "GET", "endpoint": "/", "expected_status": 200 },
+          { "name": "Swagger docs", "type": "api", "method": "GET", "endpoint": "/docs", "expected_status": 200 }
+        ]
+      },
+      {
+        "id": "slots",
+        "name": "Слоты расписания",
+        "tests": [
+          { "name": "Слоты на дату", "type": "api", "method": "GET", "endpoint": "/api/slots/15.04.2026", "expected_status": 200 },
+          { "name": "Слоты с фильтром мастера", "type": "api", "method": "GET", "endpoint": "/api/slots/15.04.2026?master=Айгуль", "expected_status": 200 }
+        ]
+      },
+      {
+        "id": "masters",
+        "name": "Мастера",
+        "tests": [
+          { "name": "Фото мастеров", "type": "api", "method": "GET", "endpoint": "/api/masters/photos", "expected_status": 200 }
+        ]
+      },
+      {
+        "id": "blacklist",
+        "name": "Чёрный список",
+        "tests": [
+          { "name": "Чёрный список", "type": "api", "method": "GET", "endpoint": "/api/blacklist", "expected_status": 401 }
+        ]
+      }
+    ]
+  },
+  "urls": {
+    "frontend": "https://frontend-five-drab-47.vercel.app",
+    "backend": "https://beauty-studio-api.onrender.com",
+    "api_docs": "https://beauty-studio-api.onrender.com/docs"
+  },
+  "admin_ids": {
+    "ADMIN_IDS": "338067005",
+    "OWNER_IDS": "338067005"
+  }
+}
