@@ -527,9 +527,12 @@ a:hover { opacity: 0.8; }
   left: 0;
   right: 0;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   align-items: center;
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2) var(--space-1);
   padding-bottom: calc(var(--space-2) + var(--safe-area-bottom));
   background: var(--tg-theme-header-bg-color);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
@@ -539,15 +542,21 @@ a:hover { opacity: 0.8; }
   box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.04);
 }
 
+.nav-bar::-webkit-scrollbar {
+  display: none;
+}
+
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   padding: var(--space-1) var(--space-2);
+  min-width: 56px;
+  flex-shrink: 0;
   color: var(--gray-500);
   text-decoration: none;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.02em;
   transition: all var(--transition-fast);
