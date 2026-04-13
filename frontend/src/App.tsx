@@ -19,6 +19,7 @@ const ChatPage = lazy(() => import('./pages/ChatPage'));
 const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Components
@@ -201,6 +202,7 @@ function App() {
               }
             />
 
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
