@@ -24,7 +24,13 @@ export default function Navigation() {
           onClick={() => haptic.selection()}
         >
           <Icon size={22} />
-          <span style={{ fontSize: 10, marginTop: 2, letterSpacing: '0.02em' }}>{label}</span>
+          <span style={{ 
+            fontSize: 11, 
+            marginTop: 2, 
+            letterSpacing: '0.02em',
+            fontWeight: 500,
+            opacity: 0.9
+          }}>{label}</span>
         </NavLink>
       ))}
     </nav>

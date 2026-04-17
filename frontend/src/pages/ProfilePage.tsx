@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { updateClient, getLoyaltyStatus } from '../services/api';
+import { updateClient, getLoyaltyStatus, getProfile } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(user?.telegramUser?.first_name || '');
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loyaltyStatus, setLoyaltyStatus] = useState<{
     is_loyal: boolean;
@@ -24,13 +24,16 @@ export default function ProfilePage() {
   } | null>(null);
 
   useEffect(() => {
-    // Загрузка статуса лояльности
+    // Загрузка профиля и статуса лояльности
     if (user?.id) {
-      getLoyaltyStatus(user.id)
-        .then(loyalty => {
-          setLoyaltyStatus(loyalty);
-        })
-        .catch(() => {});
+      Promise.all([
+        getProfile(),
+        getLoyaltyStatus(user.id)
+      ]).then(([profile, loyalty]) => {
+        setName(profile.name);
+        setPhone(profile.phone);
+        setLoyaltyStatus(loyalty);
+      }).catch(() => {});
     }
   }, [user]);
 

@@ -1177,6 +1177,15 @@ async def get_client(
     return client
 
 
+@app.get("/api/profile", response_model=ClientResponse)
+async def get_current_profile(
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Получить профиль текущего пользователя."""
+    return user
+
+
 @app.put("/api/clients/{chat_id}", response_model=ClientResponse)
 async def update_client(
     chat_id: int,

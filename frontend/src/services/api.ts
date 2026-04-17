@@ -397,6 +397,11 @@ export const getClient = async (chatId: number) => {
   return response.data;
 };
 
+export const getProfile = async () => {
+  const response = await api.get<Client>('/profile');
+  return response.data;
+};
+
 export const updateClientNotes = async (chatId: number, notes: string) => {
   const response = await api.put<Client>(`/clients/${chatId}`, { notes });
   return response.data;
