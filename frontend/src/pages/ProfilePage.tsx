@@ -30,7 +30,10 @@ export default function ProfilePage() {
   }, [user]);
 
   const loadProfileData = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -94,6 +97,20 @@ export default function ProfilePage() {
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <div>Загрузка профиля...</div>
         </div>
+      </div>
+    );
+  }
+
+  if (!user?.id) {
+    return (
+      <div className="page">
+        <Card style={{ padding: 24, marginTop: 20 }}>
+          <h2 style={{ margin: 0, fontSize: 20 }}>Пользователь не авторизован</h2>
+          <p style={{ marginTop: 12, color: 'var(--gray-500)' }}>
+            Пожалуйста, войдите через Telegram, чтобы увидеть профиль и историю посещений.
+          </p>
+          <Button style={{ marginTop: 20 }} onClick={() => navigate('/')}>Вернуться на главную</Button>
+        </Card>
       </div>
     );
   }
