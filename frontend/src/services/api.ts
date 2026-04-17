@@ -62,6 +62,7 @@ export const getBookings = async (params?: {
   status_filter?: string;
   date?: string;
   chat_id?: number;
+  limit?: number;
 }) => {
   const response = await api.get<Booking[]>('/bookings', { params });
   return response.data;

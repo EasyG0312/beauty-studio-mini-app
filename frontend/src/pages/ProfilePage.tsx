@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { updateClient, getLoyaltyStatus, getProfile } from '../services/api';
+import { updateClient, getLoyaltyStatus, getProfile, getBookings } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -22,17 +22,20 @@ export default function ProfilePage() {
     next_reward_at: number;
     total_saved: number;
   } | null>(null);
+  const [recentVisits, setRecentVisits] = useState<any[]>([]);
 
   useEffect(() => {
-    // Загрузка профиля и статуса лояльности
+    // Загрузка профиля, статуса лояльности и последних посещений
     if (user?.id) {
       Promise.all([
         getProfile(),
-        getLoyaltyStatus(user.id)
-      ]).then(([profile, loyalty]) => {
+        getLoyaltyStatus(user.id),
+        getBookings({ chat_id: user.id, status_filter: 'completed', limit: 3 })
+      ]).then(([profile, loyalty, visits]) => {
         setName(profile.name);
         setPhone(profile.phone);
         setLoyaltyStatus(loyalty);
+        setRecentVisits(visits);
       }).catch(() => {});
     }
   }, [user]);
@@ -229,6 +232,45 @@ export default function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* Recent Visits */}
+      {recentVisits.length > 0 && (
+        <Card style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: 18 }}>Последние посещения</h3>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/my-bookings')}>
+              Все записи
+            </Button>
+          </div>
+          
+          {recentVisits.map((visit) => (
+            <div key={visit.id} style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '12px 0',
+              borderBottom: '1px solid var(--gray-100)'
+            }}>
+              <div>
+                <div style={{ fontWeight: 500, fontSize: 15 }}>{visit.service}</div>
+                <div style={{ fontSize: 13, color: 'var(--gray-500)' }}>
+                  {visit.date} • {visit.master}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                {visit.actual_amount && (
+                  <div style={{ fontWeight: 600, color: 'var(--brand-gold)' }}>
+                    {visit.actual_amount.toLocaleString()} сом
+                  </div>
+                )}
+                <div style={{ fontSize: 12, color: 'var(--gray-500)' }}>
+                  {visit.status === 'completed' ? 'Завершено' : visit.status}
+                </div>
+              </div>
+            </div>
+          ))}
+        </Card>
+      )}
 
       {/* Menu Items */}
       <Card style={{ padding: 0, overflow: 'hidden' }}>
