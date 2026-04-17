@@ -404,7 +404,7 @@ async def cancel_booking(
     user: Client = Depends(get_current_user)
 ):
     """Отменить запись с проверкой CANCEL_HOURS."""
-    CANCEL_HOURS = 5  # часов
+    CANCEL_HOURS = settings.cancel_hours or 5  # часов
     
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
@@ -471,9 +471,9 @@ async def update_booking(
     return booking
 
 
-@app.delete("/api/bookings/{booking_id}")
+@app.delete("/api/bookings/{booking_id}/delete")
 async def delete_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
-    """Удалить запись."""
+    """Удалить запись (админская операция)."""
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
     if not booking:

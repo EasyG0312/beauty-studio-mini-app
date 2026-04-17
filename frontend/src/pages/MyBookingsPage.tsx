@@ -165,7 +165,7 @@ export default function MyBookingsPage() {
                   >
                     Перенести
                   </Button>
-                  {booking.status !== 'pending' && (
+                  {['pending', 'confirmed'].includes(booking.status) && (
                     <Button
                       variant="danger"
                       onClick={() => handleCancel(booking.id)}
