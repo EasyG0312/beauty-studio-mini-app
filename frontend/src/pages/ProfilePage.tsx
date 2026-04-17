@@ -7,7 +7,7 @@ import Button from '../components/Button';
 import {
   IconUser, IconCalendar,
   IconCrown, IconStar, IconChevronRight, IconSettings,
-  IconList, IconMessage,
+  IconList, IconMessage, IconEdit, IconCheck,
 } from '../components/Icons';
 
 export default function ProfilePage() {
@@ -23,27 +23,39 @@ export default function ProfilePage() {
     total_saved: number;
   } | null>(null);
   const [recentVisits, setRecentVisits] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Загрузка профиля, статуса лояльности и последних посещений
-    if (user?.id) {
-      Promise.all([
+    loadProfileData();
+  }, [user]);
+
+  const loadProfileData = async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    try {
+      const [profile, loyalty, visits] = await Promise.all([
         getProfile(),
         getLoyaltyStatus(user.id),
         getBookings({ chat_id: user.id, status_filter: 'completed', limit: 3 })
-      ]).then(([profile, loyalty, visits]) => {
-        setName(profile.name);
-        setPhone(profile.phone);
-        setLoyaltyStatus(loyalty);
-        setRecentVisits(visits);
-      }).catch(() => {});
+      ]);
+
+      setName(profile.name || '');
+      setPhone(profile.phone || '');
+      setLoyaltyStatus(loyalty);
+      setRecentVisits(visits);
+    } catch (error) {
+      console.error('Failed to load profile data:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
+  };
 
   const handleSave = async () => {
     // Валидация телефона
     const phonePattern = /^\+996\d{9}$/;
     let normalizedPhone = phone.replace(/\s+/g, '');
+
     if (normalizedPhone && !phonePattern.test(normalizedPhone)) {
       if (normalizedPhone.match(/^\d{9}$/)) {
         normalizedPhone = '+996' + normalizedPhone;
@@ -61,6 +73,7 @@ export default function ProfilePage() {
       });
       setEditing(false);
       alert('Профиль обновлен');
+      loadProfileData(); // Перезагрузить данные
     } catch (error) {
       alert('Ошибка при сохранении профиля');
     }
@@ -75,12 +88,22 @@ export default function ProfilePage() {
     { icon: IconSettings, label: 'Настройки', action: () => {} },
   ];
 
+  if (loading) {
+    return (
+      <div className="page">
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <div>Загрузка профиля...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ 
-          fontFamily: 'var(--font-serif)', 
+        <h1 style={{
+          fontFamily: 'var(--font-serif)',
           fontSize: 'var(--font-size-3xl)',
           marginBottom: 4,
         }}>
@@ -92,8 +115,8 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Card */}
-      <Card style={{ 
-        padding: 0, 
+      <Card style={{
+        padding: 0,
         overflow: 'hidden',
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
@@ -101,7 +124,7 @@ export default function ProfilePage() {
         border: '1px solid var(--glass-border)',
         marginBottom: 20,
       }}>
-        {/* Avatar */}
+        {/* Avatar and Edit Section */}
         <div style={{
           background: 'var(--brand-gold-gradient)',
           padding: '28px 24px 20px',
@@ -130,9 +153,9 @@ export default function ProfilePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ваше имя"
-                  style={{ 
-                    background: 'rgba(255,255,255,0.15)', 
-                    border: '1px solid rgba(255,255,255,0.3)', 
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.3)',
                     color: 'white',
                     marginBottom: 8,
                   }}
@@ -143,9 +166,9 @@ export default function ProfilePage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+996 XXX XXX XXX"
-                  style={{ 
-                    background: 'rgba(255,255,255,0.15)', 
-                    border: '1px solid rgba(255,255,255,0.3)', 
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.3)',
                     color: 'white',
                   }}
                 />
@@ -172,16 +195,20 @@ export default function ProfilePage() {
               fontSize: 12,
               fontWeight: 600,
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
-            {editing ? 'Сохранить' : 'Изм.'}
+            {editing ? <IconCheck size={16} /> : <IconEdit size={16} />}
+            {editing ? 'Сохранить' : 'Изменить'}
           </button>
         </div>
 
-        {/* Stats */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(3, 1fr)', 
+        {/* Loyalty Stats */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           padding: '16px 20px',
           gap: 12,
         }}>
@@ -213,14 +240,14 @@ export default function ProfilePage() {
 
         {/* Loyalty Progress Bar */}
         <div style={{ padding: '0 20px 16px' }}>
-          <div style={{ 
-            height: 6, 
-            borderRadius: 3, 
+          <div style={{
+            height: 6,
+            borderRadius: 3,
             background: 'var(--gray-200)',
             overflow: 'hidden',
           }}>
-            <div style={{ 
-              height: '100%', 
+            <div style={{
+              height: '100%',
               width: `${loyaltyStatus ? ((5 - loyaltyStatus.next_reward_at) / 5) * 100 : 0}%`,
               background: 'var(--brand-gold-gradient)',
               borderRadius: 3,
@@ -242,11 +269,11 @@ export default function ProfilePage() {
               Все записи
             </Button>
           </div>
-          
+
           {recentVisits.map((visit) => (
-            <div key={visit.id} style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div key={visit.id} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
               padding: '12px 0',
               borderBottom: '1px solid var(--gray-100)'
@@ -319,7 +346,7 @@ export default function ProfilePage() {
             useAuthStore.getState().logout();
             navigate('/');
           }}
-          style={{ color: 'var(--color-danger)' }}
+          style={{ color: 'var(--error)' }}
         >
           Выйти из аккаунта
         </Button>
