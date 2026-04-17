@@ -1180,17 +1180,24 @@ async def get_client(
 @app.put("/api/clients/{chat_id}", response_model=ClientResponse)
 async def update_client(
     chat_id: int,
-    notes: str,
+    update: ClientUpdate,
     db: AsyncSession = Depends(get_db),
-    user: Client = Depends(require_role("owner"))
+    user: Client = Depends(get_current_user)
 ):
-    """Обновить заметки о клиенте."""
+    """Обновить данные клиента."""
+    # Клиент может обновлять только свой профиль, владелец/менеджер - любые
+    if user.chat_id != chat_id and user.role not in ["owner", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     result = await db.execute(select(Client).where(Client.chat_id == chat_id))
     client = result.scalar_one_or_none()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     
-    client.notes = notes
+    # Обновляем только переданные поля
+    for field, value in update.model_dump(exclude_unset=True).items():
+        setattr(client, field, value)
+    
     await db.commit()
     await db.refresh(client)
     return client

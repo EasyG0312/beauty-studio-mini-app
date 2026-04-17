@@ -85,6 +85,16 @@ class ClientUpdate(BaseModel):
     notes: Optional[str] = None
     is_loyal: Optional[bool] = None
 
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        if v is None:
+            return v
+        pattern = r'^\+996\d{9}$'
+        if not re.match(pattern, v):
+            raise ValueError('Номер телефона должен быть в формате +996XXXXXXXXX (9 цифр после +996)')
+        return v
+
 
 class ClientResponse(BaseModel):
     chat_id: int

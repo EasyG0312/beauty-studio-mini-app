@@ -65,11 +65,23 @@ export default function WaitlistPage() {
       return;
     }
 
+    // Валидация телефона
+    const phonePattern = /^\+996\d{9}$/;
+    let normalizedPhone = formData.phone.replace(/\s+/g, '');
+    if (!phonePattern.test(normalizedPhone)) {
+      if (normalizedPhone.match(/^\d{9}$/)) {
+        normalizedPhone = '+996' + normalizedPhone;
+      } else {
+        alert('Введите корректный номер телефона в формате +996XXXXXXXXX');
+        return;
+      }
+    }
+
     try {
       await addToWaitlist({
         chat_id: user?.id || 0,
         name: formData.name,
-        phone: formData.phone,
+        phone: normalizedPhone,
         date: formData.date,
         time: formData.time,
         master: formData.master,

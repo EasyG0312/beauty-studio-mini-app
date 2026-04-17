@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { updateClient } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -35,9 +36,30 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  const handleSave = () => {
-    setEditing(false);
-    // TODO: Сохранить на сервере
+  const handleSave = async () => {
+    // Валидация телефона
+    const phonePattern = /^\+996\d{9}$/;
+    let normalizedPhone = phone.replace(/\s+/g, '');
+    if (normalizedPhone && !phonePattern.test(normalizedPhone)) {
+      if (normalizedPhone.match(/^\d{9}$/)) {
+        normalizedPhone = '+996' + normalizedPhone;
+        setPhone(normalizedPhone);
+      } else {
+        alert('Введите корректный номер телефона в формате +996XXXXXXXXX');
+        return;
+      }
+    }
+
+    try {
+      await updateClient(user!.id, {
+        name: name.trim(),
+        phone: normalizedPhone,
+      });
+      setEditing(false);
+      alert('Профиль обновлен');
+    } catch (error) {
+      alert('Ошибка при сохранении профиля');
+    }
   };
 
   const menuItems = [

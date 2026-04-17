@@ -398,9 +398,12 @@ export const getClient = async (chatId: number) => {
 };
 
 export const updateClientNotes = async (chatId: number, notes: string) => {
-  const response = await api.put<Client>(`/clients/${chatId}`, null, {
-    params: { notes },
-  });
+  const response = await api.put<Client>(`/clients/${chatId}`, { notes });
+  return response.data;
+};
+
+export const updateClient = async (chatId: number, data: { name?: string; phone?: string }) => {
+  const response = await api.put<Client>(`/clients/${chatId}`, data);
   return response.data;
 };
 
