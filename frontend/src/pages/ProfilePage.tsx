@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { updateClient } from '../services/api';
+import { updateClient, getLoyaltyStatus } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -9,7 +9,6 @@ import {
   IconCrown, IconStar, IconChevronRight, IconSettings,
   IconList, IconMessage,
 } from '../components/Icons';
-import { getBookings } from '../services/api';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -17,20 +16,19 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.telegramUser?.first_name || '');
   const [phone, setPhone] = useState('');
-  const [visitCount, setVisitCount] = useState(0);
-  const [totalSpent, setTotalSpent] = useState(0);
-  const [loyaltyProgress, setLoyaltyProgress] = useState(0);
+  const [loyaltyStatus, setLoyaltyStatus] = useState<{
+    is_loyal: boolean;
+    discount_percent: number;
+    next_reward_at: number;
+    total_saved: number;
+  } | null>(null);
 
   useEffect(() => {
-    // Загрузка истории посещений
+    // Загрузка статуса лояльности
     if (user?.id) {
-      getBookings({ chat_id: user.id, status_filter: 'completed' })
-        .then(bookings => {
-          setVisitCount(bookings.length);
-          // Подсчёт потраченной суммы (из actual_amount)
-          const spent = bookings.reduce((sum, b) => sum + (b.actual_amount || 0), 0);
-          setTotalSpent(spent);
-          setLoyaltyProgress(Math.min(bookings.length, 10));
+      getLoyaltyStatus(user.id)
+        .then(loyalty => {
+          setLoyaltyStatus(loyalty);
         })
         .catch(() => {});
     }
@@ -183,26 +181,26 @@ export default function ProfilePage() {
         }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--brand-gold)' }}>
-              {visitCount}
+              {loyaltyStatus ? `${loyaltyStatus.discount_percent}%` : '0%'}
             </div>
             <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 2 }}>
-              Визитов
+              Скидка
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--brand-gold)' }}>
-              {totalSpent}
+              {loyaltyStatus?.total_saved || 0}
             </div>
             <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 2 }}>
-              Потрачено
+              Сэкономлено
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--brand-gold)' }}>
-              {loyaltyProgress}/10
+              {loyaltyStatus ? loyaltyStatus.next_reward_at : 5}
             </div>
             <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 2 }}>
-              До скидки
+              До следующей скидки
             </div>
           </div>
         </div>
@@ -217,11 +215,14 @@ export default function ProfilePage() {
           }}>
             <div style={{ 
               height: '100%', 
-              width: `${loyaltyProgress * 10}%`,
+              width: `${loyaltyStatus ? ((5 - loyaltyStatus.next_reward_at) / 5) * 100 : 0}%`,
               background: 'var(--brand-gold-gradient)',
               borderRadius: 3,
               transition: 'width 500ms ease',
             }} />
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 4, textAlign: 'center' }}>
+            {loyaltyStatus?.is_loyal ? '🎉 У вас есть скидка!' : `Ещё ${loyaltyStatus?.next_reward_at || 5} визитов до скидки`}
           </div>
         </div>
       </Card>
