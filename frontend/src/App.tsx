@@ -20,6 +20,7 @@ const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Components
@@ -165,6 +166,7 @@ function App() {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/loyalty" element={<LoyaltyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/auth-test" element={<AuthTestPage />} />
             <Route
               path="/master-schedule"
               element={
