@@ -546,3 +546,14 @@ class NotificationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class QRCodeResponse(BaseModel):
+    id: int
+    booking_id: int
+    code: str
+    created_at: datetime
+    scanned_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useBookingStore } from '../store/bookingStore';
-import { rescheduleBooking, cancelBooking as apiCancelBooking } from '../services/api';
+import { rescheduleBooking, cancelBooking as apiCancelBooking, generateBookingQR, getBookingQRImage } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
-import { IconChevronLeft, IconMessage } from '../components/Icons';
+import { IconChevronLeft, IconMessage, IconQrcode } from '../components/Icons';
 import type { Booking } from '../types';
 
 export default function MyBookingsPage() {
@@ -21,6 +21,12 @@ export default function MyBookingsPage() {
     newTime: string;
     reason: string;
   }>({ open: false, booking: null, newDate: '', newTime: '', reason: '' });
+  const [qrModal, setQrModal] = useState<{
+    open: boolean;
+    booking: Booking | null;
+    qrImage: string | null;
+    loading: boolean;
+  }>({ open: false, booking: null, qrImage: null, loading: false });
 
   useEffect(() => {
     if (user) {
@@ -78,6 +84,21 @@ export default function MyBookingsPage() {
     } catch (error: any) {
       const errorMsg = error.response?.data?.detail || 'Ошибка при переносе';
       alert(errorMsg);
+    }
+  };
+
+  const openQRModal = async (booking: Booking) => {
+    setQrModal({ open: true, booking, qrImage: null, loading: true });
+    try {
+      // Сначала генерируем QR-код если его нет
+      await generateBookingQR(booking.id);
+      // Затем получаем изображение
+      const qrData = await getBookingQRImage(booking.id);
+      setQrModal({ open: true, booking, qrImage: qrData.qr_code, loading: false });
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.detail || 'Ошибка при генерации QR-кода';
+      alert(errorMsg);
+      setQrModal({ open: false, booking: null, qrImage: null, loading: false });
     }
   };
 
@@ -158,6 +179,14 @@ export default function MyBookingsPage() {
                 )}
                 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <Button
+                    variant="outline"
+                    onClick={() => openQRModal(booking)}
+                    style={{ flex: 1 }}
+                  >
+                    <IconQrcode size={16} style={{ marginRight: '6px' }} />
+                    QR-код
+                  </Button>
                   <Button
                     variant="secondary"
                     onClick={() => openReschedule(booking)}
@@ -284,6 +313,66 @@ export default function MyBookingsPage() {
                 onClick={() => setRescheduleModal({ open: false, booking: null, newDate: '', newTime: '', reason: '' })}
               >
                 Отмена
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* QR Code Modal */}
+      {qrModal.open && qrModal.booking && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <Card style={{ width: '90%', maxWidth: '400px' }}>
+            <h3>QR-код записи</h3>
+            <p className="text-hint" style={{ fontSize: '12px' }}>
+              {qrModal.booking.service} | {qrModal.booking.master}
+            </p>
+            <p className="text-hint" style={{ fontSize: '12px' }}>
+              {qrModal.booking.date} в {qrModal.booking.time}
+            </p>
+
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              {qrModal.loading ? (
+                <div>Генерация QR-кода...</div>
+              ) : qrModal.qrImage ? (
+                <div>
+                  <img
+                    src={qrModal.qrImage}
+                    alt="QR код записи"
+                    style={{
+                      width: '200px',
+                      height: '200px',
+                      border: '2px solid var(--gray-200)',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <p className="text-hint" style={{ fontSize: '12px', marginTop: '12px' }}>
+                    Покажите этот QR-код мастеру при посещении салона
+                  </p>
+                </div>
+              ) : (
+                <div>Ошибка загрузки QR-кода</div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={() => setQrModal({ open: false, booking: null, qrImage: null, loading: false })}
+              >
+                Закрыть
               </Button>
             </div>
           </Card>

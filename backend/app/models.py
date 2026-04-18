@@ -235,3 +235,18 @@ class PromoCode(Base):
         Index("idx_promo_codes_code", "code"),
         Index("idx_promo_codes_active", "is_active"),
     )
+
+
+class QRCode(Base):
+    __tablename__ = "qr_codes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    booking_id = Column(Integer, ForeignKey("bookings.id"), nullable=False)
+    code = Column(String, unique=True, nullable=False)
+    created_at = Column(DateTime, default=func.now())
+    scanned_at = Column(DateTime, nullable=True)
+
+    __table_args__ = (
+        Index("idx_qr_codes_booking_id", "booking_id"),
+        Index("idx_qr_codes_code", "code"),
+    )

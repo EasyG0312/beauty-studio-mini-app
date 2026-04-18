@@ -247,3 +247,26 @@ export const IconEdit = (props: IconProps) => (
     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
   </IconBase>
 );
+
+export const IconQrcode = (props: IconProps) => (
+  <IconBase {...props}>
+    <rect x="3" y="3" width="5" height="5" rx="1" />
+    <rect x="16" y="3" width="5" height="5" rx="1" />
+    <rect x="3" y="16" width="5" height="5" rx="1" />
+    <rect x="3" y="10" width="2" height="2" rx="0.5" />
+    <rect x="10" y="3" width="2" height="2" rx="0.5" />
+    <rect x="16" y="10" width="2" height="2" rx="0.5" />
+    <rect x="10" y="10" width="2" height="2" rx="0.5" />
+    <rect x="13" y="10" width="2" height="2" rx="0.5" />
+    <rect x="10" y="13" width="2" height="2" rx="0.5" />
+    <rect x="13" y="13" width="2" height="2" rx="0.5" />
+    <rect x="16" y="13" width="2" height="2" rx="0.5" />
+    <rect x="19" y="13" width="2" height="2" rx="0.5" />
+    <rect x="13" y="16" width="2" height="2" rx="0.5" />
+    <rect x="16" y="16" width="2" height="2" rx="0.5" />
+    <rect x="19" y="16" width="2" height="2" rx="0.5" />
+    <rect x="13" y="19" width="2" height="2" rx="0.5" />
+    <rect x="16" y="19" width="2" height="2" rx="0.5" />
+    <rect x="19" y="19" width="2" height="2" rx="0.5" />
+  </IconBase>
+);

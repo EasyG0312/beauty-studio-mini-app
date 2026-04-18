@@ -440,6 +440,17 @@ export const cancelBooking = async (id: number) => {
   return response.data;
 };
 
+// QR Code
+export const generateBookingQR = async (bookingId: number) => {
+  const response = await api.post(`/bookings/${bookingId}/qr`);
+  return response.data;
+};
+
+export const getBookingQRImage = async (bookingId: number) => {
+  const response = await api.get(`/bookings/${bookingId}/qr`);
+  return response.data;
+};
+
 // Notifications
 export const getPendingNotifications = async () => {
   const response = await api.get('/notifications/pending');

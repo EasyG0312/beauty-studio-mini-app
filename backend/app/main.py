@@ -10,6 +10,10 @@ import jwt
 import hmac
 import hashlib
 import logging
+import uuid
+import qrcode
+from io import BytesIO
+import base64
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -19,7 +23,7 @@ from app.config import settings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from app.database import get_db, init_db, get_db_session_factory
-from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode
+from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode, QRCode
 from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
     ClientResponse, ReviewCreate, WaitlistCreate,
@@ -35,7 +39,8 @@ from app.schemas import (
     MasterScheduleCreate, MasterScheduleResponse, MasterScheduleUpdate,
     MasterTimeOffCreate, MasterTimeOffResponse, MasterTimeOffUpdate,
     MasterAvailability,
-    PromoCodeCreate, PromoCodeResponse, PromoCodeApply, PromoCodeValidationResult
+    PromoCodeCreate, PromoCodeResponse, PromoCodeApply, PromoCodeValidationResult,
+    QRCodeResponse
 )
 from app.services import init_scheduler, start_scheduler, notification_service
 
@@ -483,6 +488,86 @@ async def delete_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
     await db.delete(booking)
     await db.commit()
     return {"message": "Booking deleted"}
+
+
+@app.post("/api/bookings/{booking_id}/qr", response_model=QRCodeResponse)
+async def generate_booking_qr(
+    booking_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Генерировать QR-код для записи."""
+    # Проверить, что запись принадлежит пользователю
+    result = await db.execute(select(Booking).where(Booking.id == booking_id))
+    booking = result.scalar_one_or_none()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if booking.chat_id != user.chat_id and user.role not in ["owner", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Проверить, есть ли уже QR-код для этой записи
+    result = await db.execute(select(QRCode).where(QRCode.booking_id == booking_id))
+    existing_qr = result.scalar_one_or_none()
+    if existing_qr:
+        return existing_qr
+    
+    # Генерировать уникальный код
+    qr_code_value = str(uuid.uuid4())
+    
+    # Создать QR-код
+    qr = QRCode()
+    qr.booking_id = booking_id
+    qr.code = qr_code_value
+    
+    db.add(qr)
+    await db.commit()
+    await db.refresh(qr)
+    
+    return qr
+
+
+@app.get("/api/bookings/{booking_id}/qr")
+async def get_booking_qr_image(
+    booking_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Получить QR-код изображение для записи."""
+    # Проверить доступ
+    result = await db.execute(select(Booking).where(Booking.id == booking_id))
+    booking = result.scalar_one_or_none()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if booking.chat_id != user.chat_id and user.role not in ["owner", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Получить QR-код
+    result = await db.execute(select(QRCode).where(QRCode.booking_id == booking_id))
+    qr_code = result.scalar_one_or_none()
+    if not qr_code:
+        raise HTTPException(status_code=404, detail="QR code not found")
+    
+    # Генерировать изображение QR-кода
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(qr_code.code)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Конвертировать в base64
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    img_base64 = base64.b64encode(buffer.getvalue()).decode()
+    
+    return {
+        "qr_code": f"data:image/png;base64,{img_base64}",
+        "code": qr_code.code
+    }
+
+
+# === Slots ===
 
 
 # === Slots ===
