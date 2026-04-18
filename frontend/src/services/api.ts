@@ -8,7 +8,11 @@ import type {
   PromoCode, PromoCodeValidationResult
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://beauty-studio-api.onrender.com/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'https://beauty-studio-api.onrender.com';
+const apiRoot = rawApiUrl.replace(/\/+$/, '');
+const API_BASE_URL = apiRoot.endsWith('/api') ? apiRoot : `${apiRoot}/api`;
+
+console.log('API_BASE_URL configured as', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -42,6 +46,7 @@ api.interceptors.response.use(
 // Auth
 export const authTelegram = async (authData: {
   telegram_init_data: string;
+  telegram_init_data_source?: 'initData' | 'fallback' | 'url';
   id: number;
   first_name: string;
   last_name?: string;
@@ -502,6 +507,11 @@ export const initTelegramWebApp = () => {
   return tg;
 };
 
+export type TelegramInitDataResult = {
+  initData: string;
+  source: 'initData' | 'fallback' | 'url';
+};
+
 export const getTelegramUser = () => {
   const win: any = window as any;
   if (!win.Telegram || !win.Telegram.WebApp) return null;
@@ -509,70 +519,95 @@ export const getTelegramUser = () => {
   return tg?.initDataUnsafe?.user || null;
 };
 
-export const getTelegramInitData = () => {
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const getTelegramInitData = async (): Promise<TelegramInitDataResult | null> => {
   const win: any = window as any;
-
-  // Проверяем Telegram WebApp
-  if (win.Telegram && win.Telegram.WebApp) {
-    const tg = win.Telegram.WebApp;
-    
-    // Сначала пробуем initData (подписанная строка)
-    const initData = tg.initData;
-    if (initData && initData.length > 10) {
-      console.log('Telegram WebApp detected, initData available');
-      return initData;
-    }
-    
-    // Если initData пустая, пробуем создать из initDataUnsafe
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      // Создаем строку параметров из initDataUnsafe
-      const params = new URLSearchParams();
-      params.set('user', JSON.stringify(tg.initDataUnsafe.user));
-      if (tg.initDataUnsafe.hash) {
-        params.set('hash', tg.initDataUnsafe.hash);
-      }
-      if (tg.initDataUnsafe.auth_date) {
-        params.set('auth_date', String(tg.initDataUnsafe.auth_date));
-      }
-      if (tg.initDataUnsafe.query_id) {
-        params.set('query_id', tg.initDataUnsafe.query_id);
-      }
-      const constructed = params.toString();
-      console.log('Constructed initData from initDataUnsafe:', constructed.substring(0, 50));
-      return constructed;
-    }
-    
-    // Если даже initDataUnsafe пустой, но мы внутри Telegram WebApp,
-    // пробуем получить данные из объекта WebApp напрямую
-    console.log('Telegram WebApp object available but no auth data');
-    console.log('WebApp properties:', {
-      initData: tg.initData ? 'yes (' + tg.initData.length + ' chars)' : 'no',
-      initDataUnsafe: tg.initDataUnsafe ? JSON.stringify(tg.initDataUnsafe)?.substring(0, 100) : 'no',
-      version: tg.version,
-      platform: tg.platform,
-    });
-  }
-
-  // Проверяем URL параметры
   const urlParams = new URLSearchParams(window.location.search);
   const telegramInitData = urlParams.get('tgWebAppData');
   if (telegramInitData) {
-    console.log('Found tgWebAppData in URL');
-    return telegramInitData;
+    const urlInitParams = new URLSearchParams(telegramInitData);
+    const hash = urlInitParams.get('hash');
+    const source = hash ? 'url' : 'fallback';
+    console.log('Found tgWebAppData in URL', { hash: hash ? 'present' : 'missing', source });
+    return { initData: telegramInitData, source };
   }
 
-  console.log('Telegram WebApp not detected or no initData');
+  if (!win.Telegram || !win.Telegram.WebApp) {
+    console.log('Telegram WebApp not detected');
+    return null;
+  }
+
+  const tg = win.Telegram.WebApp;
+
+  const readInitData = () => {
+    const initData = tg.initData;
+    if (initData && initData.length > 10) {
+      console.log('Telegram WebApp initData available');
+      return initData;
+    }
+    return null;
+  };
+
+  let initData = readInitData();
+  if (initData) {
+    return { initData, source: 'initData' };
+  }
+
+  console.log('Waiting for Telegram initData...');
+  const maxWait = 3000;
+  const interval = 100;
+  let waited = 0;
+  while (!initData && waited < maxWait) {
+    await sleep(interval);
+    waited += interval;
+    initData = readInitData();
+  }
+
+  if (initData) {
+    return { initData, source: 'initData' };
+  }
+
+  if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    console.log('Using initDataUnsafe fallback');
+    const params = new URLSearchParams();
+    params.set('user', JSON.stringify(tg.initDataUnsafe.user));
+    if (tg.initDataUnsafe.hash) {
+      params.set('hash', tg.initDataUnsafe.hash);
+    }
+    if (tg.initDataUnsafe.auth_date) {
+      params.set('auth_date', String(tg.initDataUnsafe.auth_date));
+    }
+    if (tg.initDataUnsafe.query_id) {
+      params.set('query_id', tg.initDataUnsafe.query_id);
+    }
+    const constructed = params.toString();
+    console.log('Constructed initData from initDataUnsafe:', constructed.substring(0, 50));
+    return { initData: constructed, source: 'fallback' };
+  }
+
+  console.log('Telegram WebApp available but no auth data found');
+  console.log('WebApp properties:', {
+    initData: tg.initData ? `yes (${tg.initData.length} chars)` : 'no',
+    initDataUnsafe: tg.initDataUnsafe ? JSON.stringify(tg.initDataUnsafe)?.substring(0, 100) : 'no',
+    version: tg.version,
+    platform: tg.platform,
+  });
   return null;
 };
 
-export const parseTelegramInitData = (initData: string) => {
+export const parseTelegramInitData = (initData: string, allowMissingHash: boolean = false) => {
   const params = new URLSearchParams(initData);
   const user = params.get('user');
   const hash = params.get('hash');
   const authDate = params.get('auth_date');
   const queryId = params.get('query_id');
 
-  if (!user || !hash || !authDate) {
+  if (!user || !authDate) {
+    return null;
+  }
+
+  if (!hash && !allowMissingHash) {
     return null;
   }
 
@@ -587,7 +622,7 @@ export const parseTelegramInitData = (initData: string) => {
     photo_url: userData.photo_url || undefined,
     allows_write_to_pm: userData.allows_write_to_pm || undefined,
     query_id: queryId || undefined,
-    hash,
+    hash: hash || undefined,
     auth_date: parseInt(authDate, 10),
   };
 };

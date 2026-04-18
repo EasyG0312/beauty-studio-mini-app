@@ -224,6 +224,7 @@ class AnalyticsSummary(BaseModel):
 class TelegramAuth(BaseModel):
     # Оригинальная строка initData от Telegram
     telegram_init_data: str
+    telegram_init_data_source: Optional[str] = None
     # Распарсенные данные (для удобства)
     id: int
     first_name: str

@@ -3,7 +3,7 @@ import type { AuthState, UserRole } from '../types';
 import { authTelegram, getTelegramUser, getTelegramInitData, parseTelegramInitData } from '../services/api';
 
 interface AuthStore extends AuthState {
-  login: () => Promise<void>;
+  login: () => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   setRole: (role: UserRole) => void;
   loginAsAdmin: () => void; // Демо-вход для тестирования
@@ -18,18 +18,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       console.log('Starting Telegram auth...');
       
-      const initData = getTelegramInitData();
-      if (!initData) {
+      const initDataResult = await getTelegramInitData();
+      if (!initDataResult) {
         console.warn('Telegram initData not available - not running inside Telegram WebApp');
-        return;
+        return { success: false, error: 'Telegram initData не найдены. Откройте приложение через кнопку бота в Telegram.' };
       }
 
-      console.log('Init data received, length:', initData.length);
+      console.log('Init data received, length:', initDataResult.initData.length, 'source:', initDataResult.source);
 
-      const authData = parseTelegramInitData(initData);
+      const authData = parseTelegramInitData(initDataResult.initData, initDataResult.source !== 'initData');
       if (!authData) {
-        console.error('Failed to parse Telegram initData');
-        return;
+        console.error('Failed to parse Telegram initData', initDataResult);
+        return { success: false, error: 'Не удалось распознать данные Telegram. Попробуйте открыть приложение снова.' };
       }
 
       console.log('Auth data parsed:', { id: authData.id, first_name: authData.first_name });
@@ -37,7 +37,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
       // Добавляем оригинальную строку initData
       const authDataWithInit = {
         ...authData,
-        telegram_init_data: initData,
+        telegram_init_data: initDataResult.initData,
+        telegram_init_data_source: initDataResult.source,
       };
 
       const response = await authTelegram(authDataWithInit);
@@ -55,6 +56,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
         },
         token: response.access_token,
       });
+
+      return { success: true };
     } catch (error: any) {
       console.error('Login failed:', error);
       console.error('Error details:', {
@@ -62,7 +65,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
         response: error.response?.data,
         status: error.response?.status,
       });
-      // don't rethrow — allow app to continue in non-telegram contexts
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || 'Ошибка входа через Telegram';
+      return { success: false, error: errorMessage };
     }
   },
 

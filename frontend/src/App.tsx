@@ -47,8 +47,8 @@ function App() {
 
       // Автоматический вход через Telegram
       console.log('Calling login()...');
-      await login();
-      console.log('login() completed');
+      const loginResult = await login();
+      console.log('login() completed', { loginResult });
 
       setInitialized(true);
       console.log('=== APP INIT DONE ===');

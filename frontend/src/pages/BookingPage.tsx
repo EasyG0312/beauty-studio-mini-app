@@ -36,12 +36,14 @@ const TIME_SLOTS = [
 
 export default function BookingPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, login } = useAuthStore();
   const { addBooking } = useBookingStore();
   const isGuest = !user?.id;
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [slotsError, setSlotsError] = useState<string | null>(null);
 
@@ -87,6 +89,26 @@ export default function BookingPage() {
     setStep(5);
   };
 
+  const handleLoginViaTelegram = async () => {
+    setAuthError(null);
+    setAuthLoading(true);
+
+    try {
+      const result = await login();
+      if (!result.success) {
+        setAuthError(result.error || 'Не удалось войти через Telegram. Откройте приложение через кнопку бота в Telegram и повторите попытку.');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Telegram login error:', error);
+      setAuthError('Не удалось войти через Telegram. Попробуйте снова.');
+      return false;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.phone) {
       alert('Пожалуйста, заполните имя и телефон');
@@ -110,10 +132,14 @@ export default function BookingPage() {
       }
     }
 
+    let currentChatId = user?.id;
     if (isGuest) {
-      setLoading(false);
-      alert('Требуется авторизация через Telegram. Откройте приложение внутри Telegram WebApp и авторизуйтесь, чтобы запись сохранилась в вашем аккаунте.');
-      return;
+      const loginSuccess = await handleLoginViaTelegram();
+      if (!loginSuccess) {
+        alert('Требуется авторизация через Telegram. Откройте приложение через кнопку бота в Telegram и авторизуйтесь, чтобы запись сохранилась в вашем аккаунте.');
+        return;
+      }
+      currentChatId = useAuthStore.getState().user?.id || currentChatId;
     }
 
     formData.phone = finalPhone;
@@ -127,7 +153,7 @@ export default function BookingPage() {
         date: formData.date,
         time: formData.time,
         comment: formData.comment || '',
-        chat_id: user?.id,
+        chat_id: currentChatId,
       };
       await addBooking(booking);
       haptic.notification('success');
@@ -447,7 +473,24 @@ export default function BookingPage() {
               color: '#5b4f2d',
               fontSize: 13,
             }}>
-              Чтобы запись появилась в списке «Мои записи» и QR-код можно было получить — откройте приложение через Telegram WebApp и авторизуйтесь.
+              <div style={{ marginBottom: 10 }}>
+                Чтобы запись сохранилась в вашем аккаунте, откройте приложение через кнопку бота в Telegram и авторизуйтесь.
+                Если вы уже внутри Telegram, нажмите кнопку ниже.
+              </div>
+              <Button
+                fullWidth
+                variant="primary"
+                onClick={handleLoginViaTelegram}
+                disabled={authLoading}
+                style={{ marginBottom: authError ? 12 : 0 }}
+              >
+                {authLoading ? 'Входим...' : 'Войти через Telegram'}
+              </Button>
+              {authError && (
+                <div style={{ marginTop: 8, color: 'var(--color-danger)', fontSize: 13 }}>
+                  {authError}
+                </div>
+              )}
             </div>
           )}
 
