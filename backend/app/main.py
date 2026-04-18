@@ -108,7 +108,8 @@ async def root():
 # so we automatically disable allow_credentials in that case to avoid invalid responses.
 allow_origins = settings.cors_origins_list
 allow_credentials = True
-if len(allow_origins) == 1 and allow_origins[0] == '*':
+if '*' in allow_origins or any('*.vercel.app' in origin for origin in allow_origins):
+    allow_origins = ['*']
     allow_credentials = False
 
 app.add_middleware(
