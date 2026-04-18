@@ -1187,6 +1187,22 @@ async def get_current_profile(
     return user
 
 
+@app.put("/api/profile", response_model=ClientResponse)
+async def update_current_profile(
+    update: ClientUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Обновить профиль текущего пользователя."""
+    # Обновляем только переданные поля
+    for field, value in update.model_dump(exclude_unset=True).items():
+        setattr(user, field, value)
+    
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 @app.put("/api/clients/{chat_id}", response_model=ClientResponse)
 async def update_client(
     chat_id: int,

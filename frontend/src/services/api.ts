@@ -403,6 +403,11 @@ export const getProfile = async () => {
   return response.data;
 };
 
+export const updateProfile = async (data: { name?: string; phone?: string }) => {
+  const response = await api.put<Client>('/profile', data);
+  return response.data;
+};
+
 export const updateClientNotes = async (chatId: number, notes: string) => {
   const response = await api.put<Client>(`/clients/${chatId}`, { notes });
   return response.data;

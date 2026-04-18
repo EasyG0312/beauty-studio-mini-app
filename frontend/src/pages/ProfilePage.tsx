@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { updateClient, getLoyaltyStatus, getProfile, getBookings } from '../services/api';
+import { updateClient, getLoyaltyStatus, getProfile, getBookings, updateProfile } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import {
@@ -70,7 +70,7 @@ export default function ProfilePage() {
     }
 
     try {
-      await updateClient(user!.id, {
+      await updateProfile({
         name: name.trim(),
         phone: normalizedPhone,
       });
