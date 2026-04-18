@@ -29,14 +29,23 @@ export default function MyBookingsPage() {
   }>({ open: false, booking: null, qrImage: null, loading: false });
 
   useEffect(() => {
+    console.log('MyBookingsPage: Component mounted');
+    console.log('MyBookingsPage: User object:', user);
+    console.log('MyBookingsPage: Is authenticated:', !!user);
     if (user) {
+      console.log('MyBookingsPage: Loading bookings for user', user.id);
       fetchBookings({ chat_id: user.id });
+    } else {
+      console.log('MyBookingsPage: No user, skipping booking load');
     }
   }, [user]);
 
   const activeBookings = bookings.filter((b) =>
     ['pending', 'confirmed'].includes(b.status)
   );
+
+  console.log('MyBookingsPage: All bookings', bookings);
+  console.log('MyBookingsPage: Active bookings', activeBookings);
 
   const historyBookings = bookings.filter((b) =>
     ['completed', 'cancelled', 'no_show'].includes(b.status)
@@ -134,6 +143,18 @@ export default function MyBookingsPage() {
         <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)' }}>Мои записи</h1>
       </div>
 
+      {/* Debug info */}
+      <div style={{ 
+        background: 'var(--gray-100)', 
+        padding: '8px 12px', 
+        marginBottom: '16px', 
+        borderRadius: '8px',
+        fontSize: '12px',
+        color: 'var(--gray-600)'
+      }}>
+        Debug: User ID: {user?.id || 'не авторизован'}, Role: {user?.role || '—'}
+      </div>
+
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <Button
@@ -142,6 +163,18 @@ export default function MyBookingsPage() {
           style={{ flex: 1 }}
         >
           Активные
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            if (user) {
+              console.log('Manual refresh for user', user.id);
+              fetchBookings({ chat_id: user.id });
+            }
+          }}
+          style={{ padding: '8px 12px', fontSize: '12px' }}
+        >
+          🔄
         </Button>
         <Button
           variant={filter === 'history' ? 'primary' : 'secondary'}
@@ -157,6 +190,11 @@ export default function MyBookingsPage() {
           {activeBookings.length === 0 ? (
             <Card>
               <p className="text-center text-hint">У вас нет активных записей</p>
+              {user?.id && (
+                <p className="text-center text-hint" style={{ marginTop: 8, fontSize: 13 }}>
+                  Если вы создавали запись без Telegram-авторизации, она может не привязаться к вашему аккаунту.
+                </p>
+              )}
             </Card>
           ) : (
             activeBookings.map((booking) => (
@@ -180,12 +218,14 @@ export default function MyBookingsPage() {
                 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => openQRModal(booking)}
                     style={{ flex: 1 }}
                   >
-                    <IconQrcode size={16} style={{ marginRight: '6px' }} />
-                    QR-код
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <IconQrcode size={16} />
+                      <span>QR-код</span>
+                    </div>
                   </Button>
                   <Button
                     variant="secondary"

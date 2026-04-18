@@ -22,9 +22,12 @@ export const useBookingStore = create<BookingState>((set) => ({
   fetchBookings: async (params) => {
     set({ loading: true, error: null });
     try {
+      console.log('bookingStore: Fetching bookings with params', params);
       const bookings = await getBookings(params);
+      console.log('bookingStore: Received bookings', bookings);
       set({ bookings, loading: false });
     } catch (error) {
+      console.error('bookingStore: Error fetching bookings', error);
       set({ error: 'Failed to fetch bookings', loading: false });
     }
   },

@@ -38,6 +38,7 @@ export default function BookingPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addBooking } = useBookingStore();
+  const isGuest = !user?.id;
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -107,6 +108,12 @@ export default function BookingPage() {
         alert('Номер телефона должен быть в формате +996XXXXXXXXX (9 цифр после +996)');
         return;
       }
+    }
+
+    if (isGuest) {
+      setLoading(false);
+      alert('Требуется авторизация через Telegram. Откройте приложение внутри Telegram WebApp и авторизуйтесь, чтобы запись сохранилась в вашем аккаунте.');
+      return;
     }
 
     formData.phone = finalPhone;
@@ -429,6 +436,20 @@ export default function BookingPage() {
               maxLength={13}
             />
           </div>
+
+          {isGuest && (
+            <div style={{
+              marginBottom: 16,
+              padding: '14px',
+              background: 'rgba(255, 245, 210, 0.7)',
+              borderRadius: 16,
+              border: '1px solid rgba(201, 169, 110, 0.8)',
+              color: '#5b4f2d',
+              fontSize: 13,
+            }}>
+              Чтобы запись появилась в списке «Мои записи» и QR-код можно было получить — откройте приложение через Telegram WebApp и авторизуйтесь.
+            </div>
+          )}
 
           <textarea
             className="input"
