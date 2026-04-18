@@ -67,9 +67,10 @@ export default function BookingPage() {
     setStep(2);
   };
 
-  const handleMasterSelect = (master: string) => {
+  const handleMasterSelect = (masterName: string) => {
     haptic.selection();
-    setFormData({ ...formData, master });
+    const masterValue = masterName === 'Любой мастер' ? 'all' : masterName;
+    setFormData({ ...formData, master: masterValue });
     setStep(3);
   };
 
