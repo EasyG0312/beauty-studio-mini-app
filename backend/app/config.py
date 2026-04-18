@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
 
     # CORS
-    cors_origins: str = "http://localhost:5173,https://beauty-studio-v2-altegio.vercel.app,https://frontend-five-drab-47.vercel.app"
+    cors_origins: str = "http://localhost:5173,https://beauty-studio-v2-altegio.vercel.app,https://beauty-studio-v2-altegio-65n9ofppl-easyg0312s-projects.vercel.app,https://frontend-five-drab-47.vercel.app"
 
     # Business logic
     repeat_sale_days: int = 45
