@@ -34,7 +34,7 @@ function App() {
 
   useEffect(() => {
     const init = async () => {
-      console.log('=== APP INIT START ===');
+      console.log('=== APP INIT START === v2.1.1');
       
       // Инициализируем Telegram WebApp
       const tg = initTelegramWebApp();
@@ -52,7 +52,7 @@ function App() {
       console.log('login() completed', { loginResult });
 
       setInitialized(true);
-      console.log('=== APP INIT DONE ===');
+      console.log('=== APP INIT DONE === v2.1.1');
     };
 
     init();
@@ -87,7 +87,7 @@ function App() {
         maxHeight: '80vh',
         overflowY: 'auto',
       }}>
-        <div style={{ color: '#fff', fontWeight: 'bold', marginBottom: 8, fontSize: 13 }}>🔧 DEBUG</div>
+        <div style={{ color: '#fff', fontWeight: 'bold', marginBottom: 8, fontSize: 13 }}>🔧 DEBUG v2.1.1</div>
         
         <div style={{ color: '#ff0' }}>═══ Telegram SDK ═══</div>
         <div>window.Telegram: {hasTelegram ? '✅' : '❌'}</div>
