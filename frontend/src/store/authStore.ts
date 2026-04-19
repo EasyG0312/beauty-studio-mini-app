@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       console.log('Starting Telegram auth...');
       
-      const initDataResult = await getTelegramInitData();
+      let initDataResult = await getTelegramInitData();
       if (!initDataResult) {
         console.warn('Telegram initData not available - not running inside Telegram WebApp');
         return { success: false, error: 'Telegram initData не найдены. Откройте приложение через кнопку бота в Telegram.' };
@@ -26,13 +26,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       console.log('Init data received, length:', initDataResult.initData.length, 'source:', initDataResult.source);
 
-      const authData = parseTelegramInitData(initDataResult.initData, initDataResult.source !== 'initData');
+      let authData = parseTelegramInitData(initDataResult.initData, initDataResult.source !== 'initData');
+      if (!authData && initDataResult.source === 'initData') {
+        console.warn('Failed to parse signed initData, trying initDataUnsafe fallback');
+        const win: any = window as any;
+        const unsafe = win.Telegram?.WebApp?.initDataUnsafe;
+        if (unsafe?.user) {
+          const params = new URLSearchParams();
+          params.set('user', JSON.stringify(unsafe.user));
+          if (unsafe.hash) params.set('hash', unsafe.hash);
+          if (unsafe.auth_date) params.set('auth_date', String(unsafe.auth_date));
+          if (unsafe.query_id) params.set('query_id', unsafe.query_id);
+          const fallbackInitData = params.toString();
+          initDataResult = { initData: fallbackInitData, source: 'fallback' };
+          authData = parseTelegramInitData(fallbackInitData, true);
+          console.log('Fallback initData from initDataUnsafe:', fallbackInitData.substring(0, 100));
+        }
+      }
+
       if (!authData) {
         console.error('Failed to parse Telegram initData', initDataResult);
         return { success: false, error: 'Не удалось распознать данные Telegram. Попробуйте открыть приложение снова.' };
       }
 
-      console.log('Auth data parsed:', { id: authData.id, first_name: authData.first_name });
+      console.log('Auth data parsed:', { id: authData.id, first_name: authData.first_name, source: initDataResult.source });
 
       // Добавляем оригинальную строку initData
       const authDataWithInit = {
@@ -41,7 +58,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
         telegram_init_data_source: initDataResult.source,
       };
 
-      const response = await authTelegram(authDataWithInit);
+      const response = await authTelegram(authDataWithInit).catch(async (error: any) => {
+        const status = error.response?.status;
+        console.warn('Initial authTelegram failed', { status, detail: error.response?.data });
+        if (status === 401 && initDataResult.source === 'initData') {
+          const win: any = window as any;
+          const unsafe = win.Telegram?.WebApp?.initDataUnsafe;
+          if (unsafe?.user) {
+            console.log('Retrying auth via fallback source because signed initData failed');
+            const params = new URLSearchParams();
+            params.set('user', JSON.stringify(unsafe.user));
+            if (unsafe.hash) params.set('hash', unsafe.hash);
+            if (unsafe.auth_date) params.set('auth_date', String(unsafe.auth_date));
+            if (unsafe.query_id) params.set('query_id', unsafe.query_id);
+            const fallbackInitData = params.toString();
+            const fallbackAuthData = {
+              ...authData,
+              telegram_init_data: fallbackInitData,
+              telegram_init_data_source: 'fallback' as const,
+            };
+            return await authTelegram(fallbackAuthData);
+          }
+        }
+        throw error;
+      });
 
       console.log('Auth successful:', { role: response.role, userId: response.user_id });
 
@@ -61,9 +101,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error: any) {
       console.error('Login failed:', error);
       console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
       });
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || 'Ошибка входа через Telegram';
       return { success: false, error: errorMessage };
