@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Force rebuild v2.1.3 - commit e0f147c
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
