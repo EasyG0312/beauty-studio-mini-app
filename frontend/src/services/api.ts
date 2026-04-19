@@ -523,6 +523,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getTelegramInitData = async (): Promise<TelegramInitDataResult | null> => {
   const win: any = window as any;
+  console.log('getTelegramInitData:', {
+    search: window.location.search,
+    hasTelegram: !!win.Telegram?.WebApp,
+    initData: win.Telegram?.WebApp?.initData ? win.Telegram.WebApp.initData.substring(0, 50) + '...' : null,
+    initDataUnsafe: win.Telegram?.WebApp?.initDataUnsafe ? JSON.stringify(win.Telegram.WebApp.initDataUnsafe).substring(0, 100) : null,
+  });
   const urlParams = new URLSearchParams(window.location.search);
   const telegramInitData = urlParams.get('tgWebAppData');
   if (telegramInitData) {
