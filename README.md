@@ -1,5 +1,8 @@
 # Beauty Studio Telegram Mini App
 
+**Version: 2.1.2**
+**Last Force Rebuild: 7ed8d2a**
+
 Telegram Mini App для онлайн-записи в салон красоты с полной миграцией функционала бота.
 
 ## 📁 Структура проекта
