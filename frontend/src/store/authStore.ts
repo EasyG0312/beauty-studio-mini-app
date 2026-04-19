@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AuthState, UserRole } from '../types';
-import { authTelegram, getTelegramUser, getTelegramInitData, parseTelegramInitData } from '../services/api';
+import { authTelegram, getCurrentUser, getTelegramUser, getTelegramInitData, parseTelegramInitData } from '../services/api';
 
 interface AuthStore extends AuthState {
   login: () => Promise<{ success: boolean; error?: string }>;
@@ -17,7 +17,29 @@ export const useAuthStore = create<AuthStore>((set) => ({
   login: async () => {
     try {
       console.log('Starting Telegram auth...');
-      
+
+      const existingToken = localStorage.getItem('auth_token');
+      if (existingToken) {
+        console.log('Existing token found, trying restore session');
+        try {
+          const currentUser = await getCurrentUser();
+          console.log('Session restored from token:', currentUser);
+          set({
+            isAuthenticated: true,
+            user: {
+              id: currentUser.chat_id,
+              role: currentUser.role,
+              telegramUser: getTelegramUser() || undefined,
+            },
+            token: existingToken,
+          });
+          return { success: true };
+        } catch (restoreError) {
+          console.warn('Token restore failed, will continue Telegram auth', restoreError);
+          localStorage.removeItem('auth_token');
+        }
+      }
+
       let initDataResult = await getTelegramInitData();
       if (!initDataResult) {
         console.warn('Telegram initData not available - not running inside Telegram WebApp');

@@ -240,6 +240,12 @@ export interface AnalyticsDashboard {
 
 export type UserRole = 'client' | 'manager' | 'owner';
 
+export interface AuthMeResponse {
+  chat_id: number;
+  role: UserRole;
+  name: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   user: {

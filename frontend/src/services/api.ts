@@ -5,7 +5,7 @@ import type {
   MasterKPI, ClientRFM, RevenueForecast, Client, LoyaltyStatus,
   MasterPhoto, AnalyticsDashboard, FunnelStats, HourlyHeatmap, ComparisonStats,
   MasterSchedule, MasterTimeOff, MasterAvailability,
-  PromoCode, PromoCodeValidationResult
+  PromoCode, PromoCodeValidationResult, AuthMeResponse
 } from '../types';
 
 const rawApiUrl = import.meta.env.VITE_API_URL || 'https://beauty-studio-api.onrender.com';
@@ -405,6 +405,11 @@ export const getClient = async (chatId: number) => {
 
 export const getProfile = async () => {
   const response = await api.get<Client>('/profile');
+  return response.data;
+};
+
+export const getCurrentUser = async () => {
+  const response = await api.get<AuthMeResponse>('/auth/me');
   return response.data;
 };
 

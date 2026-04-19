@@ -28,7 +28,7 @@ from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
     ClientResponse, ReviewCreate, WaitlistCreate,
     AnalyticsSummary, RevenueStats, MasterKPI,
-    MessageResponse, SlotAvailability, TelegramAuth, AuthResponse,
+    MessageResponse, SlotAvailability, TelegramAuth, AuthResponse, AuthMeResponse,
     BlacklistCreate, BlacklistResponse, PortfolioResponse,
     ChatMessageCreate, ChatMessageResponse,
     RevenueForecast, ClientRFM,
@@ -296,6 +296,15 @@ async def auth_telegram(auth_data: TelegramAuth, db: AsyncSession = Depends(get_
     token = create_jwt_token(auth_data.id)
     
     return AuthResponse(access_token=token, role=role, user_id=auth_data.id)
+
+
+@app.get("/api/auth/me", response_model=AuthMeResponse)
+async def auth_me(user: Optional[Client] = Depends(get_current_user)):
+    """Получить информацию о текущем пользователе по JWT токену."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    role = get_user_role(user)
+    return AuthMeResponse(chat_id=user.chat_id, role=role, name=user.name)
 
 
 # === Bookings ===

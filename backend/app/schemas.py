@@ -245,6 +245,12 @@ class AuthResponse(BaseModel):
     user_id: int
 
 
+class AuthMeResponse(BaseModel):
+    chat_id: int
+    role: str
+    name: str
+
+
 # === Blacklist Schemas ===
 class BlacklistCreate(BaseModel):
     chat_id: int
