@@ -22,6 +22,7 @@ const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const TelegramDebugPage = lazy(() => import('./pages/TelegramDebugPage'));
 
 // Components
 import Navigation from './components/Navigation';
@@ -205,6 +206,7 @@ function App() {
             />
 
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/telegram-debug" element={<TelegramDebugPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
