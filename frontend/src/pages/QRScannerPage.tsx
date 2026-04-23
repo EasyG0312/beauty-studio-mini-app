@@ -7,6 +7,7 @@ import { formatDate, formatTime } from '../utils/dateUtils';
 interface ScanResult {
   valid: boolean;
   booking_id: number;
+  qr_code: string;
   client_name: string;
   client_phone: string;
   service: string;
@@ -22,6 +23,7 @@ export default function QRScannerPage() {
   const { user } = useAuthStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [scannedCode, setScannedCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [manualCode, setManualCode] = useState('');
@@ -74,11 +76,13 @@ export default function QRScannerPage() {
   const handleCode = async (code: string) => {
     try {
       setError('');
+      setScannedCode(code); // Сохраняем код для отметки прихода
       const data = await verifyQRCode(code);
       setResult(data);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Неверный QR-код');
       setResult(null);
+      setScannedCode('');
     }
   };
 
@@ -89,11 +93,11 @@ export default function QRScannerPage() {
   };
 
   const markAsArrived = async () => {
-    if (!result) return;
+    if (!result || !scannedCode) return;
 
     try {
-      // Используем booking_id для отметки прихода
-      const response = await scanQRCode(result.booking_id.toString());
+      // Используем отсканированный QR код для отметки прихода
+      const response = await scanQRCode(scannedCode);
       setSuccess(response.message || 'Клиент успешно отмечен!');
       setResult({ ...result, status: 'arrived', is_arrived: true });
     } catch (err: any) {
@@ -103,6 +107,7 @@ export default function QRScannerPage() {
 
   const resetScan = () => {
     setResult(null);
+    setScannedCode('');
     setError('');
     setSuccess('');
     setManualCode('');

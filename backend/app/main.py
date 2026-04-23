@@ -725,6 +725,7 @@ async def verify_qr_code(
         return {
             "valid": True,
             "booking_id": booking.id,
+            "qr_code": qr_code,
             "client_name": client.name if client else booking.name,
             "client_phone": client.phone if client else booking.phone,
             "service": booking.service,
