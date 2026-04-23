@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 import { verifyQRCode, scanQRCode } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { formatDate, formatTime } from '../utils/dateUtils';
@@ -26,7 +25,6 @@ export default function QRScannerPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [manualCode, setManualCode] = useState('');
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   // Проверка доступа только для manager/owner
   useEffect(() => {
@@ -35,48 +33,42 @@ export default function QRScannerPage() {
     }
   }, [user, navigate]);
 
+  // Автоматически запускаем сканер при открытии страницы
   useEffect(() => {
+    // Небольшая задержка для полной загрузки страницы
+    const timer = setTimeout(() => {
+      startTelegramScanning();
+    }, 500);
+
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear();
+      clearTimeout(timer);
+      // Закрыть сканер при уходе со страницы
+      if (window.Telegram?.WebApp?.closeScanQrPopup) {
+        window.Telegram.WebApp.closeScanQrPopup();
       }
     };
   }, []);
 
-  const startScanning = () => {
+  const startTelegramScanning = () => {
     setScanning(true);
     setError('');
-    setResult(null);
 
-    // Небольшая задержка для рендеринга DOM
-    setTimeout(() => {
-      const scanner = new Html5QrcodeScanner(
-        'qr-reader',
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1,
-        },
-        false
-      );
-
-      scanner.render(
-        async (decodedText) => {
-          // Остановить сканер
-          scanner.clear();
+    const tg = window.Telegram?.WebApp;
+    if (tg?.showScanQrPopup) {
+      tg.showScanQrPopup(
+        { text: 'Наведите камеру на QR-код клиента' },
+        async (qrCode: string) => {
+          // Закрыть попап сканера
+          tg.closeScanQrPopup?.();
           setScanning(false);
-
           // Проверить код
-          await handleCode(decodedText);
-        },
-        (errorMessage) => {
-          // Игнорируем ошибки сканирования (нет QR кода в кадре)
-          console.log('QR scan error:', errorMessage);
+          await handleCode(qrCode);
         }
       );
-
-      scannerRef.current = scanner;
-    }, 100);
+    } else {
+      setError('Сканер QR-кодов недоступен в этом браузере. Используйте ручной ввод.');
+      setScanning(false);
+    }
   };
 
   const handleCode = async (code: string) => {
@@ -100,6 +92,7 @@ export default function QRScannerPage() {
     if (!result) return;
 
     try {
+      // Используем booking_id для отметки прихода
       const response = await scanQRCode(result.booking_id.toString());
       setSuccess(response.message || 'Клиент успешно отмечен!');
       setResult({ ...result, status: 'arrived', is_arrived: true });
@@ -113,6 +106,15 @@ export default function QRScannerPage() {
     setError('');
     setSuccess('');
     setManualCode('');
+    // Автоматически запускаем сканер снова
+    setTimeout(() => startTelegramScanning(), 300);
+  };
+
+  const closeScanner = () => {
+    if (window.Telegram?.WebApp?.closeScanQrPopup) {
+      window.Telegram.WebApp.closeScanQrPopup();
+    }
+    setScanning(false);
   };
 
   return (
@@ -125,8 +127,10 @@ export default function QRScannerPage() {
 
       {!scanning && !result && (
         <div className="scanner-controls">
-          <button className="btn btn-primary btn-lg" onClick={startScanning}>
-            📷 Открыть камеру
+          <p className="scanning-hint">Сканер автоматически откроется...</p>
+
+          <button className="btn btn-primary btn-lg" onClick={startTelegramScanning}>
+            📷 Открыть сканер снова
           </button>
 
           <div className="divider">или</div>
@@ -148,14 +152,12 @@ export default function QRScannerPage() {
 
       {scanning && (
         <div className="scanner-container">
-          <div id="qr-reader" className="qr-reader"></div>
-          <button className="btn btn-secondary" onClick={() => {
-            if (scannerRef.current) {
-              scannerRef.current.clear();
-            }
-            setScanning(false);
-          }}>
-            ❌ Закрыть камеру
+          <div className="scanning-indicator">
+            <div className="spinner"></div>
+            <p>Сканирование... Наведите камеру на QR-код</p>
+          </div>
+          <button className="btn btn-secondary" onClick={closeScanner}>
+            ❌ Закрыть сканер
           </button>
         </div>
       )}

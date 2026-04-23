@@ -13,6 +13,9 @@ declare global {
           selectionChanged: () => void;
         };
         isVersionAtLeast: (version: string) => boolean;
+        showScanQrPopup?: (params: { text: string }, callback: (qrCode: string) => void) => void;
+        closeScanQrPopup?: () => void;
+        requestFullscreen?: () => void;
       };
     };
   }
