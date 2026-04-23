@@ -1,7 +1,9 @@
 # Beauty Studio Telegram Mini App
 
-**Version: 2.1.2**
-**Last Force Rebuild: 7ed8d2a**
+**Version: 2.1.5**
+**Production URL:** `https://frontend-gamma-livid-32.vercel.app`
+**Backend URL:** `https://beauty-studio-api.onrender.com`
+**Last Update:** 23.04.2026
 
 Telegram Mini App для онлайн-записи в салон красоты с полной миграцией функционала бота.
 
