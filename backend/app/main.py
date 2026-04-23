@@ -519,23 +519,29 @@ async def generate_booking_qr(
     user: Client = Depends(get_current_user)
 ):
     """Генерировать QR-код для записи."""
+    logger.info(f"QR POST: booking_id={booking_id}, user_id={user.id if user else 'None'}")
     if not user:
+        logger.error("QR POST: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
     
     # Проверить, что запись принадлежит пользователю
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
     if not booking:
+        logger.error(f"QR POST: Booking {booking_id} not found")
         raise HTTPException(status_code=404, detail="Booking not found")
     
     user_role = get_user_role(user)
+    logger.info(f"QR POST: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
+        logger.error(f"QR POST: Access denied for user {user.id}")
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Проверить, есть ли уже QR-код для этой записи
     result = await db.execute(select(QRCode).where(QRCode.booking_id == booking_id))
     existing_qr = result.scalar_one_or_none()
     if existing_qr:
+        logger.info(f"QR POST: Returning existing QR for booking {booking_id}")
         return existing_qr
     
     # Генерировать уникальный код
@@ -549,6 +555,7 @@ async def generate_booking_qr(
     db.add(qr)
     await db.commit()
     await db.refresh(qr)
+    logger.info(f"QR POST: Created new QR for booking {booking_id}")
     
     return qr
 
@@ -559,48 +566,59 @@ async def get_booking_qr_image(
     user: Client = Depends(get_current_user)
 ):
     """Получить QR-код изображение для записи."""
+    logger.info(f"QR GET: booking_id={booking_id}, user_id={user.id if user else 'None'}")
     if not user:
+        logger.error("QR GET: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
     
     # Проверить доступ
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
     if not booking:
+        logger.error(f"QR GET: Booking {booking_id} not found")
         raise HTTPException(status_code=404, detail="Booking not found")
     
     user_role = get_user_role(user)
+    logger.info(f"QR GET: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
+        logger.error(f"QR GET: Access denied for user {user.id}")
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Получить QR-код
     result = await db.execute(select(QRCode).where(QRCode.booking_id == booking_id))
     qr_code = result.scalar_one_or_none()
     if not qr_code:
+        logger.error(f"QR GET: QR code not found for booking {booking_id}")
         raise HTTPException(status_code=404, detail="QR code not found")
     
-    # Генерировать изображение QR-кода
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(qr_code.code)
-    qr.make(fit=True)
-    
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    # Конвертировать в base64
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    img_base64 = base64.b64encode(buffer.getvalue()).decode()
-    
-    # Возвращаем с CORS заголовками
-    return JSONResponse(
-        content={
-            "qr_code": f"data:image/png;base64,{img_base64}",
-            "code": qr_code.code
-        },
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": "true"
-        }
-    )
+    try:
+        # Генерировать изображение QR-кода
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_code.code)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Конвертировать в base64
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        img_base64 = base64.b64encode(buffer.getvalue()).decode()
+        logger.info(f"QR GET: Generated image for booking {booking_id}")
+        
+        # Возвращаем с CORS заголовками
+        return JSONResponse(
+            content={
+                "qr_code": f"data:image/png;base64,{img_base64}",
+                "code": qr_code.code
+            },
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": "true"
+            }
+        )
+    except Exception as e:
+        logger.error(f"QR GET: Error generating image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating QR image: {str(e)}")
 
 
 # === Slots ===
