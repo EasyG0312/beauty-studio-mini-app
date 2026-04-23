@@ -461,6 +461,16 @@ export const getBookingQRImage = async (bookingId: number) => {
   return response.data;
 };
 
+export const verifyQRCode = async (qrCode: string) => {
+  const response = await api.get(`/qr/verify/${qrCode}`);
+  return response.data;
+};
+
+export const scanQRCode = async (qrCode: string) => {
+  const response = await api.post('/qr/scan', { qr_code: qrCode });
+  return response.data;
+};
+
 // Notifications
 export const getPendingNotifications = async () => {
   const response = await api.get('/notifications/pending');

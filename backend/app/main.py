@@ -621,6 +621,122 @@ async def get_booking_qr_image(
         raise HTTPException(status_code=500, detail=f"Error generating QR image: {str(e)}")
 
 
+@app.post("/api/qr/scan")
+async def scan_qr_code(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Сканировать QR-код и отметить клиента как пришедшего."""
+    try:
+        data = await request.json()
+        qr_code_value = data.get("qr_code")
+        
+        if not qr_code_value:
+            raise HTTPException(status_code=400, detail="QR code is required")
+        
+        logger.info(f"QR SCAN: code={qr_code_value}, user={user.chat_id}")
+        
+        # Найти QR-код в базе
+        result = await db.execute(select(QRCode).where(QRCode.code == qr_code_value))
+        qr_record = result.scalar_one_or_none()
+        
+        if not qr_record:
+            logger.error(f"QR SCAN: Invalid code {qr_code_value}")
+            raise HTTPException(status_code=404, detail="Invalid QR code")
+        
+        # Получить запись
+        result = await db.execute(select(Booking).where(Booking.id == qr_record.booking_id))
+        booking = result.scalar_one_or_none()
+        
+        if not booking:
+            logger.error(f"QR SCAN: Booking {qr_record.booking_id} not found")
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # Проверить что запись не отменена
+        if booking.status == "cancelled":
+            logger.error(f"QR SCAN: Booking {booking.id} is cancelled")
+            raise HTTPException(status_code=400, detail="Booking is cancelled")
+        
+        # Отметить как пришедшего
+        booking.status = "arrived"
+        booking.arrived_at = datetime.now().strftime("%d.%m.%Y %H:%M")
+        
+        await db.commit()
+        await db.refresh(booking)
+        
+        # Получить информацию о клиенте
+        result = await db.execute(select(Client).where(Client.chat_id == booking.chat_id))
+        client = result.scalar_one_or_none()
+        
+        logger.info(f"QR SCAN: Success for booking {booking.id}")
+        
+        return {
+            "success": True,
+            "booking_id": booking.id,
+            "client_name": client.name if client else booking.name,
+            "client_phone": client.phone if client else booking.phone,
+            "service": booking.service,
+            "master": booking.master,
+            "date": booking.date,
+            "time": booking.time,
+            "status": booking.status,
+            "message": "Клиент успешно отмечен как пришедший"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"QR SCAN: Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error scanning QR code: {str(e)}")
+
+
+@app.get("/api/qr/verify/{qr_code}")
+async def verify_qr_code(
+    qr_code: str,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Проверить QR-код без отметки прихода (для предпросмотра)."""
+    try:
+        logger.info(f"QR VERIFY: code={qr_code}, user={user.chat_id}")
+        
+        # Найти QR-код в базе
+        result = await db.execute(select(QRCode).where(QRCode.code == qr_code))
+        qr_record = result.scalar_one_or_none()
+        
+        if not qr_record:
+            raise HTTPException(status_code=404, detail="Invalid QR code")
+        
+        # Получить запись
+        result = await db.execute(select(Booking).where(Booking.id == qr_record.booking_id))
+        booking = result.scalar_one_or_none()
+        
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        
+        # Получить информацию о клиенте
+        result = await db.execute(select(Client).where(Client.chat_id == booking.chat_id))
+        client = result.scalar_one_or_none()
+        
+        return {
+            "valid": True,
+            "booking_id": booking.id,
+            "client_name": client.name if client else booking.name,
+            "client_phone": client.phone if client else booking.phone,
+            "service": booking.service,
+            "master": booking.master,
+            "date": booking.date,
+            "time": booking.time,
+            "status": booking.status,
+            "is_arrived": booking.status == "arrived"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"QR VERIFY: Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error verifying QR code: {str(e)}")
+
+
 # === Slots ===
 @app.get("/api/slots/{date}", response_model=SlotAvailability)
 async def get_available_slots(

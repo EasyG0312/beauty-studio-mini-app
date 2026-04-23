@@ -28,6 +28,7 @@ class Booking(Base):
     repeat_notified = Column(Boolean, default=False)
     is_on_the_way = Column(Boolean, default=False)
     cancel_reason = Column(String, default="")
+    arrived_at = Column(String, default="")  # Время прихода клиента (QR скан)
     created_at = Column(String)
     
     # Связи

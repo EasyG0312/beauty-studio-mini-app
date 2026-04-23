@@ -23,6 +23,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const TelegramDebugPage = lazy(() => import('./pages/TelegramDebugPage'));
+const QRScannerPage = lazy(() => import('./pages/QRScannerPage'));
 
 // Components
 import Navigation from './components/Navigation';
@@ -207,6 +208,14 @@ function App() {
 
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/telegram-debug" element={<TelegramDebugPage />} />
+            <Route
+              path="/qr-scanner"
+              element={
+                user?.role === 'owner' || user?.role === 'manager'
+                  ? <QRScannerPage />
+                  : <Navigate to="/" />
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
@@ -247,6 +256,16 @@ function App() {
             >
               <span className="nav-icon">📈</span>
               <span>Аналитика</span>
+            </NavLink>
+            <NavLink
+              to="/qr-scanner"
+              className={({ isActive }) =>
+                `nav-item ${isActive ? 'active' : ''}`
+              }
+              style={{ flex: 1, textAlign: 'center' }}
+            >
+              <span className="nav-icon">📱</span>
+              <span>Сканер</span>
             </NavLink>
             {user?.role === 'owner' && (
               <NavLink

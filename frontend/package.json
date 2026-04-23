@@ -13,6 +13,7 @@
     "@telegram-apps/sdk-react": "^2.0.0",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
+    "html5-qrcode": "^2.3.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
