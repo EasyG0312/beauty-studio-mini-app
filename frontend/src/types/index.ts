@@ -19,7 +19,7 @@ export interface Booking {
   time: string;
   comment: string;
   chat_id?: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  status: 'pending' | 'confirmed' | 'arrived' | 'cancelled' | 'completed' | 'no_show';
   actual_amount?: number;
   is_reschedule: boolean;
   is_on_the_way: boolean;
