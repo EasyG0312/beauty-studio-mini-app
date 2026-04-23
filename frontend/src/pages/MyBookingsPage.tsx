@@ -99,14 +99,22 @@ export default function MyBookingsPage() {
   const openQRModal = async (booking: Booking) => {
     setQrModal({ open: true, booking, qrImage: null, loading: true });
     try {
+      console.log('QR: Generating for booking', booking.id);
       // Сначала генерируем QR-код если его нет
-      await generateBookingQR(booking.id);
+      const genResult = await generateBookingQR(booking.id);
+      console.log('QR: Generated', genResult);
       // Затем получаем изображение
       const qrData = await getBookingQRImage(booking.id);
+      console.log('QR: Image data received', { hasQrCode: !!qrData.qr_code });
       setQrModal({ open: true, booking, qrImage: qrData.qr_code, loading: false });
     } catch (error: any) {
-      const errorMsg = error.response?.data?.detail || 'Ошибка при генерации QR-кода';
-      alert(errorMsg);
+      console.error('QR: Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      const errorMsg = error.response?.data?.detail || error.message || 'Ошибка при генерации QR-кода';
+      alert('QR-код: ' + errorMsg);
       setQrModal({ open: false, booking: null, qrImage: null, loading: false });
     }
   };

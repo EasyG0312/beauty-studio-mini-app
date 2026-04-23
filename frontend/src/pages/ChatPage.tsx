@@ -44,10 +44,16 @@ export default function ChatPage() {
 
   const loadClients = async () => {
     try {
+      console.log('Chat: Loading clients...');
       const data = await getClients();
+      console.log('Chat: Clients loaded', data.length);
       setClients(data);
-    } catch (error) {
-      console.error('Failed to load clients:', error);
+    } catch (error: any) {
+      console.error('Chat: Failed to load clients:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
     }
   };
 
@@ -55,10 +61,16 @@ export default function ChatPage() {
     if (!selectedChatId) return;
     setLoading(true);
     try {
+      console.log('Chat: Loading messages for chat_id', selectedChatId);
       const data = await getChatHistory(selectedChatId, 100);
+      console.log('Chat: Messages loaded', data.length);
       setMessages(data.reverse());
-    } catch (error) {
-      console.error('Failed to load messages:', error);
+    } catch (error: any) {
+      console.error('Chat: Failed to load messages:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -68,11 +80,18 @@ export default function ChatPage() {
     if (!newMessage.trim() || !selectedChatId) return;
 
     try {
+      console.log('Chat: Sending message to', selectedChatId);
       await sendChatMessage(selectedChatId, newMessage.trim(), !isManager);
+      console.log('Chat: Message sent');
       setNewMessage('');
       loadMessages();
-    } catch (error) {
-      alert('Ошибка при отправке');
+    } catch (error: any) {
+      console.error('Chat: Failed to send message:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      alert('Ошибка при отправке: ' + (error.response?.data?.detail || error.message));
     }
   };
 
