@@ -53,6 +53,10 @@ async def lifespan(app: FastAPI):
         logger.info("Starting up...")
         await init_db()
         logger.info("DB initialized")
+        # Run migrations
+        from app.migration import run_migrations
+        await run_migrations()
+        logger.info("Migrations completed")
         db_session_factory = get_db_session_factory()
         init_scheduler(db_session_factory)
         logger.info("Scheduler initialized")
