@@ -519,7 +519,7 @@ async def generate_booking_qr(
     user: Client = Depends(get_current_user)
 ):
     """Генерировать QR-код для записи."""
-    logger.info(f"QR POST: booking_id={booking_id}, user_id={user.id if user else 'None'}")
+    logger.info(f"QR POST: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
     if not user:
         logger.error("QR POST: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -534,7 +534,7 @@ async def generate_booking_qr(
     user_role = get_user_role(user)
     logger.info(f"QR POST: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
-        logger.error(f"QR POST: Access denied for user {user.id}")
+        logger.error(f"QR POST: Access denied for user {user.chat_id}")
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Проверить, есть ли уже QR-код для этой записи
@@ -566,7 +566,7 @@ async def get_booking_qr_image(
     user: Client = Depends(get_current_user)
 ):
     """Получить QR-код изображение для записи."""
-    logger.info(f"QR GET: booking_id={booking_id}, user_id={user.id if user else 'None'}")
+    logger.info(f"QR GET: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
     if not user:
         logger.error("QR GET: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -581,7 +581,7 @@ async def get_booking_qr_image(
     user_role = get_user_role(user)
     logger.info(f"QR GET: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
-        logger.error(f"QR GET: Access denied for user {user.id}")
+        logger.error(f"QR GET: Access denied for user {user.chat_id}")
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Получить QR-код
