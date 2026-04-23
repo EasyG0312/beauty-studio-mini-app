@@ -518,13 +518,17 @@ async def generate_booking_qr(
     user: Client = Depends(get_current_user)
 ):
     """Генерировать QR-код для записи."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
     # Проверить, что запись принадлежит пользователю
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    if booking.chat_id != user.chat_id and user.role not in ["owner", "manager"]:
+    user_role = get_user_role(user)
+    if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Проверить, есть ли уже QR-код для этой записи
@@ -555,13 +559,17 @@ async def get_booking_qr_image(
     user: Client = Depends(get_current_user)
 ):
     """Получить QR-код изображение для записи."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
     # Проверить доступ
     result = await db.execute(select(Booking).where(Booking.id == booking_id))
     booking = result.scalar_one_or_none()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    if booking.chat_id != user.chat_id and user.role not in ["owner", "manager"]:
+    user_role = get_user_role(user)
+    if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Получить QR-код
