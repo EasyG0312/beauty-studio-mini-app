@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func as sa_func, update
 from datetime import datetime, timedelta
@@ -551,7 +552,6 @@ async def generate_booking_qr(
     
     return qr
 
-
 @app.get("/api/bookings/{booking_id}/qr")
 async def get_booking_qr_image(
     booking_id: int,
@@ -590,13 +590,17 @@ async def get_booking_qr_image(
     img.save(buffer, format="PNG")
     img_base64 = base64.b64encode(buffer.getvalue()).decode()
     
-    return {
-        "qr_code": f"data:image/png;base64,{img_base64}",
-        "code": qr_code.code
-    }
-
-
-# === Slots ===
+    # Возвращаем с CORS заголовками
+    return JSONResponse(
+        content={
+            "qr_code": f"data:image/png;base64,{img_base64}",
+            "code": qr_code.code
+        },
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": "true"
+        }
+    )
 
 
 # === Slots ===
