@@ -437,7 +437,7 @@ export default function ManagerDashboardPage() {
                         </Button>
                       </>
                     )}
-                    {booking.status === 'confirmed' && (
+                    {(booking.status === 'confirmed' || booking.status === 'arrived') && (
                       <>
                         <Button onClick={() => handleComplete(booking.id)} style={{ flex: 1 }}>
                           <IconCheck size={18} /> Визит завершён

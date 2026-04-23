@@ -41,14 +41,14 @@ export default function MyBookingsPage() {
   }, [user]);
 
   const activeBookings = bookings.filter((b) =>
-    ['pending', 'confirmed'].includes(b.status)
+    ['pending', 'confirmed', 'arrived'].includes(b.status)
   );
 
   console.log('MyBookingsPage: All bookings', bookings);
   console.log('MyBookingsPage: Active bookings', activeBookings);
 
   const historyBookings = bookings.filter((b) =>
-    ['completed', 'cancelled', 'no_show'].includes(b.status)
+    ['completed', 'cancelled', 'no_show', 'arrived'].includes(b.status)
   ).slice(0, 10);
 
   const handleCancel = async (id: number) => {
