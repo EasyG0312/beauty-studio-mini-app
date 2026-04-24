@@ -112,19 +112,28 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Promo Banner — центрированный, без неона */}
-      <div className="banner" style={{ position: 'relative', padding: '28px 24px', textAlign: 'center' }}>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="banner-title" style={{ fontFamily: 'var(--font-serif)', marginBottom: 8 }}>
-            Скидка 10%
-          </div>
-          <div className="banner-description" style={{ marginBottom: 20 }}>
-            На первую запись. Запишитесь прямо сейчас!
-          </div>
-          <button className="banner-button" onClick={() => navigate('/booking')} style={{ margin: '0 auto' }}>
-            Записаться
-          </button>
-        </div>
+      {/* Booking Options */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-xl)', marginBottom: 8 }}>
+          Запись онлайн
+        </h2>
+        <Button
+          onClick={() => navigate('/booking/master')}
+          leftIcon={<IconUser size={20} />}
+          size="lg"
+          fullWidth
+        >
+          Выбрать специалиста
+        </Button>
+        <Button
+          onClick={() => navigate('/booking/datetime')}
+          leftIcon={<IconCalendar size={20} />}
+          size="lg"
+          fullWidth
+          variant="secondary"
+        >
+          Выбрать дату и время
+        </Button>
       </div>
 
       {user?.role === 'manager' || user?.role === 'owner' ? (
@@ -202,12 +211,7 @@ export default function HomePage() {
               <EmptyState
                 icon={<IconCalendar size={48} />}
                 title="Нет активных записей"
-                description="Запишитесь на удобное время прямо сейчас!"
-                action={
-                  <Button onClick={() => navigate('/booking')} leftIcon={<IconCalendar size={18} />}>
-                    Записаться
-                  </Button>
-                }
+                description="Выберите специалиста или дату для записи выше"
               />
             </Card>
           )}

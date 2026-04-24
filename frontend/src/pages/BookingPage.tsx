@@ -58,6 +58,50 @@ export default function BookingPage() {
     is_on_the_way: false,
   });
 
+  // Загружаем данные из sessionStorage при монтировании
+  useEffect(() => {
+    const savedMaster = sessionStorage.getItem('bookingMaster');
+    const savedService = sessionStorage.getItem('bookingService');
+    const savedDate = sessionStorage.getItem('bookingDate');
+    const savedTime = sessionStorage.getItem('bookingTime');
+
+    if (savedMaster || savedService || savedDate) {
+      setFormData(prev => ({
+        ...prev,
+        master: savedMaster || '',
+        service: savedService || '',
+        date: savedDate || '',
+        time: savedTime || ''
+      }));
+
+      // Определяем текущий шаг
+      if (savedDate && savedTime && savedService && savedMaster) {
+        // Всё выбрано → финальная форма
+        setStep(5);
+      } else if (savedDate && savedTime && savedService) {
+        // Выбрано дата+время+услуга, но нет мастера
+        setStep(2); // Выбор мастера
+      } else if (savedMaster && savedService) {
+        // Выбран мастер и услуга, но нет даты
+        setStep(4); // Выбор времени
+      } else if (savedMaster) {
+        // Только мастер → услуга
+        setStep(3);
+      } else if (savedDate) {
+        // Только дата → услуга
+        setStep(3);
+      }
+    }
+  }, []);
+
+  const clearBookingData = () => {
+    sessionStorage.removeItem('bookingMaster');
+    sessionStorage.removeItem('bookingService');
+    sessionStorage.removeItem('bookingDate');
+    sessionStorage.removeItem('bookingTime');
+    sessionStorage.removeItem('bookingStep');
+  };
+
   const dates = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() + i);
@@ -157,6 +201,7 @@ export default function BookingPage() {
       };
       await addBooking(booking);
       haptic.notification('success');
+      clearBookingData(); // Очищаем временные данные
       alert('Запись создана! Ожидайте подтверждения.');
       navigate('/my-bookings');
     } catch (error: any) {
