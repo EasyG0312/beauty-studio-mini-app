@@ -244,12 +244,29 @@ export default function BookingPage() {
     setFormData({ ...formData, phone: formatted });
   };
 
+  const handleBack = () => {
+    // Определяем куда идти назад на основе выбранных данных
+    const hasMaster = sessionStorage.getItem('bookingMaster');
+    const hasDate = sessionStorage.getItem('bookingDate');
+    
+    if (hasDate) {
+      // Если выбрана дата → назад на выбор даты/времени
+      navigate('/booking/datetime');
+    } else if (hasMaster) {
+      // Если выбран мастер но нет даты → назад на выбор услуги
+      navigate('/booking/service');
+    } else {
+      // Ничего не выбрано → на начало
+      navigate('/booking');
+    }
+  };
+
   return (
     <div className="page">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
         <button
-          onClick={() => navigate('/booking')}
+          onClick={handleBack}
           style={{
             background: 'transparent',
             border: 'none',

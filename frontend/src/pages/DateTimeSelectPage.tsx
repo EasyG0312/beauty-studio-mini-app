@@ -102,7 +102,16 @@ export default function DateTimeSelectPage() {
       {/* Header */}
       <div className="page-header" style={{ marginBottom: 24 }}>
         <button 
-          onClick={() => navigate('/')} 
+          onClick={() => {
+            const hasMaster = sessionStorage.getItem('bookingMaster');
+            if (hasMaster) {
+              // Пришли с выбора услуги
+              navigate('/booking/service');
+            } else {
+              // Пришли с начала
+              navigate('/booking');
+            }
+          }}
           style={{ 
             background: 'none', 
             border: 'none', 

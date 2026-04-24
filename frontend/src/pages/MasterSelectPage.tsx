@@ -56,7 +56,7 @@ export default function MasterSelectPage() {
       {/* Header */}
       <div className="page-header" style={{ marginBottom: 24 }}>
         <button 
-          onClick={() => navigate('/')} 
+          onClick={() => navigate('/booking')} 
           style={{ 
             background: 'none', 
             border: 'none', 

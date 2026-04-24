@@ -42,7 +42,17 @@ export default function ServiceSelectPage() {
       {/* Header */}
       <div className="page-header" style={{ marginBottom: 24 }}>
         <button 
-          onClick={() => navigate(-1)} 
+          onClick={() => {
+            const hasMaster = sessionStorage.getItem('bookingMaster');
+            const hasDate = sessionStorage.getItem('bookingDate');
+            if (hasMaster && !hasDate) {
+              navigate('/booking/master');
+            } else if (hasDate) {
+              navigate('/booking/datetime');
+            } else {
+              navigate('/booking');
+            }
+          }}
           style={{ 
             background: 'none', 
             border: 'none', 
