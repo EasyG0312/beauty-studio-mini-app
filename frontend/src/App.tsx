@@ -32,7 +32,6 @@ function App() {
   const [initialized, setInitialized] = useState(false);
   const { user, login } = useAuthStore();
   const [showDebug, setShowDebug] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [scannerResult, setScannerResult] = useState<any>(null);
   const [scannerError, setScannerError] = useState('');
   const navigate = useNavigate();
@@ -65,7 +64,6 @@ function App() {
 
   // Scanner functions
   const openScanner = () => {
-    setScannerOpen(true);
     setScannerResult(null);
     setScannerError('');
     
@@ -75,7 +73,6 @@ function App() {
         { text: 'Наведите камеру на QR-код клиента' },
         async (qrCode: string) => {
           tg.closeScanQrPopup?.();
-          setScannerOpen(false);
           
           try {
             const data = await verifyQRCode(qrCode);
@@ -87,7 +84,6 @@ function App() {
       );
     } else {
       setScannerError('Сканер недоступен в этом браузере');
-      setScannerOpen(false);
     }
   };
 
