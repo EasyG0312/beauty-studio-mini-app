@@ -30,13 +30,9 @@ export default function ServiceSelectPage() {
       if (hasMaster && !hasDateTime) {
         // Выбрали мастера → услугу → теперь дата/время
         navigate('/booking/datetime');
-      } else if (hasDateTime && !hasMaster) {
-        // Выбрали дату/время → услугу → теперь мастер
-        // Пока переходим на booking - там будет форма с выбором мастера
-        navigate('/booking');
       } else {
-        // Всё выбрано → форма
-        navigate('/booking');
+        // Всё выбрано или выбрали дату/время → услугу → форма
+        navigate('/booking/form');
       }
     }
   };

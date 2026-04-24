@@ -5,6 +5,7 @@ import { initTelegramWebApp, verifyQRCode, scanQRCode } from './services/api';
 
 // Pages - Lazy loaded
 const HomePage = lazy(() => import('./pages/HomePage'));
+const BookingStartPage = lazy(() => import('./pages/BookingStartPage'));
 const BookingPage = lazy(() => import('./pages/BookingPage'));
 const MasterSelectPage = lazy(() => import('./pages/MasterSelectPage'));
 const DateTimeSelectPage = lazy(() => import('./pages/DateTimeSelectPage'));
@@ -205,7 +206,8 @@ function App() {
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking" element={<BookingStartPage />} />
+            <Route path="/booking/form" element={<BookingPage />} />
             <Route path="/booking/master" element={<MasterSelectPage />} />
             <Route path="/booking/datetime" element={<DateTimeSelectPage />} />
             <Route path="/booking/service" element={<ServiceSelectPage />} />

@@ -112,27 +112,15 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Booking Options */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--font-size-xl)', marginBottom: 8 }}>
-          Запись онлайн
-        </h2>
+      {/* Book Button */}
+      <div style={{ marginBottom: 24 }}>
         <Button
-          onClick={() => navigate('/booking/master')}
-          leftIcon={<IconUser size={20} />}
-          size="lg"
-          fullWidth
-        >
-          Выбрать специалиста
-        </Button>
-        <Button
-          onClick={() => navigate('/booking/datetime')}
+          onClick={() => navigate('/booking')}
           leftIcon={<IconCalendar size={20} />}
           size="lg"
           fullWidth
-          variant="secondary"
         >
-          Выбрать дату и время
+          Записаться
         </Button>
       </div>
 

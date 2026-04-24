@@ -249,7 +249,7 @@ export default function BookingPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/booking')}
           style={{
             background: 'transparent',
             border: 'none',
