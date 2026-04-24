@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { useAuthStore } from './store/authStore';
-import { initTelegramWebApp } from './services/api';
+import { initTelegramWebApp, verifyQRCode, scanQRCode } from './services/api';
 
 // Pages - Lazy loaded
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -23,7 +23,6 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const TelegramDebugPage = lazy(() => import('./pages/TelegramDebugPage'));
-const QRScannerPage = lazy(() => import('./pages/QRScannerPage'));
 
 // Components
 import Navigation from './components/Navigation';
@@ -33,6 +32,10 @@ function App() {
   const [initialized, setInitialized] = useState(false);
   const { user, login } = useAuthStore();
   const [showDebug, setShowDebug] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scannerResult, setScannerResult] = useState<any>(null);
+  const [scannerError, setScannerError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const init = async () => {
@@ -59,6 +62,52 @@ function App() {
 
     init();
   }, []);
+
+  // Scanner functions
+  const openScanner = () => {
+    setScannerOpen(true);
+    setScannerResult(null);
+    setScannerError('');
+    
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.showScanQrPopup) {
+      tg.showScanQrPopup(
+        { text: 'Наведите камеру на QR-код клиента' },
+        async (qrCode: string) => {
+          tg.closeScanQrPopup?.();
+          setScannerOpen(false);
+          
+          try {
+            const data = await verifyQRCode(qrCode);
+            setScannerResult(data);
+          } catch (err: any) {
+            setScannerError(err.response?.data?.detail || 'Неверный QR-код');
+          }
+        }
+      );
+    } else {
+      setScannerError('Сканер недоступен в этом браузере');
+      setScannerOpen(false);
+    }
+  };
+
+  const markClientArrived = async () => {
+    if (!scannerResult) return;
+    
+    try {
+      await scanQRCode(scannerResult.qr_code);
+      alert('✅ Клиент успешно отмечен как пришедший!');
+      setScannerResult(null);
+      navigate('/manager');
+    } catch (err: any) {
+      alert('❌ Ошибка: ' + (err.response?.data?.detail || 'Не удалось отметить приход'));
+    }
+  };
+
+  const closeScannerModal = () => {
+    setScannerResult(null);
+    setScannerError('');
+  };
 
   if (!initialized) {
     return <Loading />;
@@ -208,14 +257,6 @@ function App() {
 
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/telegram-debug" element={<TelegramDebugPage />} />
-            <Route
-              path="/qr-scanner"
-              element={
-                user?.role === 'owner' || user?.role === 'manager'
-                  ? <QRScannerPage />
-                  : <Navigate to="/" />
-              }
-            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
@@ -257,16 +298,14 @@ function App() {
               <span className="nav-icon">📈</span>
               <span>Аналитика</span>
             </NavLink>
-            <NavLink
-              to="/qr-scanner"
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
-              }
-              style={{ flex: 1, textAlign: 'center' }}
+            <button
+              onClick={openScanner}
+              className="nav-item"
+              style={{ flex: 1, textAlign: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <span className="nav-icon">📱</span>
               <span>Сканер</span>
-            </NavLink>
+            </button>
             {user?.role === 'owner' && (
               <NavLink
                 to="/owner"
@@ -280,6 +319,124 @@ function App() {
               </NavLink>
             )}
           </nav>
+        )}
+
+        {/* Scanner Result Modal */}
+        {scannerResult && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'var(--tg-theme-bg-color, #fff)',
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '100%',
+              maxHeight: '80vh',
+              overflow: 'auto'
+            }}>
+              <h3 style={{ marginBottom: '16px' }}>📝 Информация о записи</h3>
+              
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Клиент:</strong> {scannerResult.client_name}
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Телефон:</strong> {scannerResult.client_phone}
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Услуга:</strong> {scannerResult.service}
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Мастер:</strong> {scannerResult.master}
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Дата:</strong> {scannerResult.date}
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <strong>Время:</strong> {scannerResult.time}
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <strong>Статус:</strong> {scannerResult.is_arrived ? '✅ Пришёл' : scannerResult.status}
+              </div>
+
+              {!scannerResult.is_arrived && scannerResult.status !== 'cancelled' && (
+                <button
+                  onClick={markClientArrived}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    background: 'var(--tg-theme-button-color, #4CAF50)',
+                    color: 'var(--tg-theme-button-text-color, #fff)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    marginBottom: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✅ Отметить как пришедшего
+                </button>
+              )}
+              
+              <button
+                onClick={closeScannerModal}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--tg-theme-secondary-bg-color, #f0f0f0)',
+                  color: 'var(--tg-theme-text-color, #333)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
+              >
+                {scannerResult.is_arrived ? 'Закрыть' : 'Отмена'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Scanner Error */}
+        {scannerError && (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: '#ff4444',
+            color: '#fff',
+            padding: '16px 24px',
+            borderRadius: '8px',
+            zIndex: 1001
+          }}>
+            {scannerError}
+            <button
+              onClick={() => setScannerError('')}
+              style={{
+                marginLeft: '12px',
+                background: 'rgba(255,255,255,0.3)',
+                border: 'none',
+                color: '#fff',
+                padding: '4px 12px',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              ✕
+            </button>
+          </div>
         )}
       </div>
     </BrowserRouter>
