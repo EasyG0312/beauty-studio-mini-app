@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { useAuthStore } from './store/authStore';
 import { initTelegramWebApp, verifyQRCode, scanQRCode } from './services/api';
@@ -34,7 +34,6 @@ function App() {
   const [showDebug, setShowDebug] = useState(false);
   const [scannerResult, setScannerResult] = useState<any>(null);
   const [scannerError, setScannerError] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const init = async () => {
@@ -94,7 +93,7 @@ function App() {
       await scanQRCode(scannerResult.qr_code);
       alert('✅ Клиент успешно отмечен как пришедший!');
       setScannerResult(null);
-      navigate('/manager');
+      window.location.href = '/manager';
     } catch (err: any) {
       alert('❌ Ошибка: ' + (err.response?.data?.detail || 'Не удалось отметить приход'));
     }
