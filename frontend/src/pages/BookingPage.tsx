@@ -186,8 +186,26 @@ export default function BookingPage() {
       currentChatId = useAuthStore.getState().user?.id || currentChatId;
     }
 
-    formData.phone = finalPhone;
+    // Проверяем занятость слота в реальном времени
     setLoading(true);
+    try {
+      const slotCheck = await getAvailableSlots(formData.date, formData.master);
+      const isSlotTaken = !slotCheck.available_slots?.includes(formData.time);
+      
+      if (isSlotTaken) {
+        haptic.notification('error');
+        alert('⚠️ Этот слот уже занят другим клиентом. Пожалуйста, выберите другое время.');
+        setStep(4); // Возвращаем на выбор времени
+        loadAvailableSlots(); // Обновляем список доступных слотов
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to check slot availability:', error);
+      // Продолжаем запись даже если проверка не удалась
+    }
+
+    formData.phone = finalPhone;
     try {
       const booking: BookingCreate = {
         name: formData.name,

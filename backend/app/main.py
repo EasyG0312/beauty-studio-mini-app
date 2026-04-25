@@ -1534,6 +1534,65 @@ async def get_all_clients(
     return result.scalars().all()
 
 
+@app.get("/api/clients/inactive", response_model=List[ClientResponse])
+async def get_inactive_clients(
+    days: int = 60,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Получить клиентов, которые не были в салоне более указанного количества дней."""
+    from datetime import datetime, timedelta
+    
+    cutoff_date = datetime.now() - timedelta(days=days)
+    cutoff_str = cutoff_date.strftime("%d.%m.%Y")
+    
+    result = await db.execute(
+        select(Client)
+        .where(Client.last_visit < cutoff_str)
+        .order_by(Client.last_visit.desc())
+    )
+    return result.scalars().all()
+
+
+@app.get("/api/clients/{chat_id}/ltv", response_model=dict)
+async def get_client_ltv(
+    chat_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Получить Lifetime Value (LTV) клиента — сколько всего потратил."""
+    # Проверяем существование клиента
+    client_result = await db.execute(select(Client).where(Client.chat_id == chat_id))
+    client = client_result.scalar_one_or_none()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Получаем все выполненные записи клиента
+    bookings_result = await db.execute(
+        select(Booking)
+        .where(
+            Booking.chat_id == chat_id,
+            Booking.status == "completed"
+        )
+    )
+    bookings = bookings_result.scalars().all()
+    
+    # Рассчитываем LTV
+    total_spent = sum(b.actual_amount or 0 for b in bookings)
+    total_visits = len(bookings)
+    avg_check = total_spent / total_visits if total_visits > 0 else 0
+    
+    return {
+        "chat_id": chat_id,
+        "client_name": client.name,
+        "total_spent": total_spent,
+        "total_visits": total_visits,
+        "avg_check": round(avg_check, 2),
+        "last_visit": client.last_visit,
+        "days_since_last_visit": (datetime.now() - datetime.strptime(client.last_visit, "%d.%m.%Y")).days if client.last_visit else None
+    }
+
+
 @app.get("/api/clients/{chat_id}", response_model=ClientResponse)
 async def get_client(
     chat_id: int,
