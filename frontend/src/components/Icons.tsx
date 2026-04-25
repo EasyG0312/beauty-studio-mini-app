@@ -359,3 +359,40 @@ export const IconBooking = (props: IconProps) => (
     <line x1="3" y1="10" x2="21" y2="10" />
   </IconBase>
 );
+
+export const IconFilter = (props: IconProps) => (
+  <IconBase {...props}>
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </IconBase>
+);
+
+export const IconTag = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+    <line x1="7" y1="7" x2="7.01" y2="7" />
+  </IconBase>
+);
+
+export const IconHeart = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+  </IconBase>
+);
+
+export const IconAlertTriangle = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </IconBase>
+);
+
+export const IconGift = (props: IconProps) => (
+  <IconBase {...props}>
+    <polyline points="20 12 20 22 4 22 4 12" />
+    <rect x="2" y="7" width="20" height="5" />
+    <line x1="12" y1="22" x2="12" y2="7" />
+    <path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" />
+    <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
+  </IconBase>
+);

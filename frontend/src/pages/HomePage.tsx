@@ -154,8 +154,11 @@ export default function HomePage() {
                 <Button onClick={() => navigate('/activity-log')} variant="secondary" leftIcon={<IconCalendar size={18} />} style={{ marginBottom: 4 }}>
                   📋 Журнал событий
                 </Button>
-                <Button onClick={() => navigate('/services')} variant="secondary" leftIcon={<IconScissors size={18} />}>
+                <Button onClick={() => navigate('/services')} variant="secondary" leftIcon={<IconScissors size={18} />} style={{ marginBottom: 4 }}>
                   💇‍♀️ Услуги
+                </Button>
+                <Button onClick={() => navigate('/clients')} variant="secondary" leftIcon={<IconUser size={18} />}>
+                  👥 Клиенты
                 </Button>
               </>
             )}
