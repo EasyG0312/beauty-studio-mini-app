@@ -35,6 +35,7 @@ const ClientManagementPage = lazy(() => import('./pages/ClientManagementPage'));
 const InventoryPage = lazy(() => import('./pages/InventoryPage'));
 const ReviewsManagementPage = lazy(() => import('./pages/ReviewsManagementPage'));
 const ReminderSettingsPage = lazy(() => import('./pages/ReminderSettingsPage'));
+const InactiveClientsPage = lazy(() => import('./pages/InactiveClientsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -227,6 +228,7 @@ function App() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/reviews-management" element={<ReviewsManagementPage />} />
             <Route path="/reminder-settings" element={<ReminderSettingsPage />} />
+            <Route path="/inactive-clients" element={<InactiveClientsPage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/portfolio/upload" element={<PortfolioUploadPage />} />
             <Route path="/faq" element={<FAQPage />} />

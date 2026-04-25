@@ -1673,6 +1673,151 @@ async def get_current_profile(
     return user
 
 
+# === Bulk Messaging API ===
+@app.post("/api/clients/bulk-message")
+async def send_bulk_message(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Отправить массовое сообщение клиентам через Telegram."""
+    data = await request.json()
+    
+    client_ids = data.get("client_ids", [])  # Список chat_id
+    message = data.get("message", "")
+    message_type = data.get("type", "text")  # text, promo, reactivation
+    
+    if not client_ids or not message:
+        raise HTTPException(status_code=400, detail="client_ids and message are required")
+    
+    if len(message) > 4096:
+        raise HTTPException(status_code=400, detail="Message too long (max 4096 characters)")
+    
+    sent_count = 0
+    failed_count = 0
+    failed_clients = []
+    
+    for chat_id in client_ids:
+        try:
+            # Проверяем существование клиента
+            client_result = await db.execute(select(Client).where(Client.chat_id == chat_id))
+            client = client_result.scalar_one_or_none()
+            
+            if not client:
+                failed_count += 1
+                failed_clients.append({"chat_id": chat_id, "reason": "Client not found"})
+                continue
+            
+            # Персонализация сообщения
+            personalized_message = message.replace("{name}", client.name or "Дорогой клиент")
+            personalized_message = personalized_message.replace("{last_visit}", client.last_visit or "недавно")
+            
+            # Добавляем кнопку для перехода в Mini App
+            buttons = [{
+                "text": "📅 Записаться",
+                "web_app": {"url": f"{settings.mini_app_url}/booking"}
+            }]
+            
+            reply_markup = {"inline_keyboard": [buttons]}
+            
+            # Отправляем сообщение
+            await notifier.send_message(chat_id, personalized_message, reply_markup)
+            sent_count += 1
+            
+        except Exception as e:
+            failed_count += 1
+            failed_clients.append({"chat_id": chat_id, "reason": str(e)})
+    
+    # Логируем массовую рассылку
+    logger.info(f"Bulk message sent by {user.chat_id}: {sent_count} success, {failed_count} failed")
+    
+    return {
+        "sent": sent_count,
+        "failed": failed_count,
+        "total": len(client_ids),
+        "failed_clients": failed_clients[:10]  # Показываем первые 10 ошибок
+    }
+
+
+@app.post("/api/clients/inactive/reactivation")
+async def send_reactivation_to_inactive(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Отправить сообщение реактивации всем неактивным клиентам (>60 дней)."""
+    data = await request.json()
+    
+    days = data.get("days", 60)
+    custom_message = data.get("message", "")
+    promo_code = data.get("promo_code", "")
+    
+    # Получаем неактивных клиентов
+    cutoff_date = datetime.now() - timedelta(days=days)
+    cutoff_str = cutoff_date.strftime("%d.%m.%Y")
+    
+    result = await db.execute(
+        select(Client).where(
+            Client.last_visit < cutoff_str,
+            Client.chat_id.isnot(None)
+        )
+    )
+    inactive_clients = result.scalars().all()
+    
+    if not inactive_clients:
+        return {"message": "No inactive clients found", "sent": 0, "failed": 0}
+    
+    # Стандартное сообщение реактивации
+    default_message = (
+        "💕 {name}, мы скучаем по вам!\n\n"
+        "Вы не были у нас с {last_visit}.\n\n"
+        "У нас много нового:\n"
+        "✨ Новые услуги\n"
+        "🎁 Специальные предложения\n"
+        "👩‍🎨 Новые мастера\n\n"
+    )
+    
+    if promo_code:
+        default_message += f"🎫 Промокод на скидку: {promo_code}\n\n"
+    
+    default_message += "Ждем вас снова! 💇‍♀️"
+    
+    message = custom_message if custom_message else default_message
+    
+    sent_count = 0
+    failed_count = 0
+    
+    for client in inactive_clients:
+        try:
+            # Персонализация
+            personalized = message.replace("{name}", client.name or "Дорогой клиент")
+            personalized = personalized.replace("{last_visit}", client.last_visit or "давно")
+            
+            # Кнопки
+            buttons = [
+                {"text": "📅 Записаться", "web_app": {"url": f"{settings.mini_app_url}/booking"}},
+                {"text": "💬 Написать", "web_app": {"url": f"{settings.mini_app_url}/chat"}}
+            ]
+            
+            await notifier.send_message(
+                client.chat_id, 
+                personalized, 
+                {"inline_keyboard": [buttons]}
+            )
+            sent_count += 1
+            
+        except Exception as e:
+            logger.error(f"Failed to send reactivation to {client.chat_id}: {e}")
+            failed_count += 1
+    
+    return {
+        "sent": sent_count,
+        "failed": failed_count,
+        "total": len(inactive_clients),
+        "inactive_days": days
+    }
+
+
 @app.put("/api/profile", response_model=ClientResponse)
 async def update_current_profile(
     update: ClientUpdate,
