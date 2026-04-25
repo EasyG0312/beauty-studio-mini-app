@@ -270,3 +270,9 @@ export const IconQrcode = (props: IconProps) => (
     <rect x="19" y="19" width="2" height="2" rx="0.5" />
   </IconBase>
 );
+
+export const IconPlus = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M12 5v14M5 12h14" />
+  </IconBase>
+);

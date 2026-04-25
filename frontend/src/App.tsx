@@ -23,6 +23,7 @@ const ChatPage = lazy(() => import('./pages/ChatPage'));
 const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
+const MasterManagementPage = lazy(() => import('./pages/MasterManagementPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -226,6 +227,14 @@ function App() {
               element={
                 user?.role === 'manager' || user?.role === 'owner'
                   ? <MasterSchedulePage />
+                  : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="/master-management"
+              element={
+                user?.role === 'owner'
+                  ? <MasterManagementPage />
                   : <Navigate to="/" />
               }
             />
