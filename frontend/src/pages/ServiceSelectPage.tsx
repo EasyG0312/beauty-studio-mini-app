@@ -30,8 +30,11 @@ export default function ServiceSelectPage() {
       if (hasMaster && !hasDateTime) {
         // Выбрали мастера → услугу → теперь дата/время
         navigate('/booking/datetime');
+      } else if (hasDateTime && !hasMaster) {
+        // Выбрали дату/время → услугу → теперь мастер
+        navigate('/booking/master');
       } else {
-        // Всё выбрано или выбрали дату/время → услугу → форма
+        // Всё выбрано → форма
         navigate('/booking/form');
       }
     }
@@ -45,10 +48,15 @@ export default function ServiceSelectPage() {
           onClick={() => {
             const hasMaster = sessionStorage.getItem('bookingMaster');
             const hasDate = sessionStorage.getItem('bookingDate');
-            if (hasMaster && !hasDate) {
-              navigate('/booking/master');
-            } else if (hasDate) {
+            if (hasDate && !hasMaster) {
+              // Пришли с даты/времени → назад на дату/время
               navigate('/booking/datetime');
+            } else if (hasMaster && !hasDate) {
+              // Пришли с мастера → назад на мастера
+              navigate('/booking/master');
+            } else if (hasDate && hasMaster) {
+              // Всё выбрано → назад на мастера
+              navigate('/booking/master');
             } else {
               navigate('/booking');
             }

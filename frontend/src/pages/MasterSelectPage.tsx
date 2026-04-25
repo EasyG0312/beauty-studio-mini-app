@@ -27,21 +27,41 @@ export default function MasterSelectPage() {
   const handleMasterSelect = (masterId: string) => {
     haptic.selection();
     setSelectedMaster(masterId);
-    
+
     const master = MASTERS.find(m => m.id === masterId);
     if (master) {
-      // Сохраняем выбор мастера и переходим к выбору услуги
+      // Сохраняем выбор мастера
       sessionStorage.setItem('bookingMaster', master.name);
-      sessionStorage.setItem('bookingStep', 'service');
-      navigate('/booking/service');
+
+      // Проверяем, была ли уже выбрана дата
+      const hasDate = sessionStorage.getItem('bookingDate');
+
+      if (hasDate) {
+        // Дата уже выбрана → сразу на форму
+        navigate('/booking/form');
+      } else {
+        // Дата не выбрана → на выбор услуги
+        sessionStorage.setItem('bookingStep', 'service');
+        navigate('/booking/service');
+      }
     }
   };
 
   const handleAnyMaster = () => {
     haptic.selection();
     sessionStorage.setItem('bookingMaster', 'all');
-    sessionStorage.setItem('bookingStep', 'service');
-    navigate('/booking/service');
+
+    // Проверяем, была ли уже выбрана дата
+    const hasDate = sessionStorage.getItem('bookingDate');
+
+    if (hasDate) {
+      // Дата уже выбрана → сразу на форму
+      navigate('/booking/form');
+    } else {
+      // Дата не выбрана → на выбор услуги
+      sessionStorage.setItem('bookingStep', 'service');
+      navigate('/booking/service');
+    }
   };
 
   const openMasterProfile = (e: React.MouseEvent, master: Master) => {

@@ -67,12 +67,22 @@ export default function DateTimeSelectPage() {
 
   const handleContinue = () => {
     if (!selectedDate || !selectedTime) return;
-    
-    // Сохраняем выбор и переходим к выбору услуги
+
+    // Сохраняем выбор
     sessionStorage.setItem('bookingDate', selectedDate);
     sessionStorage.setItem('bookingTime', selectedTime);
-    sessionStorage.setItem('bookingStep', 'service');
-    navigate('/booking/service');
+
+    // Проверяем, был ли уже выбран мастер
+    const hasMaster = sessionStorage.getItem('bookingMaster');
+
+    if (hasMaster) {
+      // Мастер уже выбран → сразу на форму
+      navigate('/booking/form');
+    } else {
+      // Мастер не выбран → на выбор услуги
+      sessionStorage.setItem('bookingStep', 'service');
+      navigate('/booking/service');
+    }
   };
 
   const goToPrevMonth = () => {
@@ -104,9 +114,13 @@ export default function DateTimeSelectPage() {
         <button 
           onClick={() => {
             const hasMaster = sessionStorage.getItem('bookingMaster');
-            if (hasMaster) {
-              // Пришли с выбора услуги
+            const hasService = sessionStorage.getItem('bookingService');
+            if (hasService) {
+              // Услуга уже выбрана → назад на услугу
               navigate('/booking/service');
+            } else if (hasMaster) {
+              // Только мастер выбран → назад на мастера
+              navigate('/booking/master');
             } else {
               // Пришли с начала
               navigate('/booking');
