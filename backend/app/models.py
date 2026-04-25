@@ -65,6 +65,12 @@ class Review(Base):
     comment = Column(Text, default="")
     created_at = Column(String)
     
+    # Поля для управления отзывом админом
+    admin_reply = Column(Text, default="")  # Ответ админа/владельца
+    replied_at = Column(String, nullable=True)  # Когда ответили
+    is_visible = Column(Boolean, default=True)  # Показывать ли на сайте
+    is_deleted = Column(Boolean, default=False)  # Удалён (soft delete)
+    
     booking = relationship("Booking", back_populates="reviews")
 
 

@@ -142,6 +142,11 @@ class ReviewCreate(BaseModel):
     comment: Optional[str] = ""
 
 
+class ReviewUpdate(BaseModel):
+    admin_reply: Optional[str] = None
+    is_visible: Optional[bool] = None
+
+
 class ReviewResponse(BaseModel):
     id: int
     booking_id: int
@@ -151,6 +156,11 @@ class ReviewResponse(BaseModel):
     client_name: str
     service: str
     master: str
+    # Admin fields
+    admin_reply: Optional[str] = ""
+    replied_at: Optional[str] = None
+    is_visible: bool = True
+    is_deleted: bool = False
     
     class Config:
         from_attributes = True

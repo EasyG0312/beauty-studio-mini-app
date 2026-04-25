@@ -160,8 +160,11 @@ export default function HomePage() {
                 <Button onClick={() => navigate('/clients')} variant="secondary" leftIcon={<IconUser size={18} />} style={{ marginBottom: 4 }}>
                   👥 Клиенты
                 </Button>
-                <Button onClick={() => navigate('/inventory')} variant="secondary" leftIcon={<IconPackage size={18} />}>
+                <Button onClick={() => navigate('/inventory')} variant="secondary" leftIcon={<IconPackage size={18} />} style={{ marginBottom: 4 }}>
                   📦 Склад
+                </Button>
+                <Button onClick={() => navigate('/reviews')} variant="secondary" leftIcon={<IconStar size={18} />}>
+                  ⭐ Отзывы
                 </Button>
               </>
             )}

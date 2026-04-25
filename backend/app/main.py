@@ -20,6 +20,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
+from app.notifications import notify_admin_new_booking, notify_admin_booking_cancelled, notifier
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ from app.database import get_db, init_db, get_db_session_factory
 from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode, QRCode
 from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
-    ClientResponse, ReviewCreate, WaitlistCreate,
+    ClientResponse, ReviewCreate, ReviewUpdate, ReviewResponse, WaitlistCreate,
     AnalyticsSummary, RevenueStats, MasterKPI,
     MessageResponse, SlotAvailability, TelegramAuth, AuthResponse, AuthMeResponse,
     BlacklistCreate, BlacklistResponse, PortfolioResponse,
@@ -409,20 +410,19 @@ async def create_booking(
 
     # Отправляем уведомление админу о новой записи
     try:
-        admin_chat_id = settings.admin_chat_id
-        if admin_chat_id:
-            admin_message = (
-                f"🔔 <b>Новая запись!</b>\n\n"
-                f"👤 Имя: {db_booking.name}\n"
-                f"📱 Телефон: {db_booking.phone}\n"
-                f"📅 Дата: {db_booking.date}\n"
-                f"⏰ Время: {db_booking.time}\n"
-                f"💇 Мастер: {db_booking.master}\n"
-                f"💅 Услуга: {db_booking.service}\n"
-                f"🆔 ID записи: {db_booking.id}"
-            )
-            await notification_service.send_telegram_message(admin_chat_id, admin_message)
-            logger.info(f"Admin notification sent for booking {db_booking.id}")
+        from app.services.pricing_service import PricingService
+        price = await PricingService.calculate_service_price(db, db_booking.service, db_booking.master)
+        
+        await notify_admin_new_booking(
+            client_name=db_booking.name,
+            service=db_booking.service,
+            master=db_booking.master,
+            date=db_booking.date,
+            time=db_booking.time,
+            price=price,
+            booking_id=str(db_booking.id)
+        )
+        logger.info(f"Admin notification sent for booking {db_booking.id}")
     except Exception as e:
         logger.error(f"Error sending admin notification: {e}")
 
@@ -463,20 +463,15 @@ async def cancel_booking(
 
     # Отправляем уведомление админу об отмене
     try:
-        admin_chat_id = settings.admin_chat_id
-        if admin_chat_id:
-            admin_message = (
-                f"❌ <b>Запись отменена!</b>\n\n"
-                f"👤 Имя: {booking.name}\n"
-                f"📱 Телефон: {booking.phone}\n"
-                f"📅 Дата: {booking.date}\n"
-                f"⏰ Время: {booking.time}\n"
-                f"💇 Мастер: {booking.master}\n"
-                f"💅 Услуга: {booking.service}\n"
-                f"🆔 ID записи: {booking.id}"
-            )
-            await notification_service.send_telegram_message(admin_chat_id, admin_message)
-            logger.info(f"Admin notification sent for cancelled booking {booking.id}")
+        await notify_admin_booking_cancelled(
+            client_name=booking.name,
+            service=booking.service,
+            master=booking.master,
+            date=booking.date,
+            time=booking.time,
+            reason="Отменено клиентом"
+        )
+        logger.info(f"Admin notification sent for cancelled booking {booking.id}")
     except Exception as e:
         logger.error(f"Error sending admin notification: {e}")
 
@@ -1065,19 +1060,125 @@ async def send_notification(
 
 
 # === Reviews API ===
-@app.get("/api/reviews", response_model=List[ReviewCreate])
+@app.get("/api/reviews", response_model=List[ReviewResponse])
 async def get_reviews(
-    limit: int = 20,
+    limit: int = 50,
     rating_filter: Optional[int] = None,
-    db: AsyncSession = Depends(get_db)
+    include_hidden: bool = False,
+    db: AsyncSession = Depends(get_db),
+    user: Optional[Client] = Depends(get_current_user)
 ):
-    """Получить отзывы с фильтрацией."""
-    query = select(Review)
+    """Получить отзывы с фильтрацией. Для админов - все, для клиентов - только видимые."""
+    query = select(Review).where(Review.is_deleted == False)
+    
+    # Не-админы видят только approved отзывы
+    is_admin = user and (user.chat_id in settings.admin_ids_list or user.chat_id in settings.owner_ids_list)
+    if not is_admin and not include_hidden:
+        query = query.where(Review.is_visible == True)
+    
     if rating_filter:
         query = query.where(Review.rating == rating_filter)
     
     result = await db.execute(query.order_by(Review.created_at.desc()).limit(limit))
-    return result.scalars().all()
+    reviews = result.scalars().all()
+    
+    # Формируем полный ответ с данными о бронировании
+    response = []
+    for review in reviews:
+        booking = (await db.execute(
+            select(Booking).where(Booking.id == review.booking_id)
+        )).scalar_one_or_none()
+        
+        response.append(ReviewResponse(
+            id=review.id,
+            booking_id=review.booking_id,
+            rating=review.rating,
+            comment=review.comment,
+            created_at=review.created_at,
+            client_name=booking.name if booking else "Unknown",
+            service=booking.service if booking else "Unknown",
+            master=booking.master if booking else "Unknown",
+            admin_reply=review.admin_reply,
+            replied_at=review.replied_at,
+            is_visible=review.is_visible,
+            is_deleted=review.is_deleted
+        ))
+    
+    return response
+
+
+@app.put("/api/reviews/{review_id}", response_model=ReviewResponse)
+async def update_review(
+    review_id: int,
+    update: ReviewUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Обновить отзыв (ответ админа, видимость). Только для админов."""
+    # Проверяем права
+    if user.chat_id not in settings.admin_ids_list and user.chat_id not in settings.owner_ids_list:
+        raise HTTPException(status_code=403, detail="Only admins can update reviews")
+    
+    result = await db.execute(select(Review).where(Review.id == review_id))
+    review = result.scalar_one_or_none()
+    
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    
+    # Обновляем поля
+    if update.admin_reply is not None:
+        review.admin_reply = update.admin_reply
+        review.replied_at = datetime.now().strftime("%d.%m.%Y %H:%M")
+    
+    if update.is_visible is not None:
+        review.is_visible = update.is_visible
+    
+    await db.commit()
+    await db.refresh(review)
+    
+    # Получаем данные бронирования для ответа
+    booking = (await db.execute(
+        select(Booking).where(Booking.id == review.booking_id)
+    )).scalar_one_or_none()
+    
+    return ReviewResponse(
+        id=review.id,
+        booking_id=review.booking_id,
+        rating=review.rating,
+        comment=review.comment,
+        created_at=review.created_at,
+        client_name=booking.name if booking else "Unknown",
+        service=booking.service if booking else "Unknown",
+        master=booking.master if booking else "Unknown",
+        admin_reply=review.admin_reply,
+        replied_at=review.replied_at,
+        is_visible=review.is_visible,
+        is_deleted=review.is_deleted
+    )
+
+
+@app.delete("/api/reviews/{review_id}")
+async def delete_review(
+    review_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Удалить отзыв (soft delete). Только для админов."""
+    # Проверяем права
+    if user.chat_id not in settings.admin_ids_list and user.chat_id not in settings.owner_ids_list:
+        raise HTTPException(status_code=403, detail="Only admins can delete reviews")
+    
+    result = await db.execute(select(Review).where(Review.id == review_id))
+    review = result.scalar_one_or_none()
+    
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    
+    review.is_deleted = True
+    review.is_visible = False
+    await db.commit()
+    
+    return {"message": "Review deleted successfully"}
 
 
 @app.post("/api/reviews", response_model=ReviewCreate)
@@ -1092,16 +1193,27 @@ async def create_review(
     db_review.created_at = datetime.now().strftime("%d.%m.%Y %H:%M")
     db.add(db_review)
     
-    # Пометим что отзыв отправлен
-    await db.execute(
-        select(Booking).where(Booking.id == review.booking_id)
-    )
+    # Получаем информацию о записи для уведомления
     booking = (await db.execute(
         select(Booking).where(Booking.id == review.booking_id)
     )).scalar_one_or_none()
     
     if booking:
         booking.review_sent = True
+        
+        # Отправляем уведомление админу о новом отзыве
+        try:
+            from app.notifications import notifier
+            await notifier.notify_new_review(
+                chat_id=ADMIN_CHAT_ID,
+                client_name=booking.name,
+                rating=review.rating,
+                comment=review.comment or "(без текста)",
+                master=booking.master
+            )
+            logger.info(f"Admin notified about new review for booking {review.booking_id}")
+        except Exception as e:
+            logger.error(f"Error sending review notification: {e}")
     
     await db.commit()
     await db.refresh(db_review)
