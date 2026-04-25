@@ -479,6 +479,80 @@ async def cancel_booking(
     return {"message": "Booking cancelled"}
 
 
+@app.get("/api/bookings/{booking_id}/calendar")
+async def download_calendar_ics(
+    booking_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(get_current_user)
+):
+    """Скачать .ics файл для добавления записи в календарь."""
+    from fastapi.responses import Response
+    
+    result = await db.execute(select(Booking).where(Booking.id == booking_id))
+    booking = result.scalar_one_or_none()
+    
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Проверяем что клиент смотрит свою запись или является админом
+    if booking.chat_id != user.chat_id and user.role not in ["owner", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Парсим дату и время
+    try:
+        date_parts = booking.date.split('.')
+        time_parts = booking.time.split(':')
+        dtstart = datetime(
+            int(date_parts[2]), int(date_parts[1]), int(date_parts[0]),
+            int(time_parts[0]), int(time_parts[1])
+        )
+        # Предполагаем длительность 90 минут по умолчанию
+        dtend = dtstart + timedelta(minutes=90)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid date format")
+    
+    # Форматируем даты для ICS
+    dtstamp = datetime.now().strftime("%Y%m%dT%H%M%SZ")
+    start = dtstart.strftime("%Y%m%dT%H%M%S")
+    end = dtend.strftime("%Y%m%dT%H%M%S")
+    uid = f"booking-{booking.id}@beautystudio.kg"
+    
+    # Создаем ICS контент
+    ics_content = f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Beauty Studio//Booking Calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{uid}
+DTSTAMP:{dtstamp}
+DTSTART;TZID=Asia/Bishkek:{start}
+DTEND;TZID=Asia/Bishkek:{end}
+SUMMARY:{booking.service} — Beauty Studio
+DESCRIPTION:Услуга: {booking.service}\\nМастер: {booking.master}\\nТелефон клиента: {booking.phone}
+LOCATION:Beauty Studio, Бишкек
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Напоминание о записи
+TRIGGER:-PT1H
+END:VALARM
+END:VEVENT
+END:VCALENDAR"""
+    
+    # Формируем имя файла
+    filename = f"booking_{booking.date.replace('.', '-')}_{booking.time.replace(':', '-')}.ics"
+    
+    return Response(
+        content=ics_content,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "text/calendar; charset=utf-8"
+        }
+    )
+
+
 @app.put("/api/bookings/{booking_id}", response_model=BookingResponse)
 async def update_booking(
     booking_id: int,

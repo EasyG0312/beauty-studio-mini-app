@@ -6,7 +6,8 @@ import { rescheduleBooking, cancelBooking as apiCancelBooking, generateBookingQR
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
-import { IconChevronLeft, IconMessage, IconQrcode } from '../components/Icons';
+import { IconChevronLeft, IconMessage, IconQrcode, IconCalendar } from '../components/Icons';
+import { haptic } from '../services/haptic';
 import type { Booking } from '../types';
 
 export default function MyBookingsPage() {
@@ -116,6 +117,36 @@ export default function MyBookingsPage() {
       const errorMsg = error.response?.data?.detail || error.message || 'Ошибка при генерации QR-кода';
       alert('QR-код: ' + errorMsg);
       setQrModal({ open: false, booking: null, qrImage: null, loading: false });
+    }
+  };
+
+  const downloadCalendar = async (booking: Booking) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_URL}/api/bookings/${booking.id}/calendar`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to download calendar file');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `booking_${booking.date?.replace(/\./g, '-')}_${booking.time?.replace(/:/g, '-')}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      haptic.notification('success');
+    } catch (error: any) {
+      console.error('Failed to download calendar:', error);
+      alert('Ошибка при скачивании файла календаря');
     }
   };
 
@@ -235,6 +266,18 @@ export default function MyBookingsPage() {
                       <span>QR-код</span>
                     </div>
                   </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => downloadCalendar(booking)}
+                    style={{ flex: 1 }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <IconCalendar size={16} />
+                      <span>В календарь</span>
+                    </div>
+                  </Button>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                   <Button
                     variant="secondary"
                     onClick={() => openReschedule(booking)}
