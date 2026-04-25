@@ -276,3 +276,63 @@ export const IconPlus = (props: IconProps) => (
     <path d="M12 5v14M5 12h14" />
   </IconBase>
 );
+
+export const IconWallet = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M20 12V8H6a2 2 0 01-2-2V6c0-1.1.9-2 2-2h14v4" />
+    <path d="M20 12v4H6a2 2 0 01-2-2v-2h16z" />
+    <circle cx="16" cy="12" r="1.5" />
+  </IconBase>
+);
+
+export const IconTrendingUp = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M23 6l-9.5 9.5-5-5L1 18" />
+    <path d="M17 6h6v6" />
+  </IconBase>
+);
+
+export const IconTrendingDown = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M23 18l-9.5-9.5-5 5L1 6" />
+    <path d="M17 18h6v-6" />
+  </IconBase>
+);
+
+export const IconPieChart = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M21.21 15.89A10 10 0 118 2.83" />
+    <path d="M22 12A10 10 0 0012 2v10z" />
+  </IconBase>
+);
+
+export const IconDownload = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+    <path d="M7 10l5 5 5-5" />
+    <path d="M12 15V3" />
+  </IconBase>
+);
+
+export const IconZap = (props: IconProps) => (
+  <IconBase {...props}>
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </IconBase>
+);
+
+export const IconTruck = (props: IconProps) => (
+  <IconBase {...props}>
+    <rect x="1" y="3" width="15" height="13" />
+    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+    <circle cx="5.5" cy="18.5" r="2.5" />
+    <circle cx="18.5" cy="18.5" r="2.5" />
+  </IconBase>
+);
+
+export const IconMoreHorizontal = (props: IconProps) => (
+  <IconBase {...props}>
+    <circle cx="12" cy="12" r="1" />
+    <circle cx="19" cy="12" r="1" />
+    <circle cx="5" cy="12" r="1" />
+  </IconBase>
+);

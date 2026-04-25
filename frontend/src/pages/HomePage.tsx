@@ -145,8 +145,11 @@ export default function HomePage() {
                 <Button onClick={() => navigate('/analytics')} variant="secondary" leftIcon={<IconChart size={18} />} style={{ marginBottom: 4 }}>
                   Аналитика
                 </Button>
-                <Button onClick={() => navigate('/master-management')} variant="secondary" leftIcon={<IconUser size={18} />}>
+                <Button onClick={() => navigate('/master-management')} variant="secondary" leftIcon={<IconUser size={18} />} style={{ marginBottom: 4 }}>
                   Управление мастерами
+                </Button>
+                <Button onClick={() => navigate('/financial-dashboard')} variant="secondary" leftIcon={<IconChart size={18} />}>
+                  💰 Финансы
                 </Button>
               </>
             )}

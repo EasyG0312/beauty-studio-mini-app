@@ -24,6 +24,9 @@ const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
 const MasterManagementPage = lazy(() => import('./pages/MasterManagementPage'));
+const FinancialDashboardPage = lazy(() => import('./pages/FinancialDashboardPage'));
+const ExpensesPage = lazy(() => import('./pages/ExpensesPage'));
+const PayrollPage = lazy(() => import('./pages/PayrollPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -263,6 +266,32 @@ function App() {
               element={
                 user?.role === 'owner' || user?.role === 'manager'
                   ? <AnalyticsDashboardPage />
+                  : <Navigate to="/" />
+              }
+            />
+
+            {/* Financial routes (Owner only) */}
+            <Route
+              path="/financial-dashboard"
+              element={
+                user?.role === 'owner'
+                  ? <FinancialDashboardPage />
+                  : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="/expenses"
+              element={
+                user?.role === 'owner'
+                  ? <ExpensesPage />
+                  : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="/payroll"
+              element={
+                user?.role === 'owner'
+                  ? <PayrollPage />
                   : <Navigate to="/" />
               }
             />
