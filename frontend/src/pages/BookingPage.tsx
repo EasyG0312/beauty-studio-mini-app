@@ -248,13 +248,23 @@ export default function BookingPage() {
     // Определяем куда идти назад на основе выбранных данных
     const hasMaster = sessionStorage.getItem('bookingMaster');
     const hasDate = sessionStorage.getItem('bookingDate');
-    
-    if (hasDate) {
-      // Если выбрана дата → назад на выбор даты/времени
+    const hasService = sessionStorage.getItem('bookingService');
+
+    if (hasDate && hasService && hasMaster) {
+      // Всё выбрано → назад на выбор мастера
+      navigate('/booking/master');
+    } else if (hasDate && hasService && !hasMaster) {
+      // Дата и услуга выбраны, мастер нет → назад на услугу
+      navigate('/booking/service');
+    } else if (hasMaster && hasService && !hasDate) {
+      // Мастер и услуга выбраны, даты нет → назад на услугу
+      navigate('/booking/service');
+    } else if (hasDate) {
+      // Только дата → назад на дату/время
       navigate('/booking/datetime');
     } else if (hasMaster) {
-      // Если выбран мастер но нет даты → назад на выбор услуги
-      navigate('/booking/service');
+      // Только мастер → назад на мастера
+      navigate('/booking/master');
     } else {
       // Ничего не выбрано → на начало
       navigate('/booking');
@@ -565,7 +575,7 @@ export default function BookingPage() {
           />
 
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-            <Button variant="secondary" fullWidth onClick={() => setStep(4)}>Назад</Button>
+            <Button variant="secondary" fullWidth onClick={handleBack}>Назад</Button>
             <Button fullWidth onClick={handleSubmit} disabled={loading || !formData.name || !formData.phone}>
               {loading ? <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> : 'Записаться'}
             </Button>
