@@ -17,11 +17,14 @@ const OwnerAnalyticsPage = lazy(() => import('./pages/OwnerAnalyticsPage'));
 const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage'));
 const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
 const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));
+const PortfolioUploadPage = lazy(() => import('./pages/PortfolioUploadPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const WaitlistPage = lazy(() => import('./pages/WaitlistPage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
 const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const CreateReviewPage = lazy(() => import('./pages/CreateReviewPage'));
+const VisitsPage = lazy(() => import('./pages/VisitsPage'));
 const MasterSchedulePage = lazy(() => import('./pages/MasterSchedulePage'));
 const MasterManagementPage = lazy(() => import('./pages/MasterManagementPage'));
 const FinancialDashboardPage = lazy(() => import('./pages/FinancialDashboardPage'));
@@ -224,11 +227,14 @@ function App() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/portfolio/upload" element={<PortfolioUploadPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/waitlist" element={<WaitlistPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/loyalty" element={<LoyaltyPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/create-review" element={<CreateReviewPage />} />
+            <Route path="/visits" element={<VisitsPage />} />
             <Route path="/auth-test" element={<AuthTestPage />} />
             <Route
               path="/master-schedule"

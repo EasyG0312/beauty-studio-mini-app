@@ -433,3 +433,19 @@ export const IconEyeOff = (props: IconProps) => (
     <line x1="1" y1="1" x2="23" y2="23" />
   </IconBase>
 );
+
+export const IconUpload = (props: IconProps) => (
+  <IconBase {...props}>
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </IconBase>
+);
+
+export const IconPhoto = (props: IconProps) => (
+  <IconBase {...props}>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </IconBase>
+);
