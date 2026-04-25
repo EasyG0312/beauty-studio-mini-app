@@ -107,6 +107,34 @@ export default function DateTimeSelectPage() {
     return checkDate < today;
   };
 
+  // Проверяем, является ли дата сегодняшней
+  const isToday = (day: number) => {
+    const checkDate = new Date(year, month, day);
+    const today = new Date();
+    return checkDate.toDateString() === today.toDateString();
+  };
+
+  // Фильтруем временные слоты для сегодняшней даты
+  const getFilteredTimeSlots = () => {
+    const selectedDay = selectedDate ? parseInt(selectedDate.split('.')[0]) : null;
+    if (!selectedDay || !isToday(selectedDay)) {
+      // Не сегодня — показываем все слоты
+      return TIME_SLOTS;
+    }
+
+    // Сегодня — фильтруем слоты после текущего времени + 30 минут запас
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentTimeInMinutes = currentHours * 60 + currentMinutes + 30; // +30 минут запас
+
+    return TIME_SLOTS.filter(time => {
+      const [hours, minutes] = time.split(':').map(Number);
+      const slotTimeInMinutes = hours * 60 + minutes;
+      return slotTimeInMinutes > currentTimeInMinutes;
+    });
+  };
+
   return (
     <div className="page">
       {/* Header */}
@@ -262,13 +290,19 @@ export default function DateTimeSelectPage() {
             <div style={{ textAlign: 'center', padding: 20, color: 'var(--tg-theme-hint-color)' }}>
               Загрузка...
             </div>
+          ) : getFilteredTimeSlots().length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--tg-theme-hint-color)' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>⏰</div>
+              <div style={{ fontSize: 16 }}>На сегодня нет доступного времени</div>
+              <div style={{ fontSize: 14, marginTop: 8, opacity: 0.7 }}>Выберите другую дату</div>
+            </div>
           ) : (
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: 8
             }}>
-              {TIME_SLOTS.map(time => {
+              {getFilteredTimeSlots().map(time => {
                 const isAvailable = availableSlots.includes(time) || true; // Fallback если API не работает
                 const isSelected = selectedTime === time;
 
