@@ -47,10 +47,14 @@ export default function DateTimeSelectPage() {
     setSelectedDate(dateStr);
     setSelectedTime(null);
 
-    // Загружаем доступные слоты
+    // Проверяем, выбран ли уже мастер
+    const savedMaster = sessionStorage.getItem('bookingMaster');
+    const masterId = savedMaster && savedMaster !== 'any' ? savedMaster : 'all';
+
+    // Загружаем доступные слоты (только для выбранного мастера или все)
     setLoading(true);
     try {
-      const slots = await getAvailableSlots(dateStr, 'all');
+      const slots = await getAvailableSlots(dateStr, masterId);
       setAvailableSlots(slots.available_slots || []);
     } catch (err) {
       console.error('Error loading slots:', err);

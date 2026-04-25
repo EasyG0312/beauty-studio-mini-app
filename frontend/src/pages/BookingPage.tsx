@@ -46,6 +46,8 @@ export default function BookingPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [availableMasters, setAvailableMasters] = useState<string[]>([]);
+  const [mastersLoading, setMastersLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     service: '',
@@ -238,6 +240,14 @@ export default function BookingPage() {
     }
   }, [step]);
 
+  useEffect(() => {
+    // При входе на шаг 2 (выбор мастера) — если уже выбрана дата и время,
+    // загружаем только доступных мастеров
+    if (step === 2 && formData.date && formData.time) {
+      loadAvailableMasters();
+    }
+  }, [step, formData.date, formData.time]);
+
   const loadAvailableSlots = async () => {
     try {
       setSlotsError(null);
@@ -250,6 +260,25 @@ export default function BookingPage() {
       setAvailableSlots([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAvailableMasters = async () => {
+    if (!formData.date || !formData.time) return;
+    
+    try {
+      setMastersLoading(true);
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(
+        `${API_URL}/api/masters/available?date=${formData.date}&time=${formData.time}`
+      );
+      const data = await response.json();
+      setAvailableMasters(data.available_masters || []);
+    } catch (error) {
+      console.error('Failed to load available masters:', error);
+      setAvailableMasters([]);
+    } finally {
+      setMastersLoading(false);
     }
   };
 
@@ -372,46 +401,84 @@ export default function BookingPage() {
       {step === 2 && (
         <Card>
           <h3 style={{ fontFamily: 'var(--font-serif)', marginBottom: 8 }}>Выберите мастера</h3>
-          <p className="text-hint" style={{ fontSize: 13, marginBottom: 20 }}>Дата: {formData.date}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {MASTERS.map((master) => (
-              <div
-                key={master.id}
-                onClick={() => handleMasterSelect(master.name)}
-                style={{
-                  padding: 16,
-                  borderRadius: 16,
-                  background: formData.master === master.name ? 'var(--brand-gold-subtle)' : 'var(--tg-theme-bg-color)',
-                  border: formData.master === master.name ? '1px solid var(--brand-gold)' : '1px solid var(--gray-100)',
-                  cursor: 'pointer',
-                  transition: 'all 200ms ease',
-                  display: 'flex',
-                  gap: 16,
-                  alignItems: 'center',
-                }}
-              >
-                <div style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: 'var(--brand-gold-gradient)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 600,
-                  fontSize: 18,
-                  flexShrink: 0,
-                }}>
-                  {master.name[0]}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 15 }}>{master.name}</div>
-                  {master.spec && <div className="text-hint" style={{ fontSize: 12, marginTop: 3 }}>{master.spec}</div>}
-                </div>
+          <p className="text-hint" style={{ fontSize: 13, marginBottom: 20 }}>
+            {formData.date && formData.time 
+              ? `📅 ${formData.date} ⏰ ${formData.time} — показаны только свободные мастера`
+              : `📅 ${formData.date || 'Дата не выбрана'}`
+            }
+          </p>
+          
+          {mastersLoading ? (
+            <div style={{ textAlign: 'center', padding: 40 }}>
+              <div className="spinner" style={{ margin: '0 auto 16px' }} />
+              <div className="text-hint" style={{ fontSize: 14 }}>
+                Проверяем доступность мастеров...
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Если есть availableMasters (дата+время выбраны) — фильтруем по ним */}
+              {(() => {
+                const mastersToShow = (formData.date && formData.time && availableMasters.length > 0)
+                  ? MASTERS.filter(m => availableMasters.includes(m.name) || m.name === 'Любой мастер')
+                  : MASTERS;
+                
+                if (formData.date && formData.time && availableMasters.length === 0 && !mastersLoading) {
+                  return (
+                    <div style={{ textAlign: 'center', padding: 24 }}>
+                      <div style={{ fontSize: 40, marginBottom: 12 }}>😔</div>
+                      <div style={{ fontSize: 16, marginBottom: 8 }}>Нет свободных мастеров</div>
+                      <div className="text-hint" style={{ fontSize: 13 }}>
+                        На это время все мастера заняты или не работают
+                      </div>
+                      <Button variant="secondary" fullWidth onClick={() => setStep(1)} style={{ marginTop: 16 }}>
+                        Выбрать другое время
+                      </Button>
+                    </div>
+                  );
+                }
+                
+                return mastersToShow.map((master) => (
+                  <div
+                    key={master.id}
+                    onClick={() => handleMasterSelect(master.name)}
+                    style={{
+                      padding: 16,
+                      borderRadius: 16,
+                      background: formData.master === master.name ? 'var(--brand-gold-subtle)' : 'var(--tg-theme-bg-color)',
+                      border: formData.master === master.name ? '1px solid var(--brand-gold)' : '1px solid var(--gray-100)',
+                      cursor: 'pointer',
+                      transition: 'all 200ms ease',
+                      display: 'flex',
+                      gap: 16,
+                      alignItems: 'center',
+                      opacity: (formData.date && formData.time && !availableMasters.includes(master.name) && master.name !== 'Любой мастер') ? 0.5 : 1,
+                    }}
+                  >
+                    <div style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      background: 'var(--brand-gold-gradient)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}>
+                      {master.name[0]}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 15 }}>{master.name}</div>
+                      {master.spec && <div className="text-hint" style={{ fontSize: 12, marginTop: 3 }}>{master.spec}</div>}
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
             <Button variant="secondary" fullWidth onClick={() => setStep(1)}>Назад</Button>
             <Button fullWidth onClick={() => setStep(3)} disabled={!formData.master}>Далее</Button>

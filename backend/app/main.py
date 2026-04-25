@@ -785,6 +785,63 @@ async def get_available_slots(
     )
 
 
+@app.get("/api/masters/available")
+async def get_available_masters_for_slot(
+    date: str,
+    time: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Получить список мастеров, у которых есть свободный слот на указанную дату и время."""
+    # Получаем список всех мастеров из существующих записей
+    result = await db.execute(select(Booking.master).distinct())
+    all_masters = {row[0] for row in result.all() if row[0]}
+    
+    # Если нет записей, возвращаем дефолтных мастеров
+    if not all_masters:
+        all_masters = {"Айгуль", "Диана", "Айгерим", "Эльвира"}
+    
+    # Заблокированные слоты
+    blocked_result = await db.execute(
+        select(BlockedSlot.master).where(
+            BlockedSlot.date == date,
+            BlockedSlot.time == time
+        )
+    )
+    blocked_masters = {row[0] for row in blocked_result.all()}
+    
+    # Занятые слоты
+    booked_result = await db.execute(
+        select(Booking.master).where(
+            Booking.date == date,
+            Booking.time == time,
+            Booking.status.in_(["confirmed", "pending"])
+        )
+    )
+    booked_masters = {row[0] for row in booked_result.all()}
+    
+    # Мастера со статусом "не работает" в это время
+    time_off_result = await db.execute(
+        select(MasterTimeOff.master_name).where(
+            MasterTimeOff.date == date,
+            MasterTimeOff.start_time <= time,
+            MasterTimeOff.end_time >= time
+        )
+    )
+    time_off_masters = {row[0] for row in time_off_result.all()}
+    
+    # Доступные мастера
+    unavailable = blocked_masters | booked_masters | time_off_masters
+    available_masters = all_masters - unavailable
+    
+    return {
+        "date": date,
+        "time": time,
+        "available_masters": list(available_masters),
+        "unavailable_masters": list(unavailable),
+        "all_masters": list(all_masters)
+    }
+
+
 # === Analytics ===
 @app.get("/api/analytics/summary", response_model=AnalyticsSummary)
 async def get_analytics_summary(
