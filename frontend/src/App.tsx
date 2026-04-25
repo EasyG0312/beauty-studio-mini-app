@@ -28,6 +28,7 @@ const FinancialDashboardPage = lazy(() => import('./pages/FinancialDashboardPage
 const ExpensesPage = lazy(() => import('./pages/ExpensesPage'));
 const PayrollPage = lazy(() => import('./pages/PayrollPage'));
 const ActivityLogPage = lazy(() => import('./pages/ActivityLogPage'));
+const ServicesManagementPage = lazy(() => import('./pages/ServicesManagementPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -301,6 +302,14 @@ function App() {
               element={
                 user?.role === 'owner' || user?.role === 'manager'
                   ? <ActivityLogPage />
+                  : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="/services"
+              element={
+                user?.role === 'owner' || user?.role === 'manager'
+                  ? <ServicesManagementPage />
                   : <Navigate to="/" />
               }
             />
