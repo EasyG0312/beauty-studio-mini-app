@@ -10,7 +10,7 @@ import {
   IconScissors, IconNailPolish, IconMakeup, IconMassage,
   IconStar, IconCalendar, IconChart,
   IconMessage, IconList, IconCrown, IconPhone,
-  IconMapPin, IconClock, IconUser,
+  IconMapPin, IconClock, IconUser, IconPackage,
 } from '../components/Icons';
 
 export default function HomePage() {
@@ -157,8 +157,11 @@ export default function HomePage() {
                 <Button onClick={() => navigate('/services')} variant="secondary" leftIcon={<IconScissors size={18} />} style={{ marginBottom: 4 }}>
                   💇‍♀️ Услуги
                 </Button>
-                <Button onClick={() => navigate('/clients')} variant="secondary" leftIcon={<IconUser size={18} />}>
+                <Button onClick={() => navigate('/clients')} variant="secondary" leftIcon={<IconUser size={18} />} style={{ marginBottom: 4 }}>
                   👥 Клиенты
+                </Button>
+                <Button onClick={() => navigate('/inventory')} variant="secondary" leftIcon={<IconPackage size={18} />}>
+                  📦 Склад
                 </Button>
               </>
             )}

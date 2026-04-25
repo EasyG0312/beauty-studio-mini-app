@@ -396,3 +396,26 @@ export const IconGift = (props: IconProps) => (
     <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
   </IconBase>
 );
+
+export const IconPackage = (props: IconProps) => (
+  <IconBase {...props}>
+    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+    <line x1="12" y1="22.08" x2="12" y2="12" />
+  </IconBase>
+);
+
+export const IconShoppingCart = (props: IconProps) => (
+  <IconBase {...props}>
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
+  </IconBase>
+);
+
+export const IconMinus = (props: IconProps) => (
+  <IconBase {...props}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </IconBase>
+);
