@@ -27,6 +27,7 @@ const MasterManagementPage = lazy(() => import('./pages/MasterManagementPage'));
 const FinancialDashboardPage = lazy(() => import('./pages/FinancialDashboardPage'));
 const ExpensesPage = lazy(() => import('./pages/ExpensesPage'));
 const PayrollPage = lazy(() => import('./pages/PayrollPage'));
+const ActivityLogPage = lazy(() => import('./pages/ActivityLogPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -292,6 +293,14 @@ function App() {
               element={
                 user?.role === 'owner'
                   ? <PayrollPage />
+                  : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="/activity-log"
+              element={
+                user?.role === 'owner' || user?.role === 'manager'
+                  ? <ActivityLogPage />
                   : <Navigate to="/" />
               }
             />
