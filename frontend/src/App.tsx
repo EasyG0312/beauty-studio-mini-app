@@ -15,7 +15,6 @@ const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const ManagerDashboardPage = lazy(() => import('./pages/ManagerDashboardPage'));
 const OwnerAnalyticsPage = lazy(() => import('./pages/OwnerAnalyticsPage'));
 const AnalyticsDashboardPage = lazy(() => import('./pages/AnalyticsDashboardPage'));
-const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
 const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));
 const PortfolioUploadPage = lazy(() => import('./pages/PortfolioUploadPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
@@ -35,6 +34,7 @@ const ServicesManagementPage = lazy(() => import('./pages/ServicesManagementPage
 const ClientManagementPage = lazy(() => import('./pages/ClientManagementPage'));
 const InventoryPage = lazy(() => import('./pages/InventoryPage'));
 const ReviewsManagementPage = lazy(() => import('./pages/ReviewsManagementPage'));
+const ReminderSettingsPage = lazy(() => import('./pages/ReminderSettingsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AuthTestPage = lazy(() => import('./pages/AuthTestPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -225,7 +225,8 @@ function App() {
             <Route path="/booking/service" element={<ServiceSelectPage />} />
             <Route path="/my-bookings" element={<MyBookingsPage />} />
             <Route path="/services" element={<ServicesPage />} />
-            <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/reviews-management" element={<ReviewsManagementPage />} />
+            <Route path="/reminder-settings" element={<ReminderSettingsPage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/portfolio/upload" element={<PortfolioUploadPage />} />
             <Route path="/faq" element={<FAQPage />} />

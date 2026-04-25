@@ -257,3 +257,24 @@ class QRCode(Base):
         Index("idx_qr_codes_booking_id", "booking_id"),
         Index("idx_qr_codes_code", "code"),
     )
+
+
+class ReminderSettings(Base):
+    __tablename__ = "reminder_settings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    # Время напоминаний в часах (0 = отключено)
+    reminder_24h_enabled = Column(Boolean, default=True)
+    reminder_24h_hours = Column(Integer, default=24)  # За сколько часов
+    reminder_1h_enabled = Column(Boolean, default=True)
+    reminder_1h_hours = Column(Integer, default=1)  # За сколько часов
+    reminder_custom_enabled = Column(Boolean, default=False)
+    reminder_custom_hours = Column(Integer, default=72)  # Кастомное напоминание
+    reminder_custom_message = Column(String, default="Напоминаем о вашей записи!")
+    # Шаблоны сообщений
+    message_template_24h = Column(String, default="📅 Напоминаем: завтра в {time} у вас запись к мастеру {master} на услугу {service}")
+    message_template_1h = Column(String, default="⏰ Через час ({time}) вас ожидает мастер {master}")
+    message_template_custom = Column(String, default="💅 Не забудьте про вашу запись {date} в {time}!")
+    # Кто может редактировать
+    updated_by = Column(Integer, nullable=True)  # chat_id менеджера
+    updated_at = Column(String, nullable=True)

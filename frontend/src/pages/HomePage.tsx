@@ -10,7 +10,7 @@ import {
   IconScissors, IconNailPolish, IconMakeup, IconMassage,
   IconStar, IconCalendar, IconChart,
   IconMessage, IconList, IconCrown, IconPhone,
-  IconMapPin, IconClock, IconUser, IconPackage,
+  IconMapPin, IconClock, IconUser, IconPackage, IconBell,
 } from '../components/Icons';
 
 export default function HomePage() {
@@ -163,8 +163,11 @@ export default function HomePage() {
                 <Button onClick={() => navigate('/inventory')} variant="secondary" leftIcon={<IconPackage size={18} />} style={{ marginBottom: 4 }}>
                   📦 Склад
                 </Button>
-                <Button onClick={() => navigate('/reviews')} variant="secondary" leftIcon={<IconStar size={18} />}>
+                <Button onClick={() => navigate('/reviews')} variant="secondary" leftIcon={<IconStar size={18} />} style={{ marginBottom: 4 }}>
                   ⭐ Отзывы
+                </Button>
+                <Button onClick={() => navigate('/reminder-settings')} variant="secondary" leftIcon={<IconBell size={18} />}>
+                  🔔 Напоминания
                 </Button>
               </>
             )}

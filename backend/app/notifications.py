@@ -222,6 +222,34 @@ class TelegramNotifier:
         
         return await self.send_message(chat_id, text, reply_markup)
     
+    async def send_client_reminder(
+        self,
+        chat_id: int,
+        message: str,
+        booking_id: int = None
+    ) -> bool:
+        """Отправить напоминание клиенту о записи."""
+        
+        # Добавляем кнопки для управления записью
+        buttons = []
+        
+        if booking_id:
+            # Кнопка для просмотра записи
+            buttons.append({
+                "text": "📋 Моя запись",
+                "web_app": {"url": f"{self.mini_app_url}/my-bookings"}
+            })
+            
+            # Кнопка для отмены
+            buttons.append({
+                "text": "❌ Отменить",
+                "web_app": {"url": f"{self.mini_app_url}/my-bookings"}
+            })
+        
+        reply_markup = {"inline_keyboard": [buttons]} if buttons else None
+        
+        return await self.send_message(chat_id, message, reply_markup)
+    
     async def notify_new_review(
         self,
         chat_id: str,

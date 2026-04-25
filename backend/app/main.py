@@ -25,7 +25,7 @@ from app.notifications import notify_admin_new_booking, notify_admin_booking_can
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from app.database import get_db, init_db, get_db_session_factory
-from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode, QRCode
+from app.models import Booking, Client, Review, BlockedSlot, Waitlist, Blacklist, MasterPhoto, ChatMessage, Portfolio, Notification, MasterSchedule, MasterTimeOff, BotSettings, PromoCode, QRCode, ReminderSettings
 from app.schemas import (
     BookingCreate, BookingUpdate, BookingResponse,
     ClientResponse, ReviewCreate, ReviewUpdate, ReviewResponse, WaitlistCreate,
@@ -38,6 +38,7 @@ from app.schemas import (
     PortfolioCreate, PortfolioUpdate, PortfolioCategory,
     FunnelStats, DailyStats, HourlyHeatmap, ComparisonStats,
     MasterPerformance, AnalyticsDashboard,
+    ReminderSettingsResponse, ReminderSettingsUpdate,
     MasterScheduleCreate, MasterScheduleResponse, MasterScheduleUpdate,
     MasterTimeOffCreate, MasterTimeOffResponse, MasterTimeOffUpdate,
     MasterAvailability,
@@ -2564,5 +2565,249 @@ async def use_promocode(
     await db.commit()
     
     return {"message": "Promocode used", "usage_count": promocode.usage_count}
+
+
+# === Reminder Settings API ===
+@app.get("/api/reminder-settings", response_model=ReminderSettingsResponse)
+async def get_reminder_settings(
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Получить текущие настройки напоминаний."""
+    result = await db.execute(select(ReminderSettings).order_by(ReminderSettings.id.desc()))
+    settings = result.scalar_one_or_none()
     
-    return availability
+    if not settings:
+        # Создаем настройки по умолчанию
+        settings = ReminderSettings()
+        db.add(settings)
+        await db.commit()
+        await db.refresh(settings)
+    
+    return settings
+
+
+@app.put("/api/reminder-settings", response_model=ReminderSettingsResponse)
+async def update_reminder_settings(
+    settings_update: ReminderSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Обновить настройки напоминаний (только для менеджеров/владельцев)."""
+    result = await db.execute(select(ReminderSettings).order_by(ReminderSettings.id.desc()))
+    settings = result.scalar_one_or_none()
+    
+    if not settings:
+        settings = ReminderSettings()
+        db.add(settings)
+    
+    # Обновляем только переданные поля
+    update_data = settings_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(settings, field, value)
+    
+    settings.updated_by = user.chat_id
+    settings.updated_at = datetime.now().strftime("%d.%m.%Y %H:%M")
+    
+    await db.commit()
+    await db.refresh(settings)
+    
+    return settings
+
+
+# === Client Reminders (Send manually or via scheduler) ===
+@app.post("/api/reminders/send-test")
+async def send_test_reminder(
+    booking_id: int,
+    reminder_type: str = "24h",  # "24h", "1h", "custom"
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Отправить тестовое напоминание клиенту (ручная отправка для проверки)."""
+    result = await db.execute(select(Booking).where(Booking.id == booking_id))
+    booking = result.scalar_one_or_none()
+    
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if not booking.chat_id:
+        raise HTTPException(status_code=400, detail="Client has no Telegram chat_id")
+    
+    # Получаем настройки напоминаний
+    settings_result = await db.execute(select(ReminderSettings).order_by(ReminderSettings.id.desc()))
+    reminder_settings = settings_result.scalar_one_or_none()
+    
+    if not reminder_settings:
+        reminder_settings = ReminderSettings()
+    
+    # Формируем сообщение
+    if reminder_type == "24h":
+        message = reminder_settings.message_template_24h.format(
+            time=booking.time,
+            master=booking.master,
+            service=booking.service
+        )
+    elif reminder_type == "1h":
+        message = reminder_settings.message_template_1h.format(
+            time=booking.time,
+            master=booking.master
+        )
+    else:
+        message = reminder_settings.message_template_custom.format(
+            date=booking.date,
+            time=booking.time
+        )
+    
+    # Отправляем через Telegram
+    try:
+        await notifier.send_message(booking.chat_id, message)
+        return {"success": True, "message": "Reminder sent", "booking_id": booking_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send reminder: {str(e)}")
+
+
+@app.get("/api/reminders/pending")
+async def get_pending_reminders(
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Получить список записей, которым нужно отправить напоминания."""
+    now = datetime.now()
+    
+    result = await db.execute(
+        select(Booking).where(
+            Booking.status.in_(["confirmed", "pending"]),
+            Booking.chat_id.isnot(None)
+        )
+    )
+    bookings = result.scalars().all()
+    
+    pending = []
+    for booking in bookings:
+        try:
+            booking_datetime = datetime.strptime(f"{booking.date} {booking.time}", "%d.%m.%Y %H:%M")
+            hours_until = (booking_datetime - now).total_seconds() / 3600
+            
+            needs_reminder = False
+            reminder_type = None
+            
+            if hours_until > 0 and hours_until <= 24 and not booking.reminded_1d:
+                needs_reminder = True
+                reminder_type = "24h"
+            elif hours_until > 0 and hours_until <= 1 and not booking.reminded_1h:
+                needs_reminder = True
+                reminder_type = "1h"
+            
+            if needs_reminder:
+                pending.append({
+                    "booking_id": booking.id,
+                    "client_name": booking.name,
+                    "chat_id": booking.chat_id,
+                    "date": booking.date,
+                    "time": booking.time,
+                    "master": booking.master,
+                    "service": booking.service,
+                    "hours_until": round(hours_until, 1),
+                    "reminder_type": reminder_type
+                })
+        except:
+            continue
+    
+    return {"pending_reminders": pending, "count": len(pending)}
+
+
+@app.post("/api/reminders/send-pending")
+async def send_pending_reminders(
+    db: AsyncSession = Depends(get_db),
+    user: Client = Depends(require_role("owner", "manager"))
+):
+    """Отправить все ожидающие напоминания клиентам."""
+    now = datetime.now()
+    
+    # Получаем настройки напоминаний
+    settings_result = await db.execute(select(ReminderSettings).order_by(ReminderSettings.id.desc()))
+    reminder_settings = settings_result.scalar_one_or_none()
+    
+    if not reminder_settings:
+        reminder_settings = ReminderSettings()
+    
+    # Получаем записи, которым нужны напоминания
+    result = await db.execute(
+        select(Booking).where(
+            Booking.status.in_(["confirmed", "pending"]),
+            Booking.chat_id.isnot(None)
+        )
+    )
+    bookings = result.scalars().all()
+    
+    sent_count = 0
+    failed_count = 0
+    
+    for booking in bookings:
+        try:
+            booking_datetime = datetime.strptime(f"{booking.date} {booking.time}", "%d.%m.%Y %H:%M")
+            hours_until = (booking_datetime - now).total_seconds() / 3600
+            
+            should_send = False
+            message = ""
+            reminder_field = ""
+            
+            # Проверяем 24-часовое напоминание
+            if (reminder_settings.reminder_24h_enabled and 
+                hours_until > 0 and 
+                hours_until <= reminder_settings.reminder_24h_hours and 
+                not booking.reminded_1d):
+                should_send = True
+                message = reminder_settings.message_template_24h.format(
+                    time=booking.time,
+                    master=booking.master,
+                    service=booking.service
+                )
+                reminder_field = "reminded_1d"
+            
+            # Проверяем 1-часовое напоминание
+            elif (reminder_settings.reminder_1h_enabled and 
+                  hours_until > 0 and 
+                  hours_until <= reminder_settings.reminder_1h_hours and 
+                  not booking.reminded_1h):
+                should_send = True
+                message = reminder_settings.message_template_1h.format(
+                    time=booking.time,
+                    master=booking.master
+                )
+                reminder_field = "reminded_1h"
+            
+            # Проверяем кастомное напоминание
+            elif (reminder_settings.reminder_custom_enabled and 
+                  hours_until > 0 and 
+                  hours_until <= reminder_settings.reminder_custom_hours):
+                should_send = True
+                message = reminder_settings.message_template_custom.format(
+                    date=booking.date,
+                    time=booking.time
+                )
+            
+            if should_send:
+                try:
+                    await notifier.send_client_reminder(booking.chat_id, message, booking.id)
+                    
+                    # Отмечаем что напоминание отправлено
+                    if reminder_field:
+                        setattr(booking, reminder_field, True)
+                    
+                    sent_count += 1
+                except Exception as e:
+                    print(f"Failed to send reminder to {booking.chat_id}: {e}")
+                    failed_count += 1
+                    
+        except Exception as e:
+            print(f"Error processing booking {booking.id}: {e}")
+            continue
+    
+    await db.commit()
+    
+    return {
+        "sent": sent_count,
+        "failed": failed_count,
+        "total": sent_count + failed_count
+    }

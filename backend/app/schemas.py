@@ -574,3 +574,43 @@ class QRCodeResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# === Reminder Settings Schemas ===
+class ReminderSettingsBase(BaseModel):
+    reminder_24h_enabled: bool = True
+    reminder_24h_hours: int = 24
+    reminder_1h_enabled: bool = True
+    reminder_1h_hours: int = 1
+    reminder_custom_enabled: bool = False
+    reminder_custom_hours: int = 72
+    reminder_custom_message: str = "Напоминаем о вашей записи!"
+    message_template_24h: str = "📅 Напоминаем: завтра в {time} у вас запись к мастеру {master} на услугу {service}"
+    message_template_1h: str = "⏰ Через час ({time}) вас ожидает мастер {master}"
+    message_template_custom: str = "💅 Не забудьте про вашу запись {date} в {time}!"
+
+
+class ReminderSettingsCreate(ReminderSettingsBase):
+    pass
+
+
+class ReminderSettingsUpdate(BaseModel):
+    reminder_24h_enabled: Optional[bool] = None
+    reminder_24h_hours: Optional[int] = None
+    reminder_1h_enabled: Optional[bool] = None
+    reminder_1h_hours: Optional[int] = None
+    reminder_custom_enabled: Optional[bool] = None
+    reminder_custom_hours: Optional[int] = None
+    reminder_custom_message: Optional[str] = None
+    message_template_24h: Optional[str] = None
+    message_template_1h: Optional[str] = None
+    message_template_custom: Optional[str] = None
+
+
+class ReminderSettingsResponse(ReminderSettingsBase):
+    id: int
+    updated_by: Optional[int]
+    updated_at: Optional[str]
+
+    class Config:
+        from_attributes = True
