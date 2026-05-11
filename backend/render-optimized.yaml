@@ -1,0 +1,67 @@
+# Optimized Render configuration for Beauty Studio Backend
+services:
+  # Production Web Service
+  - type: web
+    name: beauty-studio-api
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheck:
+      path: /health
+      intervalSeconds: 30
+      timeoutSeconds: 10
+      gracePeriodSeconds: 5
+      checkProtocol: HTTP
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: beauty-studio-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_CHAT_ID
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: OWNER_IDS
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: CANCEL_HOURS
+        value: 5
+      - key: LOG_LEVEL
+        value: INFO
+
+  # PostgreSQL Database
+  - type: pserv
+    name: beauty-studio-db
+    plan: free
+    databaseName: beauty_studio
+    user: beauty_studio_user
+    ipAllowList: []  # Only accessible from same region
+
+# Background Worker for notifications (optional)
+  - type: worker
+    name: beauty-studio-worker
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    startCommand: python -m app.services.scheduler
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: beauty-studio-db
+          property: connectionString
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_CHAT_ID
+        sync: false

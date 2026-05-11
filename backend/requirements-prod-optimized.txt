@@ -1,0 +1,39 @@
+# Production optimized requirements for Beauty Studio Backend
+# Exact versions for stable builds
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database
+sqlalchemy==2.0.23
+asyncpg==0.29.0  # PostgreSQL async driver
+alembic==1.12.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Image Processing (QR codes)
+qrcode[pil]==7.4.2
+Pillow==10.1.0
+
+# HTTP Client
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Utilities
+python-dotenv==1.0.0
+pydantic[email]==2.5.0
+pydantic-settings==2.1.0
+
+# Development/Testing (not needed in production but kept for compatibility)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Production Server
+gunicorn==21.2.0

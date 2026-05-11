@@ -30,7 +30,6 @@ export default function TelegramDebugPage() {
     };
 
     setDebugInfo(info);
-    console.log('=== Telegram Debug Info ===', info);
   }, []);
 
   const testApiConnection = async () => {

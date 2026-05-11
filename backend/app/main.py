@@ -203,10 +203,10 @@ def verify_telegram_auth(init_data_string: str, source: Optional[str] = None) ->
     secret_key = hashlib.sha256(settings.bot_token.get_secret_value().encode()).digest()
     computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
 
-    logger.info(f"Telegram auth verification:")
-    logger.info(f"  source: {source}")
-    logger.info(f"  received_hash: {received_hash}")
-    logger.info(f"  computed_hash: {computed_hash}")
+    logger.debug(f"Telegram auth verification:")
+    logger.debug(f"  source: {source}")
+    logger.debug(f"  received_hash: {received_hash}")
+    logger.debug(f"  computed_hash: {computed_hash}")
     logger.info(f"  match: {computed_hash == received_hash}")
 
     if computed_hash == received_hash:
@@ -275,7 +275,7 @@ async def auth_telegram(auth_data: TelegramAuth, db: AsyncSession = Depends(get_
     if not verify_telegram_auth(auth_data.telegram_init_data, auth_data.telegram_init_data_source):
         raise HTTPException(status_code=401, detail="Invalid Telegram auth data")
     
-    logger.info(f"Telegram auth for user {auth_data.id} (hash check disabled)")
+    logger.debug(f"Telegram auth for user {auth_data.id}")
     
     # Ищем или создаём клиента
     result = await db.execute(select(Client).where(Client.chat_id == auth_data.id))
@@ -593,7 +593,7 @@ async def generate_booking_qr(
     user: Client = Depends(get_current_user)
 ):
     """Генерировать QR-код для записи."""
-    logger.info(f"QR POST: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
+    logger.debug(f"QR POST: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
     if not user:
         logger.error("QR POST: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -606,7 +606,7 @@ async def generate_booking_qr(
         raise HTTPException(status_code=404, detail="Booking not found")
     
     user_role = get_user_role(user)
-    logger.info(f"QR POST: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
+    logger.debug(f"QR POST: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
         logger.error(f"QR POST: Access denied for user {user.chat_id}")
         raise HTTPException(status_code=403, detail="Access denied")
@@ -615,7 +615,7 @@ async def generate_booking_qr(
     result = await db.execute(select(QRCode).where(QRCode.booking_id == booking_id))
     existing_qr = result.scalar_one_or_none()
     if existing_qr:
-        logger.info(f"QR POST: Returning existing QR for booking {booking_id}")
+        logger.debug(f"QR POST: Returning existing QR for booking {booking_id}")
         return existing_qr
     
     # Генерировать уникальный код
@@ -629,7 +629,7 @@ async def generate_booking_qr(
     db.add(qr)
     await db.commit()
     await db.refresh(qr)
-    logger.info(f"QR POST: Created new QR for booking {booking_id}")
+    logger.debug(f"QR POST: Created new QR for booking {booking_id}")
     
     return qr
 
@@ -640,7 +640,7 @@ async def get_booking_qr_image(
     user: Client = Depends(get_current_user)
 ):
     """Получить QR-код изображение для записи."""
-    logger.info(f"QR GET: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
+    logger.debug(f"QR GET: booking_id={booking_id}, user_chat_id={user.chat_id if user else 'None'}")
     if not user:
         logger.error("QR GET: No user authenticated")
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -653,7 +653,7 @@ async def get_booking_qr_image(
         raise HTTPException(status_code=404, detail="Booking not found")
     
     user_role = get_user_role(user)
-    logger.info(f"QR GET: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
+    logger.debug(f"QR GET: booking.chat_id={booking.chat_id}, user.chat_id={user.chat_id}, user_role={user_role}")
     if booking.chat_id != user.chat_id and user_role not in ["owner", "manager"]:
         logger.error(f"QR GET: Access denied for user {user.chat_id}")
         raise HTTPException(status_code=403, detail="Access denied")
@@ -677,7 +677,7 @@ async def get_booking_qr_image(
         buffer = BytesIO()
         img.save(buffer, format="PNG")
         img_base64 = base64.b64encode(buffer.getvalue()).decode()
-        logger.info(f"QR GET: Generated image for booking {booking_id}")
+        logger.debug(f"QR GET: Generated image for booking {booking_id}")
         
         # Возвращаем с CORS заголовками
         return JSONResponse(

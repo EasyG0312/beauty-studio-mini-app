@@ -12,8 +12,6 @@ const rawApiUrl = import.meta.env.VITE_API_URL || 'https://beauty-studio-api.onr
 const apiRoot = rawApiUrl.replace(/\/+$/, '');
 const API_BASE_URL = apiRoot.endsWith('/api') ? apiRoot : `${apiRoot}/api`;
 
-console.log('API_BASE_URL configured as', API_BASE_URL);
-
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -256,10 +254,10 @@ export const createPromocode = async (data: {
   return response.data;
 };
 
-export const validatePromocode = async (code: string, bookingId: number) => {
+export const validatePromocode = async (code: string, bookingAmount: number) => {
   const response = await api.post<PromoCodeValidationResult>('/promocodes/validate', {
     code,
-    booking_id: bookingId,
+    booking_amount: bookingAmount
   });
   return response.data;
 };
